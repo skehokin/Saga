@@ -25,7 +25,7 @@ class MainPage(Handler):
 
 class NewPost(Handler):
     def get(self):
-        self.write("Welcome to my blog")
+        self.render("newpage.html")
 
 
 app=webapp2.WSGIApplication([('/', MainPage),('/newpost',NewPost)],debug=True)
