@@ -7,7 +7,11 @@ from google.appengine.ext import db
 template_dir = os.path.join(os.path.dirname(__file__),'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
-class BlogEntries
+class BlogEntries(db.Model):
+    subject=db.StringProperty(required=True)
+    content=db.TextProperty(required=True)
+    created=db.DateTimeProperty(auto_now_add=True)
+    
 class Handler(webapp2.RequestHandler):
     
     def write(self,*a,**kw):
@@ -22,6 +26,7 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def get(self):
+        arts=db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC")
         self.write("Welcome to my blog")
 
 class NewPost(Handler):
@@ -29,6 +34,11 @@ class NewPost(Handler):
         self.render("newpage.html")
         subject=self.request.get('subject')
         content=self.request.get('content')
+
+        if subject and content:
+            a=BlogEntries(subject=subject,content=content)
+            a.put()
+            self.redirect("/")
         
 
 
