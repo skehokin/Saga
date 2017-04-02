@@ -3,23 +3,71 @@
 <head>
   <meta charset="utf-8">
   <title>Create a new post</title>
+  <style>
+
+
+  body {
+    font-family:sans-serif;
+    margin:0;
+    background-color:grey;
+  }
+  main {
+    width:800px;
+    height:600px;
+    margin:0 auto;
+    padding-top:20px;
+    background-color:white;
+    border-radius:5px;
+  }
+
+
+  h1 {
+      font-size:1.7em;
+
+
+  }
+  .subj_input {
+    width:400px;
+    padding:5px;
+    border-radius:5px;
+    float:right;
+
+  }
+.cont_input{
+  width:500px;
+  height:400px;
+  border-radius:5px;
+margin-top:20px;
+
+}
+
+  .formwrap{
+    margin:0 auto;
+    width:500px;
+
+
+
+  }
+  </style>
 </head>
   <body>
     <header></header>
     <main>
+      <section class="formwrap">
+      <h1>Create your new post</h1>
       <form method="post">
         <div class="subject">
         <label>
-          title:
-          <input type="text" name="subject" value="">
+          Subject:
+          <input type="text" name="subject" value="" class="subj_input">
         </label>
       </div>
       <div class="content">
-        <label>
-          content:<br>
-          <textarea name="content"></textarea>
-        </label>
+
+          <textarea name="content" class="cont_input"></textarea>
+
       </div>
+    </section>
     </main>
     <footer></footer>
   </body>
