@@ -20,9 +20,12 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template,**kw))
 
 class MainPage(Handler):
+    def get(self):
+        self.write("Welcome to my blog")
 
+class NewPost(Handler):
     def get(self):
         self.write("Welcome to my blog")
 
 
-app=webapp2.WSGIApplication([('/', MainPage)],debug=True)
+app=webapp2.WSGIApplication([('/', MainPage),('/newpost',NewPost)],debug=True)
