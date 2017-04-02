@@ -32,6 +32,7 @@ class MainPage(Handler):
 class NewPost(Handler):
     def get(self):
         self.render("newpage.html")
+    def post(self):
         subject=self.request.get('subject')
         content=self.request.get('content')
 
