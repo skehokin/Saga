@@ -2,15 +2,15 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Blog Homepage</title>
-    <link href="https://fonts.googleapis.com/css?family=Kumar+One+Outline" rel="stylesheet">
+  <title>{{subject}}</title>
+  <link href="https://fonts.googleapis.com/css?family=Kumar+One+Outline" rel="stylesheet">
   <style>
 
 
   body {
     font-family:sans-serif;
     margin:0;
-    background-color:tan;
+    background-color:Tan;
   }
   main {
     width:800px;
@@ -48,6 +48,7 @@
   clear:both;
 
 }
+
 header{
   height:200px;
 
@@ -66,21 +67,21 @@ font-size:1.7em;
   </style>
 </head>
   <body>
-    <header> <div class="mainhead"><h1>arkhe</h1></div></header>
+    <header><div class="mainhead"><h1>arkhe</h1></div></header>
     <main>
 
-      {% for element in blogposts%}
-        <section class="postwrap">
-        <h2 class="title">{{element.subject}}</h2>
+    <section class="postwrap">
+    <h2 class="title">{{subject}}</h2>
 
-        <p class="time">{{element.created}}</p>
-        <div class="clear"></div>
-        <div>{{element.content}}</div>
+    <p class="time">{{created}}</p>
+    <div class="clear"></div>
+    <div>{{content}}</div>
 
 
-        </section>
+    </section>
 
-      {%endfor%}
+
+
     </main>
     <footer></footer>
   </body>
