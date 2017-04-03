@@ -40,6 +40,9 @@ class NewPost(Handler):
             a=BlogEntries(subject=subject,content=content)
             a.put()
             self.redirect("/")
+        else:
+            error="Please add both a subject and body for your blog entry!"
+            self.render("newpage.html", error=error)
         
 
 
