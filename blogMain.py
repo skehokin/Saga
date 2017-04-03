@@ -39,11 +39,27 @@ class NewPost(Handler):
         if subject and content:
             a=BlogEntries(subject=subject,content=content)
             a.put()
-            self.redirect("/")
+            post_id=a.key().id()
+            self.redirect("/"+str(post_id))
         else:
             error="Please add both a subject and body for your blog entry!"
             self.render("newpage.html", error=error)
         
 
+class Newguy(Handler):
+    def get(self, post_id):
+        self.response.write('This is the ProductHandler. '
+            'The product id is %s' % post_id)
 
-app=webapp2.WSGIApplication([('/', MainPage),('/newpost',NewPost)],debug=True)
+
+        
+
+app=webapp2.WSGIApplication([('/', MainPage),
+                             ('/newpost', NewPost),
+                             (r'/(\d+)', Newguy)],debug=True)
+
+
+
+
+
+
