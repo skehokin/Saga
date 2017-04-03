@@ -26,8 +26,8 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def get(self):
-        arts=db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC")
-        self.write("Welcome to my blog")
+        blogposts=db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC")
+        self.render("mainpage.html",blogposts=blogposts)
 
 class NewPost(Handler):
     def get(self):

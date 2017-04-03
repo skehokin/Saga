@@ -13,7 +13,7 @@
   }
   main {
     width:800px;
-    height:600px;
+    height:100%;
     margin:0 auto;
     padding-top:20px;
     background-color:white;
@@ -31,17 +31,41 @@
   .postwrap{
     margin:0 auto;
     width:700px;
+    padding-bottom:20px;
   }
 
+  .time{
+    float:right;
+
+  }
+.title{
+  float:left;
+
+
+}
+.clear{
+  clear:both;
+
+}
 
   </style>
 </head>
   <body>
     <header></header>
     <main>
-      <section class="postwrap">
 
-    </section>
+      {% for element in blogposts%}
+        <section class="postwrap">
+        <h1 class="title">{{element.subject}}</h1>
+
+        <p class="time">{{element.created}}</p>
+        <div class="clear"></div>
+        <div>{{element.content}}</div>
+
+
+        </section>
+
+      {%endfor%}
     </main>
     <footer></footer>
   </body>
