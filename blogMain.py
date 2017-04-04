@@ -6,6 +6,7 @@ from google.appengine.ext import db
 import cgi
 import re
 
+
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
     return USER_RE.match(username)
@@ -70,11 +71,28 @@ class BlogPage(Handler):
 
     def get(self, post_id):
         blogpost=BlogEntries.get_by_id(int(post_id))
-        subject= blogpost.subject
+        subject=blogpost.subject
         content=blogpost.content
         created=blogpost.created
 
         self.render('blogpage.html', subject=subject, created=created, content=content)
+
+
+#okay so. for this we need to get my form HTML, (done)
+#and feed the results into a script that:
+
+# - checks to see if the user is in the database
+# - hashes the password with salt(and a secret)
+# - wacks the hashed password with salt, the username,
+#   and the email(if extant) into a database.
+# - does something with a cookie?? idk. sets it? basically logs you in.
+
+class Users(db.Model):
+    username=db.StringProperty(required=True)
+    password=db.StringProperty(required=True)
+    email=db.StringProperty(required=False)
+    signedup=db.DateTimeProperty(auto_now_add=True)
+
 
 
 
@@ -88,21 +106,26 @@ class signUp(Handler):
         pass1=""
         pass2=""
         email=""
+
+        username=self.request.get('username')
+        password=self.request.get('password')
+        email=self.request.get('email')
+
         
         error_mess='please enter a valid %s.'
        
         User_Name=self.request.get('username')
         #verify each input and create error messages
-        ugood=valid_username(self.request.get('username'))
+        ugood=valid_username(username)
         if not ugood:
             user=error_mess % 'username'
-        pgood=valid_pass(self.request.get('password'))
+        pgood=valid_pass(password)
         if not pgood:
             pass1=error_mess % 'password'
-        pgood2=self.request.get('password')==self.request.get('verify')
+        pgood2=password==self.request.get('verify')
         if not pgood2:
             pass2='your passwords did not match'
-        egood=valid_email(self.request.get('email')) or self.request.get('email')==""
+        egood=valid_email(email) or email==""
         if not egood:
             email=error_mess % 'email'
         
@@ -112,7 +135,11 @@ class signUp(Handler):
         
         #if all good, redirect to new page
         if ugood and pgood and pgood2 and egood:
+            #a=Users(username=)
+            #a.put()
+            
             self.redirect("/welcome?username="+User_Name)
+            
         else:
             self.render("signup.html", user=user,pass1=pass1,pass2=pass2,email=email)        
 
