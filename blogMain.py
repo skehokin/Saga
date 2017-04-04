@@ -3,6 +3,23 @@ import os
 import jinja2
 import webapp2
 from google.appengine.ext import db
+import cgi
+import re
+
+USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+def valid_username(username):
+    return USER_RE.match(username)
+
+PASS_RE = re.compile(r"^.{3,20}$")
+def valid_pass(passw):
+    return PASS_RE.match(passw)
+
+EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
+def valid_email(mail):
+    return EMAIL_RE.match(mail)
+
+
+
 
 template_dir = os.path.join(os.path.dirname(__file__),'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
@@ -60,6 +77,51 @@ class BlogPage(Handler):
         self.render('blogpage.html', subject=subject, created=created, content=content)
 
 
+
+class signUp(webapp2.RequestHandler):
+
+    def get(self):
+
+        error_mess='please enter a valid %s.'
+        input_dict={'User_Name':'','user':'', 'pass':'', 'pass2':"",'email':''}
+        self.response.out.write(form % input_dict)
+
+    def post(self):
+        
+        error_mess='please enter a valid %s.'
+        input_dict={'User_Name':'', 'user':'', 'pass':'', 'pass2':"",'email':''}
+        User_Name=self.request.get('username')
+        #verify each input and create error messages
+        ugood=valid_username(self.request.get('username'))
+        if not ugood:
+            input_dict['User_Name']=User_Name
+            input_dict['user']=error_mess % 'username'
+        pgood=valid_pass(self.request.get('password'))
+        if not pgood:
+            input_dict['pass']=error_mess % 'password'
+        pgood2=self.request.get('password')==self.request.get('verify')
+        if not pgood2:
+            input_dict['pass2']='your passwords did not match'
+        egood=valid_email(self.request.get('email')) or self.request.get('email')==""
+        if not egood:
+            input_dict['email']=error_mess % 'email'
+        
+        #okay so, notes: when the email is blank it's all good. when it isn't,
+            #and it's not a valid email address, then it's bad.
+        
+        
+        #if all good, redirect to new page
+        if ugood and pgood and pgood2 and egood:
+            self.redirect("/welcome?username="+User_Name)
+        else:
+            self.response.out.write(form % input_dict)        
+
+
+class Welcome(webapp2.RequestHandler):
+    #I will need to get the email address to the new page. I'll need to send it by get somehow?
+    def get(self):
+        username=self.request.get("username")
+        self.response.out.write("<h1>Welcome, %s </h1>"% username)
         
 
 app=webapp2.WSGIApplication([('/', MainPage),
