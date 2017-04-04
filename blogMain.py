@@ -7,10 +7,7 @@ from google.appengine.ext import db
 template_dir = os.path.join(os.path.dirname(__file__),'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
-class BlogEntries(db.Model):
-    subject=db.StringProperty(required=True)
-    content=db.TextProperty(required=True)
-    created=db.DateTimeProperty(auto_now_add=True)
+
     
 class Handler(webapp2.RequestHandler):
     
@@ -24,6 +21,12 @@ class Handler(webapp2.RequestHandler):
     def render(self,template,**kw):
         self.write(self.render_str(template,**kw))
 
+class BlogEntries(db.Model):
+    subject=db.StringProperty(required=True)
+    content=db.TextProperty(required=True)
+    created=db.DateTimeProperty(auto_now_add=True)
+
+    
 class MainPage(Handler):
     def get(self):
         blogposts=db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC")
@@ -43,7 +46,7 @@ class NewPost(Handler):
             self.redirect("/"+post_id)
         else:
             error="Please add both a subject and body for your blog entry!"
-            self.render("newpage.html", error=error,)
+            self.render("newpage.html",subject=subject, content=content, error=error,)
         
 
 class BlogPage(Handler):

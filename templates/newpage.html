@@ -85,12 +85,12 @@ margin-top:20px;
         <div class="subject">
         <label>
           <span id="subj_label">Subject:</span>
-          <input type="text" name="subject" value="" class="subj_input">
+          <input type="text" name="subject" value="{{subject}}" class="subj_input">
         </label>
       </div>
       <div class="content">
 
-          <textarea name="content" class="cont_input"></textarea>
+          <textarea name="content" class="cont_input">{{content}}</textarea>
 
       </div>
       <p> {{ error }} </p>
