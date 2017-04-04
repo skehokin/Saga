@@ -78,33 +78,33 @@ class BlogPage(Handler):
 
 
 
-class signUp(webapp2.RequestHandler):
+class signUp(Handler):
 
     def get(self):
-
-        error_mess='please enter a valid %s.'
-        input_dict={'User_Name':'','user':'', 'pass':'', 'pass2':"",'email':''}
-        self.response.out.write(form % input_dict)
+        self.render('signup.html')
 
     def post(self):
+        user=""
+        pass1=""
+        pass2=""
+        email=""
         
         error_mess='please enter a valid %s.'
-        input_dict={'User_Name':'', 'user':'', 'pass':'', 'pass2':"",'email':''}
+       
         User_Name=self.request.get('username')
         #verify each input and create error messages
         ugood=valid_username(self.request.get('username'))
         if not ugood:
-            input_dict['User_Name']=User_Name
-            input_dict['user']=error_mess % 'username'
+            user=error_mess % 'username'
         pgood=valid_pass(self.request.get('password'))
         if not pgood:
-            input_dict['pass']=error_mess % 'password'
+            pass1=error_mess % 'password'
         pgood2=self.request.get('password')==self.request.get('verify')
         if not pgood2:
-            input_dict['pass2']='your passwords did not match'
+            pass2='your passwords did not match'
         egood=valid_email(self.request.get('email')) or self.request.get('email')==""
         if not egood:
-            input_dict['email']=error_mess % 'email'
+            email=error_mess % 'email'
         
         #okay so, notes: when the email is blank it's all good. when it isn't,
             #and it's not a valid email address, then it's bad.
@@ -114,7 +114,7 @@ class signUp(webapp2.RequestHandler):
         if ugood and pgood and pgood2 and egood:
             self.redirect("/welcome?username="+User_Name)
         else:
-            self.response.out.write(form % input_dict)        
+            self.render("signup.html", user=user,pass1=pass1,pass2=pass2,email=email)        
 
 
 class Welcome(webapp2.RequestHandler):
@@ -126,7 +126,9 @@ class Welcome(webapp2.RequestHandler):
 
 app=webapp2.WSGIApplication([('/', MainPage),
                              ('/newpost', NewPost),
-                             (r'/(\d+)', BlogPage)],debug=True)
+                             (r'/(\d+)', BlogPage),
+                             ('/signup',signUp),
+                             ('/welcome', Welcome)],debug=True)
 
 
 
