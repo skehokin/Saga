@@ -5,7 +5,11 @@ import webapp2
 from google.appengine.ext import db
 import cgi
 import re
+import random
+import hashlib
 
+#this sets up the regular expressions and puts them into functions which check if
+#certain inputs are valid
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
