@@ -25,11 +25,13 @@ def valid_email(mail):
 
 
 
+#sets up template paths:
 
 template_dir = os.path.join(os.path.dirname(__file__),'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
-
+#basic (helper?) functions to quickly and easily do certain tasks:
+# taught by reddit's spez
     
 class Handler(webapp2.RequestHandler):
     
@@ -43,17 +45,21 @@ class Handler(webapp2.RequestHandler):
     def render(self,template,**kw):
         self.write(self.render_str(template,**kw))
 
+#create database for blog entries:
 class BlogEntries(db.Model):
     subject=db.StringProperty(required=True)
     content=db.TextProperty(required=True)
     created=db.DateTimeProperty(auto_now_add=True)
 
-    
+#prints all posts to the home/main page:   
 class MainPage(Handler):
     def get(self):
         blogposts=db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC")
         self.render("mainpage.html",blogposts=blogposts)
 
+
+# constructs webpage for adding new posts, including form and database entry creation
+#doesn't seem like it would allow for SQL injection
 class NewPost(Handler):
     def get(self):
         self.render("newpage.html")
@@ -70,7 +76,7 @@ class NewPost(Handler):
             error="Please add both a subject and body for your blog entry!"
             self.render("newpage.html",subject=subject, content=content, error=error,)
         
-
+#makes a page for each specific blog entry.
 class BlogPage(Handler):
 
     def get(self, post_id):
@@ -91,6 +97,8 @@ class BlogPage(Handler):
 #   and the email(if extant) into a database.
 # - does something with a cookie?? idk. sets it? basically logs you in.
 
+
+#creates a database for the users of the blog with current needed fields
 class Users(db.Model):
     username=db.StringProperty(required=True)
     password=db.StringProperty(required=True)
@@ -106,6 +114,10 @@ class signUp(Handler):
         self.render('signup.html')
 
     def post(self):
+
+        #Validation stuff. here we need to add an SQL? query which checks if the username is already
+        #in the user database. if it is it needs to add on to the user error message or add another error
+        #message
         user=""
         pass1=""
         pass2=""
@@ -137,7 +149,7 @@ class signUp(Handler):
             #and it's not a valid email address, then it's bad.
         
         
-        #if all good, redirect to new page
+        #if all good, not only redirect to new page, but also add to the users database and set a cookie.
         if ugood and pgood and pgood2 and egood:
             #a=Users(username=)
             #a.put()
@@ -150,6 +162,7 @@ class signUp(Handler):
 
 class Welcome(webapp2.RequestHandler):
     #I will need to get the email address to the new page. I'll need to send it by get somehow?
+    #possibly actually I can just retrieve it from the database.
     def get(self):
         username=self.request.get("username")
         self.response.out.write("<h1>Welcome, %s </h1>"% username)
