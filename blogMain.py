@@ -100,12 +100,16 @@ class BlogPage(Handler):
 
 #creates a database for the users of the blog with current needed fields
 class Users(db.Model):
-    username=db.StringProperty(required=True)
+    name=db.StringProperty(required=True)
     password=db.StringProperty(required=True)
     email=db.StringProperty(required=False)
     signedup=db.DateTimeProperty(auto_now_add=True)
-
-
+    
+def UsernameVal(cursor, username):
+    for each in cursor:
+        if each.name==username:
+                return False
+    return True
 
 
 class signUp(Handler):
@@ -114,18 +118,26 @@ class signUp(Handler):
         self.render('signup.html')
 
     def post(self):
-
+    
         #Validation stuff. here we need to add an SQL? query which checks if the username is already
         #in the user database. if it is it needs to add on to the user error message or add another error
         #message
+        #so what we actually need to do is create a list of users and check if username is among them. 
+        #!!!!!!!! man this defs allows sql injection but I'll
+        #leave escaping it til I've checked the easy way to do that again
         user=""
         pass1=""
         pass2=""
         email=""
-
+        nameval=""
         username=self.request.get('username')
         password=self.request.get('password')
         email=self.request.get('email')
+
+        cursor=db.GqlQuery("SELECT * FROM Users")
+
+        username_free=UsernameVal(cursor,username)
+                
 
         
         error_mess='please enter a valid %s.'
@@ -144,28 +156,38 @@ class signUp(Handler):
         egood=valid_email(email) or email==""
         if not egood:
             email=error_mess % 'email'
+        if not username_free:
+            nameval='the username "%s" is already in use.'%username
+            
         
         #okay so, notes: when the email is blank it's all good. when it isn't,
             #and it's not a valid email address, then it's bad.
         
         
         #if all good, not only redirect to new page, but also add to the users database and set a cookie.
-        if ugood and pgood and pgood2 and egood:
-            #a=Users(username=)
-            #a.put()
-            
+        if ugood and pgood and pgood2 and egood and username_free:
+            a=Users(name=username,password=password,email=email)
+            a.put()
             self.redirect("/welcome?username="+User_Name)
             
         else:
-            self.render("signup.html", user=user,pass1=pass1,pass2=pass2,email=email)        
+            #self.write(username_exists)
+            self.render("signup.html", user=user,pass1=pass1,pass2=pass2,email=email,nameval=nameval)        
 
 
 class Welcome(webapp2.RequestHandler):
     #I will need to get the email address to the new page. I'll need to send it by get somehow?
     #possibly actually I can just retrieve it from the database.
+    #nah, nah, we get it from the cookie.
+    #cookie should be named user_id
+    #with the value of the User id (in the database), a pipe and a hash
+    #the cookie will also need to be validated.
+    #In order to get a cookie you receive from the user, you can use 'self.request.cookies.get(name)'
+    #In order to send a cookie to a user, you simply add the header to your response.
+    #For example, 'self.response.headers.add_header('Set-Cookie', 'name=value; Path=/')',
+    #where name is the name of the cookie, and value is the value you're setting it to.
     def get(self):
-        username=self.request.get("username")
-        self.response.out.write("<h1>Welcome, %s </h1>"% username)
+        self.response.out.write("<h1>Welcome</h1>")
         
 
 app=webapp2.WSGIApplication([('/', MainPage),
