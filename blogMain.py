@@ -105,7 +105,7 @@ class BlogPage(Handler):
 class Users(db.Model):
     name=db.StringProperty(required=True)
     password=db.StringProperty(required=True)
-    token=db.StringProperty(required=True)
+    token=db.StringProperty(required=False)
     email=db.StringProperty(required=False)
     signedup=db.DateTimeProperty(auto_now_add=True)
     
@@ -175,17 +175,20 @@ class signUp(Handler):
             #maybe it is best to produce the token using bcrypt as well?
             #we will try.
             token=bcrypt.hashpw(username,bcrypt.gensalt())
+            
             a=Users(name=username,password=hashed_pw,email=email,token=token)
             a.put()
-            userID=""
+            userID=str(a.key().id())
+
+            #here put all the data together to make the correct cookie, which is a
+            #string made of userid, a pipe, and our token, which is the username hashed with salt.
             
-            cookie=
-            #so first thing is to put all the data together to make the correct cookie, which is a
-            #string made of userid, a pipe, and then the hashed... password?
-            #actually I think it's supposed to be both username and password.
+            cookie_value=userID+"|"+token
             
-            #self.response.headers.add_header('Set-Cookie', 'user_id=value; Path=/')
-            self.write(hashed_pw)
+            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%userID)
+            
+            current_cook=self.request.cookies.get("user_id")
+            self.write(token)
             #self.redirect("/welcome?username="+User_Name)
             
         else:
