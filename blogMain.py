@@ -6,6 +6,7 @@ from google.appengine.ext import db
 import cgi
 import re
 import random
+import string
 import hashlib
 from libs.bcrypt import bcrypt
 
@@ -105,8 +106,8 @@ class BlogPage(Handler):
 class Users(db.Model):
     name=db.StringProperty(required=True)
     password=db.StringProperty(required=True)
-    token=db.StringProperty(required=False)
-    email=db.StringProperty(required=False)
+    salt=db.StringProperty(required=False)
+    mail=db.StringProperty(required=False)
     signedup=db.DateTimeProperty(auto_now_add=True)
     
 def UsernameVal(cursor, username):
@@ -114,6 +115,9 @@ def UsernameVal(cursor, username):
         if each.name==username:
                 return False
     return True
+
+def make_salt():
+    return ''.join(random.choice(string.letters) for x in xrange(5))
 
 
 class signUp(Handler):
@@ -171,25 +175,29 @@ class signUp(Handler):
         #if all good, not only redirect to new page, but also add to the users database and set a cookie.
         if ugood and pgood and pgood2 and egood and username_free:
             hashed_pw=bcrypt.hashpw(username+password,bcrypt.gensalt(10))
+            
             #so we made a hashed pw. this is good. I think we're good to ignore this from now on...
             #maybe it is best to produce the token using bcrypt as well?
             #we will try.
-            token=bcrypt.hashpw(username,bcrypt.gensalt())
             
-            a=Users(name=username,password=hashed_pw,email=email,token=token)
+            cur_salt=make_salt()
+            
+            token=hashlib.sha256(username+cur_salt).hexdigest()
+            
+            a=Users(name=username,password=hashed_pw,salt=cur_salt,mail=email)
             a.put()
             userID=str(a.key().id())
 
             #here put all the data together to make the correct cookie, which is a
-            #string made of userid, a pipe, and our token, which is the username hashed with salt.
+            #string made of userid, an exclamation mark, and our token, which is the username hashed with salt.
             
-            cookie_value=userID+"|"+token
+            cookie_value=userID+"|"+str(token)
             
-            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%userID)
+            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%cookie_value)
             
             current_cook=self.request.cookies.get("user_id")
-            self.write(token)
-            #self.redirect("/welcome?username="+User_Name)
+            #self.write(cookie_value)
+            self.redirect("/welcome")
             
         else:
             #self.write(username_exists)
@@ -211,7 +219,16 @@ class Welcome(webapp2.RequestHandler):
 
     #Model.get_by_id (ids, parent=None) 
     def get(self):
-        self.response.out.write("<h1>Welcome</h1>")
+        current_cook=self.request.cookies.get("user_id")
+        cookie_vals=current_cook.split("|")
+        current_user=Users.get_by_id(int(cookie_vals[0]))
+        if current_user:
+            if cookie_vals[1]==hashlib.sha256(current_user.name+current_user.salt).hexdigest():
+                self.response.out.write("<h1>Welcome, %s</h1>"%current_user.name)
+            else:
+                self.redirect("/signup")
+        else:
+            self.redirect("/signup")
         
 
 app=webapp2.WSGIApplication([('/', MainPage),
