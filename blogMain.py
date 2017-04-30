@@ -7,6 +7,9 @@ import cgi
 import re
 import random
 import hashlib
+from libs.bcrypt import bcrypt
+
+
 
 #this sets up the regular expressions and puts them into functions which check if
 #certain inputs are valid
@@ -102,6 +105,7 @@ class BlogPage(Handler):
 class Users(db.Model):
     name=db.StringProperty(required=True)
     password=db.StringProperty(required=True)
+    token=db.StringProperty(required=True)
     email=db.StringProperty(required=False)
     signedup=db.DateTimeProperty(auto_now_add=True)
     
@@ -166,9 +170,23 @@ class signUp(Handler):
         
         #if all good, not only redirect to new page, but also add to the users database and set a cookie.
         if ugood and pgood and pgood2 and egood and username_free:
-            a=Users(name=username,password=password,email=email)
+            hashed_pw=bcrypt.hashpw(username+password,bcrypt.gensalt(10))
+            #so we made a hashed pw. this is good. I think we're good to ignore this from now on...
+            #maybe it is best to produce the token using bcrypt as well?
+            #we will try.
+            token=bcrypt.hashpw(username,bcrypt.gensalt())
+            a=Users(name=username,password=hashed_pw,email=email,token=token)
             a.put()
-            self.redirect("/welcome?username="+User_Name)
+            userID=""
+            
+            cookie=
+            #so first thing is to put all the data together to make the correct cookie, which is a
+            #string made of userid, a pipe, and then the hashed... password?
+            #actually I think it's supposed to be both username and password.
+            
+            #self.response.headers.add_header('Set-Cookie', 'user_id=value; Path=/')
+            self.write(hashed_pw)
+            #self.redirect("/welcome?username="+User_Name)
             
         else:
             #self.write(username_exists)
@@ -186,6 +204,9 @@ class Welcome(webapp2.RequestHandler):
     #In order to send a cookie to a user, you simply add the header to your response.
     #For example, 'self.response.headers.add_header('Set-Cookie', 'name=value; Path=/')',
     #where name is the name of the cookie, and value is the value you're setting it to.
+
+
+    #Model.get_by_id (ids, parent=None) 
     def get(self):
         self.response.out.write("<h1>Welcome</h1>")
         
