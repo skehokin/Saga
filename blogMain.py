@@ -107,6 +107,7 @@ class Users(db.Model):
     name=db.StringProperty(required=True)
     password=db.StringProperty(required=True)
     salt=db.StringProperty(required=False)
+    pwsalt=db.StringProperty(required=False)
     mail=db.StringProperty(required=False)
     signedup=db.DateTimeProperty(auto_now_add=True)
     
@@ -174,21 +175,23 @@ class signUp(Handler):
         
         #if all good, not only redirect to new page, but also add to the users database and set a cookie.
         if ugood and pgood and pgood2 and egood and username_free:
-            hashed_pw=bcrypt.hashpw(username+password,bcrypt.gensalt(10))
+
+            #bcrypt might take too long, hilariously. let's try sha-256 instead.
             
-            #so we made a hashed pw. this is good. I think we're good to ignore this from now on...
-            #maybe it is best to produce the token using bcrypt as well?
-            #we will try.
+            static_salt=make_salt()
+            hashed_pw=str(hashlib.sha256(username+password+static_salt).hexdigest())
+            
+
             
             cur_salt=make_salt()
             
             token=hashlib.sha256(username+cur_salt).hexdigest()
             
-            a=Users(name=username,password=hashed_pw,salt=cur_salt,mail=email)
+            a=Users(name=username,password=hashed_pw,salt=cur_salt,mail=email,pwsalt=static_salt)
             a.put()
             userID=str(a.key().id())
 
-            #here put all the data together to make the correct cookie, which is a
+            #here we put all the data together to make the correct cookie, which is a
             #string made of userid, an exclamation mark, and our token, which is the username hashed with salt.
             
             cookie_value=userID+"|"+str(token)
@@ -196,7 +199,6 @@ class signUp(Handler):
             self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%cookie_value)
             
             current_cook=self.request.cookies.get("user_id")
-            #self.write(cookie_value)
             self.redirect("/welcome")
             
         else:
