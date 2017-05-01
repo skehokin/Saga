@@ -203,10 +203,37 @@ class signUp(Handler):
             
         else:
             #self.write(username_exists)
-            self.render("signup.html", user=user,pass1=pass1,pass2=pass2,email=email,nameval=nameval)        
+            self.render("signup.html", user=user,pass1=pass1,pass2=pass2,email=email,nameval=nameval)
+            
+class logIn(Handler):
+    def get(self):
+        self.render("login.html")
 
+    def post(self):
+        username_exists=False
+        username=self.request.get('username')
+        password=self.request.get('password')
+        cursor=db.GqlQuery("SELECT * FROM Users")
+        for each in cursor:
+            if each.name==username:
+                username_exists=True
+                #self.write(each.name+each.password+each.pwsalt)
+                if each.password==str(hashlib.sha256(username+password+each.pwsalt).hexdigest()):
+                    each.salt=make_salt()
+                    each.put()
+                    userID=each.key().id()
+                    token=hashlib.sha256(each.name+each.salt).hexdigest()
+                    cookie_value=str(userID)+"|"+str(token)
+                    self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%cookie_value)
+                    self.redirect("/welcome")
 
-class Welcome(webapp2.RequestHandler):
+                    
+                else:
+                   self.render("login.html",error="Invalid login")
+        if username_exists==False:
+                self.render("login.html",error="Invalid login")       
+
+class Welcome(Handler):
     #I will need to get the email address to the new page. I'll need to send it by get somehow?
     #possibly actually I can just retrieve it from the database.
     #nah, nah, we get it from the cookie.
@@ -228,16 +255,19 @@ class Welcome(webapp2.RequestHandler):
             if cookie_vals[1]==hashlib.sha256(current_user.name+current_user.salt).hexdigest():
                 self.response.out.write("<h1>Welcome, %s</h1>"%current_user.name)
             else:
+                #self.write("cookie vals 1:"+cookie_vals[1]+" hash I made jsut now: "+hashlib.sha256(current_user.name+current_user.salt).hexdigest()+" user: "+current_user.name+" salt:"+current_user.salt)
                 self.redirect("/signup")
         else:
             self.redirect("/signup")
+            #self.write("user:"+cookie_vals[0])
         
 
 app=webapp2.WSGIApplication([('/', MainPage),
                              ('/newpost', NewPost),
                              (r'/(\d+)', BlogPage),
                              ('/signup',signUp),
-                             ('/welcome', Welcome)],debug=True)
+                             ('/welcome', Welcome),
+                             ('/login', logIn)],debug=True)
 
 
 
