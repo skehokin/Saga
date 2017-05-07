@@ -57,7 +57,7 @@ class BlogEntries(db.Model):
     subject=db.StringProperty(required=True)
     content=db.TextProperty(required=True)
     created=db.DateTimeProperty(auto_now_add=True)
-
+    identity=db.StringProperty(required=False)
 #adding caching:
 def frontpage_cache(update=False):
     key="top"
@@ -68,7 +68,15 @@ def frontpage_cache(update=False):
         memcache.set(key,blogposts)
         memcache.set("tyme",time.time())
     return blogposts
-now=time.clock()
+
+def onepage_cache(ID,update=False):
+    key=ID
+    blogpost=memcache.get(key)
+    if blogpost is None or update:
+        blogpost= BlogEntries.get_by_id(int(key))   
+        memcache.set(key,blogpost)
+        memcache.set("time"+key,time.time())
+    return blogpost
     
 #prints all posts to the home/main page:   
 class MainPage(Handler):
@@ -92,22 +100,29 @@ class NewPost(Handler):
         if subject and content:
             a=BlogEntries(subject=subject,content=content)
             a.put()
-            post_id=str(a.key().id())
+            a.identity=str(a.key().id())
+            a.put()
+            post_id=a.identity
+            time.sleep(1)
+            frontpage_cache(True)
             self.redirect("/"+post_id)
         else:
             error="Please add both a subject and body for your blog entry!"
-            self.render("newpage.html",subject=subject, content=content, error=error,)
+            self.render("newpage.html",subject=subject, content=content, error=error)
         
 #makes a page for each specific blog entry.
 class BlogPage(Handler):
 
     def get(self, post_id):
-        blogpost=BlogEntries.get_by_id(int(post_id))
+        blogpost=onepage_cache(post_id)
+        querytime=memcache.get("time"+post_id)
+        now=time.time()
+        current=now-querytime
         subject=blogpost.subject
         content=blogpost.content
         created=blogpost.created
-        frontpage_cache(True)
-        self.render('blogpage.html', subject=subject, created=created, content=content)
+        
+        self.render('blogpage.html', subject=subject, created=created, content=content, time=current)
 
 
 #okay so. for this we need to get my form HTML, (done)

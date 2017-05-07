@@ -70,12 +70,12 @@ margin-right:10px;
   </style>
 </head>
   <body>
-    <header> <div class="mainhead"><h1>arkhe</h1></div></header>
+    <header> <a href="/.."><div class="mainhead"><h1>arkhe</h1></div></a></header>
     <main>
 
       {% for element in blogposts%}
         <section class="postwrap">
-        <h2 class="title">{{element.subject}}</h2>
+        <h2 class="title"><a href="/{{element.identity}}">{{element.subject}}</a></h2>
 
         <p class="time">{{element.created}}</p>
         <div class="clear"></div>
