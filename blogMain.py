@@ -10,7 +10,9 @@ import string
 import hashlib
 from libs.bcrypt import bcrypt
 import unicodedata
-
+from google.appengine.api import memcache
+import datetime
+import time
 
 
 #this sets up the regular expressions and puts them into functions which check if
@@ -56,11 +58,26 @@ class BlogEntries(db.Model):
     content=db.TextProperty(required=True)
     created=db.DateTimeProperty(auto_now_add=True)
 
+#adding caching:
+def frontpage_cache(update=False):
+    key="top"
+    blogposts=memcache.get(key)
+    if blogposts is None or update:
+        blogposts= db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC LIMIT 10")       
+        blogposts=list(blogposts)
+        memcache.set(key,blogposts)
+        memcache.set("tyme",time.time())
+    return blogposts
+now=time.clock()
+    
 #prints all posts to the home/main page:   
 class MainPage(Handler):
     def get(self):
-        blogposts=db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC")
-        self.render("mainpage.html",blogposts=blogposts)
+        blogposts=frontpage_cache()
+        querytime=memcache.get("tyme")
+        now=time.time()
+        current=now-querytime
+        self.render("mainpage.html",blogposts=blogposts,time=current )
 
 
 # constructs webpage for adding new posts, including form and database entry creation
@@ -75,6 +92,7 @@ class NewPost(Handler):
         if subject and content:
             a=BlogEntries(subject=subject,content=content)
             a.put()
+            frontpage_cache(True)
             post_id=str(a.key().id())
             self.redirect("/"+post_id)
         else:
