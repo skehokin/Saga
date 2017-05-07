@@ -92,7 +92,6 @@ class NewPost(Handler):
         if subject and content:
             a=BlogEntries(subject=subject,content=content)
             a.put()
-            frontpage_cache(True)
             post_id=str(a.key().id())
             self.redirect("/"+post_id)
         else:
@@ -107,7 +106,7 @@ class BlogPage(Handler):
         subject=blogpost.subject
         content=blogpost.content
         created=blogpost.created
-
+        frontpage_cache(True)
         self.render('blogpage.html', subject=subject, created=created, content=content)
 
 
