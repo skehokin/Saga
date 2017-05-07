@@ -9,6 +9,7 @@ import random
 import string
 import hashlib
 from libs.bcrypt import bcrypt
+import unicodedata
 
 
 
@@ -231,8 +232,12 @@ class logIn(Handler):
                 else:
                    self.render("login.html",error="Invalid login")
         if username_exists==False:
-                self.render("login.html",error="Invalid login")       
+                self.render("login.html",error="Invalid login")
 
+class logOut(Handler):
+    def get(self):
+        self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%"")
+        self.redirect("/signup")
 class Welcome(Handler):
     #I will need to get the email address to the new page. I'll need to send it by get somehow?
     #possibly actually I can just retrieve it from the database.
@@ -249,25 +254,67 @@ class Welcome(Handler):
     #Model.get_by_id (ids, parent=None) 
     def get(self):
         current_cook=self.request.cookies.get("user_id")
-        cookie_vals=current_cook.split("|")
-        current_user=Users.get_by_id(int(cookie_vals[0]))
-        if current_user:
-            if cookie_vals[1]==hashlib.sha256(current_user.name+current_user.salt).hexdigest():
-                self.response.out.write("<h1>Welcome, %s</h1>"%current_user.name)
+        if current_cook:
+            cookie_vals=current_cook.split("|")
+            current_user=Users.get_by_id(int(cookie_vals[0]))
+            if current_user:
+                if cookie_vals[1]==hashlib.sha256(current_user.name+current_user.salt).hexdigest():
+                    self.response.out.write("<h1>Welcome, %s</h1>"%current_user.name)
+                else:
+                    #self.write("cookie vals 1:"+cookie_vals[1]+" hash I made jsut now: "+hashlib.sha256(current_user.name+current_user.salt).hexdigest()+" user: "+current_user.name+" salt:"+current_user.salt)
+                    self.redirect("/signup")
             else:
-                #self.write("cookie vals 1:"+cookie_vals[1]+" hash I made jsut now: "+hashlib.sha256(current_user.name+current_user.salt).hexdigest()+" user: "+current_user.name+" salt:"+current_user.salt)
                 self.redirect("/signup")
+                #self.write("user:"+cookie_vals[0])
         else:
             self.redirect("/signup")
-            #self.write("user:"+cookie_vals[0])
-        
 
+def JSONconvert(cursor):
+    entrylist=[]
+    for entry in cursor:
+        entrydict={
+            'subject':str(entry.subject),
+            'content':unicodedata.normalize('NFKD',entry.content).encode('ascii','ignore'),
+            'created':str(entry.created)
+            }
+        entrylist.append(entrydict)
+    a=str(entrylist).replace('"',"@").replace("'",'"').replace("@","'")
+    
+    return a
+def JSONconvert2(post):
+
+    entrydict={
+        'subject':str(post.subject),
+        'content':unicodedata.normalize('NFKD',post.content).encode('ascii','ignore'),
+        'created':post.created.strftime("%H:%M on %A %d %B %Y")
+        }
+    a=str(entrydict).replace('"',"@").replace("'",'"').replace("@","'")
+    
+    return a
+
+class jsonApi (Handler):
+    def get(self):
+        self.response.headers.add_header('Content-Type', 'application/json; charset=UTF-8')
+        self.write(JSONconvert(db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC")))
+    
+class jsonApiIndiv (Handler):
+        def get(self, post_id):
+            self.response.headers.add_header('Content-Type', 'application/json; charset=UTF-8')
+            blogpost=BlogEntries.get_by_id(int(post_id))
+            self.write(JSONconvert2(blogpost))
+
+
+
+    
 app=webapp2.WSGIApplication([('/', MainPage),
                              ('/newpost', NewPost),
                              (r'/(\d+)', BlogPage),
+                             (r'/(\d+).json', jsonApiIndiv),
                              ('/signup',signUp),
                              ('/welcome', Welcome),
-                             ('/login', logIn)],debug=True)
+                             ('/login', logIn),
+                             ('/logout', logOut),
+                             ('/        .json', jsonApi)],debug=True)
 
 
 
