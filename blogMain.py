@@ -125,6 +125,11 @@ class BlogPage(Handler):
         self.render('blogpage.html', subject=subject, created=created, content=content, time=current)
 
 
+class Flush(Handler):
+    def get(self):
+        memcache.flush_all()
+        self.redirect("/")
+        
 #okay so. for this we need to get my form HTML, (done)
 #and feed the results into a script that:
 
@@ -346,7 +351,8 @@ app=webapp2.WSGIApplication([('/', MainPage),
                              ('/welcome', Welcome),
                              ('/login', logIn),
                              ('/logout', logOut),
-                             ('/        .json', jsonApi)],debug=True)
+                             ('/.json', jsonApi),
+                             ('/flush', Flush)],debug=True)
 
 
 
