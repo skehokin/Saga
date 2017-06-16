@@ -1,0 +1,526 @@
+  	/*@import url(http://weloveiconfonts.com/api/?family=entypo);*/
+
+  	html {
+  		height:100%;
+  		width:100%;
+ 	 }
+
+	body {
+	background-image: url(/static/waterfallsqdark.jpg);
+	background-size: cover;
+	background-attachment: fixed;
+	background-position:center;
+	height:100%;
+	width:100%;
+	margin:0;
+	/*font-family: 'Roboto', sans-serif;*/
+	box-sizing: border-box;
+	color: white;
+	font-family: 'Roboto', sans-serif;
+	}
+
+	body * {
+		font-family: 'Roboto', sans-serif;
+		font-weight:100;
+		box-sizing: border-box;
+	}
+
+	[class*="entypo-"]:before {
+  		font-family: 'entypo', sans-serif;
+	}
+
+
+
+	.blogbody{
+		background-image: none;
+		background-color:#0f040f;
+	}
+	.newpagebody {
+		background-image: url(/static/annie-spratt-218459.jpg);
+	}
+
+	form, label{
+	width:100%;
+	}
+
+	.logo {
+		width: 180px;
+	} 
+
+	.smallLogo {
+		padding:5px 0 0 10px;
+		width: 53px;
+	}
+
+	.centerwrapper {
+		margin: auto;
+		position: absolute;
+		top: 30vh;
+		z-index: 100;
+	}
+
+	.logowrapper {
+		position: absolute;
+		width:180px;
+		left: calc(50vw - 90px);
+	}
+
+	.logoUp {
+		top: 10vh;
+	}
+
+	.signinwrapper {
+		width: 250px;
+		position: absolute;
+		left: calc(50vw - 125px);
+		border: 1px solid white;
+		border-radius: 5px;
+		font-weight: 100;
+		font-size: 1.3em;
+		text-align:center;
+	}
+
+	.signinwrapper input {
+		border: 1px solid white;
+		border-radius: 5px;
+		color: white;
+		font-family: 'Roboto', sans-serif;
+		font-weight: 100;
+		margin-bottom: 7px;
+		max-width: 90%;
+	}
+
+	.typeable{	
+		font-size: 0.7em;
+		background-color: rgba(41,7,15,0);
+		padding: 5px;
+	}
+
+	.container {
+	display: -webkit-flex; /* Safari */
+    -webkit-flex-wrap: wrap; /* Safari 6.1+ */
+    display: flex;  
+    flex-wrap: wrap;
+	}
+
+	.box {
+		width: 100%;
+	}
+
+	.loginSubmit {
+		font-size: 24px; 
+		padding: 0 20px 5px 20px;
+		background-color: rgba(41,7,15,0.2);
+		margin-top:40px;
+
+		font-family: 'Roboto', sans-serif;
+
+		font-weight: 100;
+		text-align: center;
+
+		border: 1px solid white;
+		border-radius: 5px;
+		max-width:200px;
+		margin:auto;
+		color:white;
+	}
+
+	.loginSubmit:hover {
+		background-color:rgba(41,7,15,0);
+	}
+
+	.oopslink {
+		width: 250px;
+		position:relative;
+		top:30px;
+		font-size: 0.9em;
+		text-align: center;
+		background-color:rgba(41,7,15,0.4);
+	}
+
+	main {
+		width:100%;
+		height:100%;
+		margin:0;
+	}
+
+	/*.colorOverlay {
+		width:100%;
+		height:100%;
+		background-color:#29070f;
+		opacity:0.3;
+
+	}
+	.gradientOverlay {
+		width:100%;
+		height:100%;
+		position: absolute;
+		top:0;
+	  	background: red; /* For browsers that do not support gradients 
+	  	background: -webkit-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Safari 
+	  	background: -o-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Opera 11.6 to 12.0 
+	  	background: -moz-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Firefox 3.6 to 15 *
+	  	background: radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Standard syntax *
+	}*/
+	.signUpButton {
+		font-size: 20px;
+		font-family: 'Roboto', sans-serif;
+		padding: 5px;
+		font-weight: 100;
+		width: 100px;
+		margin: 50px auto;
+		border: 1px solid white;
+		border-radius: 5px;
+		text-align: center;
+		background-color: rgba(41,7,15,0.5);
+	}
+	.header {
+		height: 35px;
+		width: 100%;
+		background-color: rgba(11,10,28,0.5);
+		position: absolute;
+		top :0px;
+		z-index: 100;
+	}
+	.signin {
+		position: absolute;
+		right: 10px;
+		top: 10px;
+		z-index: 30;
+	}
+	a {
+		color: white;
+		text-decoration: none;
+	}
+
+
+.formfields {
+	width:250px;
+	margin:0;
+	float:left;
+	padding:0;
+
+}
+.formfields li {
+	list-style: none;
+	float:left;
+	text-align:center;
+
+}
+
+p {
+margin:0;
+
+}
+.error {
+	font-size: 0.8em;
+	color: white;
+	background-color: rgba(255,80,80,0.3);
+
+
+}
+.blogHero {
+	position:relative;
+	z-index: 20;
+	height: 60%;
+	width:100%;
+	/*background-image: url(/static/bloghero_tower_wide.jpg);*/
+	/*background-image: url(/static/annie-spratt-218459.jpg);*/
+	/*background-image: url(/static/scott-webb-205351.jpg);*/
+	/*background-image: url(/static/rodrigo-soares-250630.jpg);*/
+	/*background-image: url(/static/arwan-sutanto-180425.jpg);*/
+	/*background-image: url(/static/dominik-scythe-152888.jpg);*/
+	/*background-image: url(/static/jaromir-kavan-241762.jpg);*/
+	/*background-image: url(/static/drew-hays-26240.jpg);*/
+	/*background-image: url(/static/richard-lock-262846.jpg);*/
+	/*background-image: url(/static/sam-ferrara-136526.jpg);*/	
+	/*background-image: url(/static/keith-misner-308.jpg);*/
+	/*background-image: url(/static/ren-ran-232078.jpg);*/
+/*background-image: url(/static/camille-kmile-201915.jpg);*/
+/*background-image: url(/static/aaron-burden-189321.jpg);*/
+/*background-image: url(/static/michal-grosicki-221226.jpg);*/
+/*background-image: url(/static/joshua-earle-133254.jpg);*/
+/*background-image: url(/static/timothy-muza-133593.jpg); horses. find better horses?*/
+/*background-image: url(/static/marko-blazevic-264986.jpg);*/
+background-image: url(/static/matt-thornhill-106773.jpg);
+	background-size: cover;
+	/*background-attachment: fixed;*/
+	background-position: center;
+	text-align:center;
+
+}
+
+.blogname{
+	position: absolute;
+	font-weight: 100;
+	font-size:calc(30px + 1vw);
+	width:100%;
+	max-width: 100%;
+	text-align:center;
+	/*right: calc(50% - 150px);*/
+	top: 45%;
+
+}
+
+.newpost {
+
+padding-top:5px;
+
+}
+.buttonwrap{
+width:100%;
+position: absolute;
+top:50px;
+text-align: center;
+}
+
+/*
+I'm proud of this solution even if it is useless
+
+.blogHeroImage {
+	width:100%;
+	position:relative;
+	top:calc((100vw - 60vh) / 2 * -1);
+	z-index:-1;
+
+
+}*/
+.blognavwrap {
+	display: flex;
+	text-align: right;
+
+}
+.blognav {
+	box-sizing: border-box;
+	width: calc(50% - 1px);
+	height:40px;
+	text-align: center;
+	font-weight:100;
+	background-color: #29070f;
+	padding:7px;
+	margin:0;
+	margin-left: 1px;
+}
+.wholepost * {
+	color:#1a001a;
+	position: relative;
+	font-weight: 300;
+
+}
+.wholepost a {
+	color: deepskyblue;
+
+}
+.blogpost {
+	position: relative;
+	width: 100%;
+	background-color: white;
+	color:#1a001a;
+	font-weight:100;
+	padding:20px;
+	z-index: -10;
+	/*margin-bottom:50px;*/
+
+
+}
+
+
+.blogpost p {
+	margin-bottom:20px;
+
+}
+
+.blogtitle {
+	text-align:center;
+}
+
+.blogheader h3 {
+	/*display:inline-block;*/
+	border-top: 1px solid #1a001a;
+	padding: 5px 60px 0px 60px;
+	margin: 10px auto 30px auto;
+	font-size: 0.8em;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	text-align: center;
+	max-width: 450px;
+}
+
+.blogpostoptions * {
+	margin: 0;
+
+}
+
+.blogpostoptions {
+
+	position: relative;
+	top:-10px;
+	width:100%;
+	z-index:-30;
+	margin:auto;
+
+}
+.optionswrapper {
+	width:256px;
+	display: flex;
+	flex-wrap: wrap;
+	float: right;
+
+}
+
+.option {
+	width:60px;
+	margin:2px;
+	border-radius:5px;
+	height: 50px;
+	text-align: center;
+	padding-top: 15px;
+	background-color: white;
+	color: #1a001a;
+}
+
+.commentwrap {
+	background-color: white;
+	margin-top:70px;
+	padding:20px;
+}
+.commentwrap footer {
+	text-align: right;
+
+
+}
+.commentcontent {
+border:1px solid #d3c0f6;
+border-radius:2px;
+padding:10px;
+margin-bottom:5px;
+}
+.singlecomment {
+min-height:70px;
+margin:20px 0;
+font-size: 0.9em;
+
+}
+
+
+.singlecomment footer{
+	text-transform: uppercase;
+	font-size:0.79em;
+	letter-spacing:2px;
+	margin-left:10px;
+}
+
+@media screen and (min-width: 400px) {
+	.blognavwrap {
+		width: 250px;
+		position: absolute;
+		right: 0px;
+		top: 55%;
+		z-index: 0;
+	}
+	 .blognav {
+	 	position: relative;
+	 	height: 70px;
+	 	width: 100px;
+	 	margin-right: 30px;
+	 	border-radius: 5px;
+	 	padding-top: 40px;
+		-webkit-box-shadow: 0px 15px 30px -13px rgba(41,7,15,1);
+		-moz-box-shadow: 0px 15px 30px -13px rgba(41,7,15,1);
+		box-shadow: 0px 15px 30px -13px rgba(41,7,15,1);
+		-webkit-box-shadow: inset 0px 0px 38px -13px rgba(192,169,242,1);
+		-moz-box-shadow: inset 0px 0px 38px -13px rgba(192,169,242,1);
+		box-shadow: inset 0px 0px 38px -13px rgba(192,169,242,0.5);
+
+	 }
+
+
+	.blogpost {
+		position: relative;
+		top:20px;
+		margin-bottom:20px;
+		}
+
+}
+
+@media screen and (min-width: 700px) {
+	.blogpost, .commentwrap {
+		width:700px;
+		margin: auto;
+		margin-bottom:20px;
+		border-radius: 5px;
+		}
+
+		.blognavwrap {
+			right: 10vw;
+
+		}
+	.blogpostoptions {
+		width:700px;
+	}
+
+.commentwrap {
+	margin-top:70px;
+
+}
+
+
+}
+@media screen and (min-width: 550px){
+	.newpost{
+		margin-right:20px;
+}
+
+}
+
+.newpageblogname {
+	top:75px;
+}
+.newformwrap {
+	width:100%;
+	margin-top:150px;
+	padding-left:20px;
+	padding-right:20px;
+}
+.formwrapinner {
+	width:100%;
+	max-width:700px;
+	margin:auto;
+	padding:20px 20px 0 20px;
+	background-color: rgba(255,255,255,0.7);
+	border-radius: 5px;
+	color: #1a001a;
+}
+.formwrapinner .typeable {
+	border-radius:5px;
+	border:1px solid #1a001a;
+	font-size: 0.9em;
+	font-weight: 300;
+
+}
+.newsubj {
+
+	margin-bottom:40px;
+	width:calc(100% - 80px);
+	float:right;
+}
+.subj_label {
+	padding-right:15px;
+	font-size:1.2em;
+}
+.newcont {
+	width:100%;
+	height:200px;
+}
+.cont_label {
+	position: relative;
+	top:20px;
+	font-size:1.2em;
+}
+.publishwrap {
+	text-align:center;
+	width:100%;
+}
+.publish {
+	margin:20px;
+}
