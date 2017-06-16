@@ -1,5 +1,5 @@
 import os
-
+from flask import Flask, render_template, request
 import jinja2
 import webapp2
 from google.appengine.ext import db
@@ -30,7 +30,7 @@ EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 def valid_email(mail):
     return EMAIL_RE.match(mail)
 
-
+#app = Flask(__name__)
 
 #sets up template paths:
 
