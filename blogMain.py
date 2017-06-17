@@ -1,5 +1,4 @@
 import os
-from flask import Flask, render_template, request
 import jinja2
 import webapp2
 from google.appengine.ext import db
@@ -30,7 +29,7 @@ EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 def valid_email(mail):
     return EMAIL_RE.match(mail)
 
-#app = Flask(__name__)
+
 
 #sets up template paths:
 
@@ -51,13 +50,26 @@ class Handler(webapp2.RequestHandler):
     
     def render(self,template,**kw):
         self.write(self.render_str(template,**kw))
+        
+    def validateCookie(self):
+        current_cook=self.request.cookies.get("user_id")
+        if current_cook:
+            cookie_vals=current_cook.split("|")
+            current_user=Users.get_by_id(int(cookie_vals[0]))
+            if current_user:
+                if cookie_vals[1]==hashlib.sha256(current_user.name+current_user.salt).hexdigest():
+                    return current_user
+            return None
+
 
 #create database for blog entries:
 class BlogEntries(db.Model):
+    author=db.StringProperty(required=True)
     subject=db.StringProperty(required=True)
     content=db.TextProperty(required=True)
     created=db.DateTimeProperty(auto_now_add=True)
-    identity=db.StringProperty(required=False)
+    identity=db.StringProperty(required=True)
+    last_edited=db.DateTimeProperty(auto_now=True)
 #adding caching:
 def frontpage_cache(update=False):
     key="top"
@@ -80,7 +92,11 @@ def onepage_cache(ID,update=False):
 
 class MainPage(Handler):
     def get(self):
-        self.render("saga.html")
+        user=validateCookie()
+        if user:
+            self.redirect("/bloghome")
+        else:
+            self.render("saga.html")
 
 #prints all posts to the home/main page:   
 class BlogHome(Handler):
@@ -100,9 +116,11 @@ class NewPost(Handler):
         self.render("newpage.html")
     def post(self):
         subject=self.request.get('subject')
-        content=self.request.get('content')
+        content="<p>"+self.request.get('content')+"</p>"
+        
 
         if subject and content:
+            content=content.replace("\n","</p>\n<p>")
             a=BlogEntries(subject=subject,content=content)
             a.put()
             a.identity=str(a.key().id())
@@ -126,9 +144,9 @@ class BlogPage(Handler):
         subject=blogpost.subject
         content=blogpost.content
         created=blogpost.created
+        identity=blogpost.identity
         
-        
-        self.render('blogpage.html', subject=subject, created=created, content=content, time=current)
+        self.render('blogpage.html', subject=subject, created=created, content=content, identity=identity, time=current)
 
 
 class Flush(Handler):
@@ -346,8 +364,55 @@ class jsonApiIndiv (Handler):
             self.response.headers.add_header('Content-Type', 'application/json; charset=UTF-8')
             blogpost=BlogEntries.get_by_id(int(post_id))
             self.write(JSONconvert2(blogpost))
+class EditPage(Handler):
+    def get(self, post_id):
+        content=""
+        subject=""
+        user=self.validateCookie()
+        if not user:
+            self.redirect("/"+post_id)
+        else:
+            content=""
+            cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"% post_id)
+            for each in cursor:
+                if each.identity==post_id:
+                    content=each.content[3:-4].replace("</p>\n<p>","\n")
+                    subject=each.subject
+            
+            self.render("newpage.html", subject=subject, content=content)
 
+    def post(self,post_id):
+        content=""
+        user=self.validateCookie
+        if not user:
+            self.redirect("/"+post_id)
+        else:
+            subject=self.request.get('subject')
+            content="<p>"+self.request.get('content')+"</p>"
+            if content and subject:
+                content=content.replace("\n","</p>\n<p>")
+                cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"%post_id)
+                exists=False
+                for each in cursor:
+                    if each.identity==post_id:
+                        exists=True
+                        each.subject=subject
+                        each.content=content
+                        each.put()
+                if exists==False:
+                    a=BlogEntries(subject=subject,content=content)
+                    a.put()
+                    a.identity=str(a.key().id())
+                    a.put()
+                    post_id=a.identity
+                time.sleep(1)
+                frontpage_cache(True)
+                onepage_cache(post_id,True)
+                self.redirect("/"+post_id)
 
+            else:
+                error="Please add both a subject and body for your blog entry!"
+                self.render("newpage.html",subject=subject, content=content, error=error)
 
     
 app=webapp2.WSGIApplication([('/', MainPage),
@@ -360,7 +425,8 @@ app=webapp2.WSGIApplication([('/', MainPage),
                              ('/logout', logOut),
                              ('/.json', jsonApi),
                              ('/flush', Flush),
-                             ('/bloghome', BlogHome)],debug=True)
+                             ('/bloghome', BlogHome),
+                             (r'/_edit/(\d+)', EditPage)],debug=True)
 
 
 

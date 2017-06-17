@@ -37,7 +37,7 @@
 
 	<section class="postcontent">
 
-	{{element.content}}
+	{{element.content |safe}}
 
 	</section>
 
@@ -46,7 +46,7 @@
 	<footer class="blogpostoptions">
 		<div class="optionswrapper">
 		<h3 class="option"> <span class="entypo-cup"></span></h3>
-		<h3 class="option"> <span class="entypo-pencil"></span></h3>
+		<a href="/_edit/{{element.identity}}"><h3 class="option"> <span class="entypo-pencil"></span></h3></a>
 		<h3 class="option"> <span class="entypo-chat"></span></h3>
 		<a href="/{{element.identity}}"><h3 class="option"> <span class="entypo-infinity"></span></h3></a>
 		</div>
