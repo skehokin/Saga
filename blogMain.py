@@ -77,9 +77,13 @@ def onepage_cache(ID,update=False):
         memcache.set(key,blogpost)
         memcache.set("time"+key,time.time())
     return blogpost
-    
-#prints all posts to the home/main page:   
+
 class MainPage(Handler):
+    def get(self):
+        self.render("saga.html")
+
+#prints all posts to the home/main page:   
+class BlogHome(Handler):
     def get(self):
         blogposts=frontpage_cache()
         querytime=memcache.get("tyme")
@@ -269,9 +273,9 @@ class logIn(Handler):
 
                     
                 else:
-                   self.render("login.html",error="Invalid login")
+                   self.render("login.html",error="invalid login")
         if username_exists==False:
-                self.render("login.html",error="Invalid login")
+                self.render("login.html",error="invalid login")
 
 class logOut(Handler):
     def get(self):
@@ -298,7 +302,8 @@ class Welcome(Handler):
             current_user=Users.get_by_id(int(cookie_vals[0]))
             if current_user:
                 if cookie_vals[1]==hashlib.sha256(current_user.name+current_user.salt).hexdigest():
-                    self.response.out.write("<h1>Welcome, %s</h1>"%current_user.name)
+                    #self.redirect ("/"+current_user.name)
+                    self.redirect ("/bloghome")
                 else:
                     #self.write("cookie vals 1:"+cookie_vals[1]+" hash I made jsut now: "+hashlib.sha256(current_user.name+current_user.salt).hexdigest()+" user: "+current_user.name+" salt:"+current_user.salt)
                     self.redirect("/signup")
@@ -354,7 +359,8 @@ app=webapp2.WSGIApplication([('/', MainPage),
                              ('/login', logIn),
                              ('/logout', logOut),
                              ('/.json', jsonApi),
-                             ('/flush', Flush)],debug=True)
+                             ('/flush', Flush),
+                             ('/bloghome', BlogHome)],debug=True)
 
 
 

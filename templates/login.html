@@ -17,7 +17,7 @@
 		</div>
 		<div class="signinwrapper centerwrapper">
 
-			<!-- <form method="post"> -->
+			<form method="post">
 			<label>
 				username
 				<input value="{{User_Name}}" type="text" name="username" class="typeable">
@@ -27,16 +27,15 @@
 				password
 				<input value="" type="password" name="password" class="typeable">
 			</label>
-			<br>
-			{{error}}
+			
+			<p><span class="error">{{error}}</span></p>
 			<input type="submit" value="log in" class="loginSubmit">
 
-			<!-- </form> -->
+			</form> 
 			<a href="/signup"><p class="oopslink">oops I meant sign up</p></a>
 		</div>
 	
-		<div class = "colorOverlay"></div>
-		<div class = "gradientOverlay"></div>
+
 	</main>
    
   </body>
