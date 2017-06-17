@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet"> 
+  <link href="static/sagastyle.css" rel="stylesheet">
+
+   
+  <title>blog name</title>
+
+
+</head>
+  <body class="blogbody">
+	<header class="header"> <img src = "/static/sagaLogo.svg" class = "smallLogo"> <div class="signin"> <a href="/logout">log out</a></div>
+	</header>
+	<main>
+	<header class="blogHero">
+		<!-- <img src="/static/bloghero_tower.jpg" class="blogHeroImage"> -->
+		<h1 class="blogname">{{blogname}}need a blog name character limit!
+		</h1>
+		<section class="buttonwrap"><section class="loginSubmit newpost"> NEW POST</section></section>
+
+	</header>
+
+	<nav class="blognavwrap"> 
+	<h3 class="blognav">about</h3> <h3 class="blognav">archive</h3>
+	</nav>
+	<div class="clear"></div>
+
+	{% for element in blogposts%}
+
+	<article class="wholepost">
+	<article class="blogpost">
+	<header class="blogheader"><h2 class="blogtitle">{{element.subject}}</h2>
+	<h3>by post author on {{element.created}}</h3>
+	</header>
+
+	<section class="postcontent">
+
+	{{element.content}}
+
+	</section>
+
+	</article>
+
+	<footer class="blogpostoptions">
+		<div class="optionswrapper">
+		<h3 class="option"> <span class="entypo-cup"></span></h3>
+		<h3 class="option"> <span class="entypo-pencil"></span></h3>
+		<h3 class="option"> <span class="entypo-chat"></span></h3>
+		<h3 class="option"> <a href="/{{element.identity}}"><span class="entypo-infinity"></a></span></h3>
+		</div>
+	</footer>
+
+	<section class="commentwrap">
+
+	<h3>comments on {{element.subject}}</h3>
+
+	<article class="singlecomment">
+	<section class="commentcontent">
+	 <p>This arrangement of elements is derived from <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article">the MDN website</a>. I really loved it when you said <blockquote>Etiam adipiscing, crunk for sure aliquizzle , doggy sure lacinia doggy, a sagittizzle nulla the bizzle izzle fo shizzle. Suspendisse i'm in the shizzle mattizzle pede. </blockquote> </p>
+	 </section>
+      <footer>
+        <p>
+          Posted on
+          <time datetime="2015-05-16 19:00">May 16</time>
+          by <a href="link to lisa's blog">Lisa.</a>
+        </p>
+
+      </footer>
+
+
+	</article>
+	<article class="singlecomment">
+	<section class="commentcontent">
+	 <p>This arrangement of elements is derived from <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article">the MDN website</a>. I really loved it when you said <blockquote>Etiam adipiscing, crunk for sure aliquizzle , doggy sure lacinia doggy, a sagittizzle nulla the bizzle izzle fo shizzle. Suspendisse i'm in the shizzle mattizzle pede. </blockquote> </p>
+	 </section>
+      <footer>
+        <p>
+          Posted on
+          <time datetime="2015-05-16 19:00">May 16</time>
+          by <a href="link to lisa's blog">Lisa.</a>
+        </p>
+
+      </footer>
+
+
+	</article>
+	{%endfor%}
+
+
+      <footer><p>hide comments</p>
+      </footer>
+	</section>
+	</article>
+
+	</main>
+   
+  </body>
+</html>

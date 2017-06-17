@@ -85,7 +85,8 @@ class MainPage(Handler):
         querytime=memcache.get("tyme")
         now=time.time()
         current=now-querytime
-        self.render("mainpage.html",blogposts=blogposts,time=current )
+        #time=current
+        self.render("bloghome.html",blogposts=blogposts)
 
 
 # constructs webpage for adding new posts, including form and database entry creation

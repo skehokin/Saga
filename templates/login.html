@@ -1,16 +1,43 @@
-<form method="post">
-<label>
-Username:
-<input value="{{User_Name}}" type="text" name="username">
-</label>
-<br>
-<label>
-Password:
-<input value="" type="password" name="password">
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet"> 
+  <link href="static/sagastyle.css" rel="stylesheet">   
+  <title>saga - tell it here</title>
 
-</label>
-<br>
-{{error}}
-<input type="submit">
 
-</form>
+</head>
+  <body>
+	<header class="header"> 
+	</header>
+	<main>
+		<div class = "centerwrapper logowrapper logoUp">
+			<a href="/"><div><img src = "/static/sagaLogo.svg" class = "logo"></div></a>
+		</div>
+		<div class="signinwrapper centerwrapper">
+
+			<!-- <form method="post"> -->
+			<label>
+				username
+				<input value="{{User_Name}}" type="text" name="username" class="typeable">
+			</label>
+			<br>
+			<label>
+				password
+				<input value="" type="password" name="password" class="typeable">
+			</label>
+			<br>
+			{{error}}
+			<input type="submit" value="log in" class="loginSubmit">
+
+			<!-- </form> -->
+			<a href="/signup"><p class="oopslink">oops I meant sign up</p></a>
+		</div>
+	
+		<div class = "colorOverlay"></div>
+		<div class = "gradientOverlay"></div>
+	</main>
+   
+  </body>
+</html>

@@ -2,100 +2,21 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">  
-  <title>Saga - tell it here</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet"> 
+  <link href="static/sagastyle.css" rel="stylesheet">   
+  <title>saga - tell it here</title>
 
-<style>
-  	html {
-  		height:100%;
-  		width:100%;
- 	 }
-	body {
-	background-image: url(waterfallsq.jpg);
-	background-size: 100vmax 100vmax;
-	height:100%;
-	width:100%;
-	margin:0;
-	/*font-family: 'Roboto', sans-serif;*/
-	/*box-sizing: border-box;*/
-	color: white;
-	font-family: 'Roboto', sans-serif;
-	}
 
-	.logo {
-			
-		width: 180px;
-		
-	} 
-	.logoclass {
-		width:180px;
-		margin: auto;
-		position: absolute;
-		top: 40vh;
-		left: calc(50vw - 90px);
-		z-index: 100;
-
-	}
-	main {
-		width:100%;
-		height:100%;
-		margin:0;
-
-	}
-	.colorOverlay {
-		width:100%;
-		height:100%;
-		background-color:#29070f;
-		opacity:0.2;
-
-	}
-	.gradientOverlay {
-		width:100%;
-		height:100%;
-		position: absolute;
-		top:0;
-
-  	background: red; /* For browsers that do not support gradients */
-  	background: -webkit-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Safari */
-  	background: -o-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Opera 11.6 to 12.0 */
-  	background: -moz-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Firefox 3.6 to 15 */
-  	background: radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Standard syntax */
-	}
-	.signUpButton {
-		font-size: 20px;
-		font-family: 'Roboto', sans-serif;
-		padding: 5px;
-		font-weight: 100;
-		width: 100px;
-		margin: 50px auto ;
-		border: 1px solid white;
-		border-radius: 5px;
-		text-align: center;
-		background-color: rgba(41,7,15,0.5);
-	}
-	.header {
-		height: 35px;
-		width: 100%;
-		background-color: rgba(11,10,28,0.5);
-		position: absolute;
-		top :0px;
-		text-align: right;
-	}
-	.signin {
-		margin:10px 30px;
-	}
-	
-</style>
 </head>
   <body>
-	<header class="header"> <div class="signin">sign in</div>
+	<header class="header"> <a href="/login"><div class="signin"> log in</div></a>
 	</header>
 	<main>
-		<div class = "logoclass"><div><img src = "sagaLogo.svg" class = "logo"></div>
-		<div class = "signUpButton"> tell it here</div>
+		<div class = "centerwrapper logowrapper">
+		<div><img src = "/static/sagaLogo.svg" class = "logo"></div>
+		<a href="/signup"><div class = "loginSubmit">tell it here</div></a>
 		</div>
-		<div class = "colorOverlay"></div>
-		<div class = "gradientOverlay"></div>
+
 	</main>
    
   </body>
