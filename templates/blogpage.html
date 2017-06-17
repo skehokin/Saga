@@ -2,92 +2,99 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>{{subject}}</title>
-  <link href="https://fonts.googleapis.com/css?family=Kumar+One+Outline" rel="stylesheet">
-  <style>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet"> 
+  <link href="static/sagastyle.css" rel="stylesheet">
+
+   
+  <title>blog name</title>
 
 
-  body {
-    font-family:sans-serif;
-    margin:0;
-    background-color:Tan;
-  }
-  main {
-    width:800px;
-    height:100%;
-    margin:0 auto;
-    padding-top:20px;
-    background-color:white;
-    border-radius:5px;
-  }
-
-
-  h2 {
-      font-size:1.7em;
-
-
-  }
-
-
-  .postwrap{
-    margin:0 auto;
-    width:700px;
-    padding-bottom:20px;
-  }
-
-  .time{
-    float:right;
-
-  }
-.title{
-  float:left;
-
-
-}
-.clear{
-  clear:both;
-
-}
-
-header{
-  height:200px;
-
-
-}
-.mainhead{
-margin:auto;
-text-align:center;
-padding-top:40px;
-color:white;
-font-family:'Kumar One Outline', cursive;
-font-size:1.7em;
-
-}
-footer p{
-float:right;
-margin-right:10px;
-}
-
-
-  </style>
 </head>
-  <body>
-    <header> <a href="/.."><div class="mainhead"><h1>arkhe</h1></div></a></header>
-    <main>
+  <body class="blogbody">
+	<header class="header"> <img src = "/static/sagaLogo.svg" class = "smallLogo"> <div class="signin"> <a href="/logout">log out</a></div>
+	</header>
+	<main>
+	<header class="blogHero">
+		<!-- <img src="/static/bloghero_tower.jpg" class="blogHeroImage"> -->
+		<h1 class="blogname"><a href="/">{{blogname}}need a blog name character limit!</a>
+		</h1>
+		<section class="buttonwrap"><a href="/newpost"><section class="loginSubmit newpost"> NEW POST</section></a></section>
 
-    <section class="postwrap">
-    <h2 class="title">{{subject}}</h2>
+	</header>
 
-    <p class="time">{{created}}</p>
-    <div class="clear"></div>
-    <div>{{content}}</div>
-
-
-    </section>
+	<nav class="blognavwrap"> 
+	<h3 class="blognav">about</h3> <h3 class="blognav">archive</h3>
+	</nav>
+	<div class="clear"></div>
 
 
 
-    </main>
-    <footer> <p>Queried {{time}} seconds ago</p></footer>
+	<article class="wholepost">
+	<article class="blogpost">
+	<header class="blogheader"><h2 class="blogtitle">{{subject}}</h2>
+	<h3>by post author on {{created}}</h3>
+	</header>
+
+	<section class="postcontent">
+	{{content}}
+
+	</section>
+
+	</article>
+
+	<footer class="blogpostoptions">
+		<div class="optionswrapper">
+		<h3 class="option"> <span class="entypo-cup"></span></h3>
+		<h3 class="option"> <span class="entypo-pencil"></span></h3>
+		<h3 class="option"> <span class="entypo-chat"></span></h3>
+		
+		</div>
+	</footer>
+
+	<section class="commentwrap">
+
+	<h3>comments on {{subject}}</h3>
+
+	<article class="singlecomment">
+	<section class="commentcontent">
+	 <p>This arrangement of elements is derived from <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article">the MDN website</a>. I really loved it when you said <blockquote>Etiam adipiscing, crunk for sure aliquizzle , doggy sure lacinia doggy, a sagittizzle nulla the bizzle izzle fo shizzle. Suspendisse i'm in the shizzle mattizzle pede. </blockquote> </p>
+	 </section>
+      <footer>
+        <p>
+          Posted on
+          <time datetime="2015-05-16 19:00">May 16</time>
+          by <a href="link to lisa's blog">Lisa.</a>
+        </p>
+
+      </footer>
+
+
+	</article>
+	<article class="singlecomment">
+	<section class="commentcontent">
+	 <p>This arrangement of elements is derived from <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article">the MDN website</a>. I really loved it when you said <blockquote>Etiam adipiscing, crunk for sure aliquizzle , doggy sure lacinia doggy, a sagittizzle nulla the bizzle izzle fo shizzle. Suspendisse i'm in the shizzle mattizzle pede. </blockquote> </p>
+	 </section>
+      <footer>
+        <p>
+          Posted on
+          <time datetime="2015-05-16 19:00">May 16</time>
+          by <a href="link to lisa's blog">Lisa.</a>
+        </p>
+
+      </footer>
+
+
+	</article>
+
+
+
+      <footer><p>hide comments</p>
+      </footer>
+	</section>
+	</article>
+
+
+	</main>
+   
   </body>
 </html>

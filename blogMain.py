@@ -123,6 +123,7 @@ class BlogPage(Handler):
         content=blogpost.content
         created=blogpost.created
         
+        
         self.render('blogpage.html', subject=subject, created=created, content=content, time=current)
 
 

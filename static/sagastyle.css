@@ -1,4 +1,4 @@
-  	/*@import url(http://weloveiconfonts.com/api/?family=entypo);*/
+  	@import url(http://weloveiconfonts.com/api/?family=entypo);
 
   	html {
   		height:100%;
@@ -356,12 +356,12 @@ I'm proud of this solution even if it is useless
 	position: relative;
 	top:-10px;
 	width:100%;
-	z-index:-30;
+/*	z-index:-30;*/
 	margin:auto;
 
 }
 .optionswrapper {
-	width:256px;
+
 	display: flex;
 	flex-wrap: wrap;
 	float: right;
