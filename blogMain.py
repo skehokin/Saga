@@ -92,21 +92,30 @@ def onepage_cache(ID,update=False):
 
 class MainPage(Handler):
     def get(self):
-        user=self.validateCookie()
-        if user:
-            self.redirect("/bloghome")
+        userdata=self.validateCookie()
+        if userdata:
+            self.redirect("/"+userdata.name)
         else:
             self.render("saga.html")
 
 #prints all posts to the home/main page:   
 class BlogHome(Handler):
-    def get(self):
-        blogposts=frontpage_cache()
-        querytime=memcache.get("tyme")
-        now=time.time()
-        current=now-querytime
+    def get(self, username):
+        userdata=self.validateCookie()
+        blogownerdata = db.GqlQuery("SELECT * FROM Users WHERE name='%s'"%username)
+        blogposts = db.GqlQuery("SELECT * FROM BlogEntries WHERE author='%s' ORDER BY created DESC LIMIT 10"%username)
+        userbuttons=""
+        if userdata:
+            userbuttons="user"
+            if userdata.name==username:
+                userbuttons="owner"
+            
+        #blogposts=frontpage_cache()
+        #querytime=memcache.get("tyme")
+        #now=time.time()
+        #current=now-querytime
         #time=current
-        self.render("bloghome.html",blogposts=blogposts)
+        self.render("bloghome.html",blogposts=blogposts,userbuttons=userbuttons)
 
 
 # constructs webpage for adding new posts, including form and database entry creation
@@ -326,8 +335,7 @@ class Welcome(Handler):
             current_user=Users.get_by_id(int(cookie_vals[0]))
             if current_user:
                 if cookie_vals[1]==hashlib.sha256(current_user.name+current_user.salt).hexdigest():
-                    #self.redirect ("/"+current_user.name)
-                    self.redirect ("/bloghome")
+                    self.redirect ("/"+current_user.name)
                 else:
                     #self.write("cookie vals 1:"+cookie_vals[1]+" hash I made jsut now: "+hashlib.sha256(current_user.name+current_user.salt).hexdigest()+" user: "+current_user.name+" salt:"+current_user.salt)
                     self.redirect("/signup")
@@ -454,9 +462,9 @@ app=webapp2.WSGIApplication([('/', MainPage),
                              ('/logout', logOut),
                              ('/.json', jsonApi),
                              ('/flush', Flush),
-                             ('/bloghome', BlogHome),
                              (r'/_edit/(\d+)', EditPage),
-                             (r'/_delete/(\d+)', DeletePost)],debug=True)
+                             (r'/_delete/(\d+)', DeletePost),
+                             (r'/(.*)', BlogHome)],debug=True)
 
 
 

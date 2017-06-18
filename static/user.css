@@ -1,0 +1,14 @@
+  .option {
+  		display: none;
+  	}
+
+  	.permalink, .commentbutton, .like {
+  		display: block;
+  	}
+  .login{
+  	display:none;
+  }
+
+ .logout{
+  	display:inline;
+  }

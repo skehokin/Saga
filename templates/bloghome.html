@@ -4,15 +4,17 @@
   <meta charset="utf-8">
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet"> 
   <link href="static/sagastyle.css" rel="stylesheet">
+   <link href="static/{{userbuttons}}.css" rel="stylesheet">
   <script type="text/javascript" src="static/saga.js"></script>
 
    
   <title>blog name</title>
 
 
+
 </head>
   <body class="blogbody">
-	<header class="header"> <img src = "/static/sagaLogo.svg" class = "smallLogo"> <div class="signin"> <a href="/logout">log out</a></div>
+	<header class="header"> <img src = "/static/sagaLogo.svg" class = "smallLogo"> <span class="toprightlinks"> <a href="/logout" class="logout">log out</a> <a href="/login" class="login">log in</a></span>
 	</header>
 	<main>
 	<header class="blogHero">
@@ -46,10 +48,11 @@
 
 	<footer class="blogpostoptions">
 		<div class="optionswrapper">
-		<a href="/_delete/{{element.identity}}"><h3 class="option"> <span class="entypo-cup"></span></h3></a>
-		<a href="/_edit/{{element.identity}}"><h3 class="option"> <span class="entypo-pencil"></span></h3></a>
-		<h3 class="option" id="button{{loop.index}}"> <span class="entypo-chat"></span></h3>
-		<a href="/{{element.identity}}"><h3 class="option"> <span class="entypo-infinity"></span></h3></a>
+		<a href="/_like/{{element.identity}}"><h3 class="option like"> <span class="entypo-heart"></span></h3></a>
+		<a href="/_delete/{{element.identity}}"><h3 class="option delete"> <span class="entypo-cup"></span></h3></a>
+		<a href="/_edit/{{element.identity}}"><h3 class="option edit"> <span class="entypo-pencil"></span></h3></a>
+		<h3 class="option commentbutton" id="button{{loop.index}}"> <span class="entypo-chat"></span></h3>
+		<a href="/{{element.identity}}"><h3 class="option permalink"> <span class="entypo-infinity"></span></h3></a>
 		</div>
 	</footer>
 

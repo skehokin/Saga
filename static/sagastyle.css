@@ -182,7 +182,7 @@
 		top :0px;
 		z-index: 100;
 	}
-	.signin {
+	.toprightlinks {
 		position: absolute;
 		right: 10px;
 		top: 10px;
@@ -249,6 +249,9 @@ background-image: url(/static/matt-thornhill-106773.jpg);
 	text-align:center;
 
 }
+.logout{
+	display:none;
+}
 
 .blogname{
 	position: absolute;
@@ -272,6 +275,7 @@ width:100%;
 position: absolute;
 top:50px;
 text-align: center;
+display: none;
 }
 
 /*
@@ -377,13 +381,22 @@ I'm proud of this solution even if it is useless
 	padding-top: 15px;
 	background-color: white;
 	color: #1a001a;
+	display: none;
+
+
 }
+
+.permalink, .commentbutton {
+  	display: block;
+}
+
 
 .commentwrap {
 	background-color: white;
 	margin-top:70px;
 	padding:20px;
 }
+
 .commentwrap footer {
 	text-align: right;
 

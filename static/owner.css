@@ -1,0 +1,17 @@
+.option {
+  		display: none;
+  	}
+
+.permalink, .commentbutton, .edit, .delete {
+  	display: block;
+  }
+  .buttonwrap{
+  	display:block;
+  }
+  .login{
+  	display:none;
+  }
+
+ .logout{
+  	display:inline;
+  }
