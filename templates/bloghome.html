@@ -48,12 +48,12 @@
 		<div class="optionswrapper">
 		<h3 class="option"> <span class="entypo-cup"></span></h3>
 		<a href="/_edit/{{element.identity}}"><h3 class="option"> <span class="entypo-pencil"></span></h3></a>
-		<h3 class="option"> <span class="entypo-chat"></span></h3>
+		<h3 class="option" id="button{{loop.index}}"> <span class="entypo-chat"></span></h3>
 		<a href="/{{element.identity}}"><h3 class="option"> <span class="entypo-infinity"></span></h3></a>
 		</div>
 	</footer>
 
-	<section class="commentwrap">
+	<section class="commentwrap" id="comment{{loop.index}}">
 
 	<h3>comments on {{element.subject}}</h3>
 
@@ -90,7 +90,7 @@
 
 
 
-      <footer><p>hide comments</p>
+      <footer><p id="remove{{loop.index}}">hide comments</p>
       </footer>
 	</section>
 	</article>
@@ -100,10 +100,24 @@
 	</main>
 
 	<script>
-		document.getElementsByClassName("option").onclick=function(){
-		alert("otherClasses");
-		}
 
+
+	{% for element in blogposts%}
+	document.getElementById('button{{loop.index}}').onclick = function() {
+	document.getElementById('comment{{loop.index}}').style.display="block";
+	}
+	document.getElementById('remove{{loop.index}}').onclick = function() {
+	document.getElementById('comment{{loop.index}}').style.display="none";
+	}
+
+
+
+	{%endfor%}
+
+
+// 		document.getElementById('comment'+String(i)).style.display="none";
+
+// }
 
 	</script>
    

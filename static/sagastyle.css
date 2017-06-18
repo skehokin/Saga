@@ -457,6 +457,7 @@ font-size: 0.9em;
 		}
 	.blogpostoptions {
 		width:700px;
+		margin-bottom:50px;
 	}
 
 .commentwrap {
@@ -523,4 +524,7 @@ font-size: 0.9em;
 }
 .publish {
 	margin:20px;
+}
+.commentwrap {
+	display:none;
 }
