@@ -68,7 +68,7 @@ class BlogEntries(db.Model):
     subject=db.StringProperty(required=True)
     content=db.TextProperty(required=True)
     created=db.DateTimeProperty(auto_now_add=True)
-    identity=db.StringProperty(required=True)
+    identity=db.StringProperty(required=False)
     last_edited=db.DateTimeProperty(auto_now=True)
 #adding caching:
 def frontpage_cache(update=False):
@@ -92,7 +92,7 @@ def onepage_cache(ID,update=False):
 
 class MainPage(Handler):
     def get(self):
-        user=validateCookie()
+        user=self.validateCookie()
         if user:
             self.redirect("/bloghome")
         else:
@@ -113,15 +113,20 @@ class BlogHome(Handler):
 #doesn't seem like it would allow for SQL injection
 class NewPost(Handler):
     def get(self):
-        self.render("newpage.html")
+        userdata=self.validateCookie()
+        if userdata:
+            self.render("newpage.html")
+        else:
+            self.redirect("/login")
     def post(self):
         subject=self.request.get('subject')
-        content="<p>"+self.request.get('content')+"</p>"
+        content=self.request.get('content')
         
-
+        userdata=self.validateCookie()
         if subject and content:
-            content=content.replace("\n","</p>\n<p>")
-            a=BlogEntries(subject=subject,content=content)
+            content="<p>"+content.replace("\n","</p>\n<p>")+"</p>"
+            author=userdata.name
+            a=BlogEntries(subject=subject,content=content,author=author)
             a.put()
             a.identity=str(a.key().id())
             a.put()
@@ -130,7 +135,7 @@ class NewPost(Handler):
             frontpage_cache(True)
             self.redirect("/"+post_id)
         else:
-            error="Please add both a subject and body for your blog entry!"
+            error="please add both a subject and body for your blog entry!"
             self.render("newpage.html",subject=subject, content=content, error=error)
         
 #makes a page for each specific blog entry.
@@ -145,8 +150,9 @@ class BlogPage(Handler):
         content=blogpost.content
         created=blogpost.created
         identity=blogpost.identity
+        author=blogpost.author
         
-        self.render('blogpage.html', subject=subject, created=created, content=content, identity=identity, time=current)
+        self.render('blogpage.html', subject=subject, created=created, content=content, identity=identity, time=current, author=author)
 
 
 class Flush(Handler):
@@ -368,51 +374,51 @@ class EditPage(Handler):
     def get(self, post_id):
         content=""
         subject=""
-        user=self.validateCookie()
-        if not user:
+        userdata=self.validateCookie()
+        if not userdata:
             self.redirect("/"+post_id)
+            
         else:
-            content=""
             cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"% post_id)
             for each in cursor:
                 if each.identity==post_id:
-                    content=each.content[3:-4].replace("</p>\n<p>","\n")
-                    subject=each.subject
-            
-            self.render("newpage.html", subject=subject, content=content)
+                    if userdata.name!=each.author:
+                        self.redirect("/"+post_id)
+                    else:
+                        content=each.content[3:-4].replace("</p>\n<p>","\n")
+                        subject=each.subject
+                        self.render("newpage.html", subject=subject, content=content)
 
     def post(self,post_id):
         content=""
-        user=self.validateCookie
-        if not user:
+        userdata=self.validateCookie()
+        if not userdata:
             self.redirect("/"+post_id)
         else:
-            subject=self.request.get('subject')
-            content="<p>"+self.request.get('content')+"</p>"
-            if content and subject:
-                content=content.replace("\n","</p>\n<p>")
-                cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"%post_id)
-                exists=False
-                for each in cursor:
-                    if each.identity==post_id:
-                        exists=True
-                        each.subject=subject
-                        each.content=content
-                        each.put()
-                if exists==False:
-                    a=BlogEntries(subject=subject,content=content)
-                    a.put()
-                    a.identity=str(a.key().id())
-                    a.put()
-                    post_id=a.identity
-                time.sleep(1)
-                frontpage_cache(True)
-                onepage_cache(post_id,True)
-                self.redirect("/"+post_id)
+            cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"% post_id)
+            for each in cursor:
+                if each.identity==post_id:
+                    if userdata.name!=each.author:
+                        self.redirect("/"+post_id)
+                    else:
+                        subject=self.request.get('subject')
+                        content=self.request.get('content')
+                        if content and subject:
+                            content="<p>"+content.replace("\n","</p>\n<p>")+"</p>"
+                            cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"%post_id)
+                            for each in cursor:
+                                if each.identity==post_id:
+                                    each.subject=subject
+                                    each.content=content
+                                    each.put()
+                                    time.sleep(1)
+                                    frontpage_cache(True)
+                                    onepage_cache(post_id,True)
+                                    self.redirect("/"+post_id)
 
-            else:
-                error="Please add both a subject and body for your blog entry!"
-                self.render("newpage.html",subject=subject, content=content, error=error)
+                        else:
+                            error="please add both a subject and body for your blog entry!"
+                            self.render("newpage.html",subject=subject, content=content, error=error)
 
     
 app=webapp2.WSGIApplication([('/', MainPage),
