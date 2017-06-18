@@ -44,14 +44,14 @@
 
 	<footer class="blogpostoptions">
 		<div class="optionswrapper">
-		<h3 class="option"> <span class="entypo-cup"></span></h3>
+		<a href="/_delete/{{identity}}"><h3 class="option"> <span class="entypo-cup"></span></h3></a>
 		<a href="/_edit/{{identity}}"><h3 class="option"> <span class="entypo-pencil"></span></h3></a>
-		<h3 class="option"> <span class="entypo-chat"></span></h3>
+		<h3 class="option" id="onlybutton"> <span class="entypo-chat"></span></h3>
 		
 		</div>
 	</footer>
 
-	<section class="commentwrap">
+	<section class="commentwrap" id="onlycomment">
 
 	<h3>comments on {{subject}}</h3>
 
@@ -88,13 +88,21 @@
 
 
 
-      <footer><p>hide comments</p>
+      <footer><p id="onlyremove">click to hide comments</p>
       </footer>
 	</section>
 	</article>
 
 
 	</main>
-   
+   <script>
+   	document.getElementById('onlybutton').onclick = function() {
+	document.getElementById('onlycomment').style.display="block";
+	}
+	document.getElementById('onlyremove').onclick = function() {
+	document.getElementById('onlycomment').style.display="none";
+	}
+
+   </script>
   </body>
 </html>

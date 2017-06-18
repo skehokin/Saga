@@ -46,7 +46,7 @@
 
 	<footer class="blogpostoptions">
 		<div class="optionswrapper">
-		<h3 class="option"> <span class="entypo-cup"></span></h3>
+		<a href="/_delete/{{element.identity}}"><h3 class="option"> <span class="entypo-cup"></span></h3></a>
 		<a href="/_edit/{{element.identity}}"><h3 class="option"> <span class="entypo-pencil"></span></h3></a>
 		<h3 class="option" id="button{{loop.index}}"> <span class="entypo-chat"></span></h3>
 		<a href="/{{element.identity}}"><h3 class="option"> <span class="entypo-infinity"></span></h3></a>
@@ -90,7 +90,7 @@
 
 
 
-      <footer><p id="remove{{loop.index}}">hide comments</p>
+      <footer><p id="remove{{loop.index}}">click to hide comments</p>
       </footer>
 	</section>
 	</article>
@@ -109,8 +109,6 @@
 	document.getElementById('remove{{loop.index}}').onclick = function() {
 	document.getElementById('comment{{loop.index}}').style.display="none";
 	}
-
-
 
 	{%endfor%}
 

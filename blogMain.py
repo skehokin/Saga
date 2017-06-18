@@ -369,6 +369,7 @@ class jsonApiIndiv (Handler):
         def get(self, post_id):
             self.response.headers.add_header('Content-Type', 'application/json; charset=UTF-8')
             blogpost=BlogEntries.get_by_id(int(post_id))
+            ## ^^ fuck I think I should have used this approach
             self.write(JSONconvert2(blogpost))
 class EditPage(Handler):
     def get(self, post_id):
@@ -376,7 +377,7 @@ class EditPage(Handler):
         subject=""
         userdata=self.validateCookie()
         if not userdata:
-            self.redirect("/"+post_id)
+            self.redirect("/login")
             
         else:
             cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"% post_id)
@@ -393,7 +394,7 @@ class EditPage(Handler):
         content=""
         userdata=self.validateCookie()
         if not userdata:
-            self.redirect("/"+post_id)
+            self.redirect("/login")
         else:
             cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"% post_id)
             for each in cursor:
@@ -420,6 +421,28 @@ class EditPage(Handler):
                             error="please add both a subject and body for your blog entry!"
                             self.render("newpage.html",subject=subject, content=content, error=error)
 
+class DeletePost(Handler):
+        def get(self, post_id):
+            userdata=self.validateCookie()
+            blogpost=BlogEntries.get_by_id(int(post_id))
+            if blogpost:    
+                if not userdata:
+                    self.redirect("/login")
+                elif blogpost.author!=userdata.name:
+                    self.redirect("/"+post_id)
+                else:
+                    cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"%post_id)
+                    for each in cursor:
+                        if each.identity==post_id:
+                            each.delete()
+                            time.sleep(1)
+                            frontpage_cache(True)
+                            onepage_cache(post_id,True)
+                            self.redirect("/bloghome")
+                
+
+                
+            
     
 app=webapp2.WSGIApplication([('/', MainPage),
                              ('/newpost', NewPost),
@@ -432,7 +455,8 @@ app=webapp2.WSGIApplication([('/', MainPage),
                              ('/.json', jsonApi),
                              ('/flush', Flush),
                              ('/bloghome', BlogHome),
-                             (r'/_edit/(\d+)', EditPage)],debug=True)
+                             (r'/_edit/(\d+)', EditPage),
+                             (r'/_delete/(\d+)', DeletePost)],debug=True)
 
 
 
