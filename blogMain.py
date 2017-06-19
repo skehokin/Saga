@@ -102,20 +102,26 @@ class MainPage(Handler):
 class BlogHome(Handler):
     def get(self, username):
         userdata=self.validateCookie()
-        blogownerdata = db.GqlQuery("SELECT * FROM Users WHERE name='%s'"%username)
+        blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE name='%s'"%username)
         blogposts = db.GqlQuery("SELECT * FROM BlogEntries WHERE author='%s' ORDER BY created DESC LIMIT 10"%username)
         userbuttons=""
         if userdata:
             userbuttons="user"
             if userdata.name==username:
                 userbuttons="owner"
+        image="bloghero_tower_wide.jpg"
+        if blog_owner_data:
+            for each in blog_owner_data:
+                if username==each.name and each.blog_image:
+                    image=each.blog_image
+        blogname=username+"'s blog"        
             
         #blogposts=frontpage_cache()
         #querytime=memcache.get("tyme")
         #now=time.time()
         #current=now-querytime
         #time=current
-        self.render("bloghome.html",blogposts=blogposts,userbuttons=userbuttons)
+        self.render("bloghome.html",blogposts=blogposts,userbuttons=userbuttons,image=image,blogname=blogname)
 
 
 # constructs webpage for adding new posts, including form and database entry creation
@@ -124,7 +130,10 @@ class NewPost(Handler):
     def get(self):
         userdata=self.validateCookie()
         if userdata:
-            self.render("newpage.html")
+            image=userdata.blog_image
+            blogname=userdata.name+"'s blog"
+            author=userdata.name
+            self.render("newpage.html", image=image, blogname=blogname, author=author)
         else:
             self.redirect("/login")
     def post(self):
@@ -145,12 +154,18 @@ class NewPost(Handler):
             self.redirect("/"+post_id)
         else:
             error="please add both a subject and body for your blog entry!"
-            self.render("newpage.html",subject=subject, content=content, error=error)
+            image=userdata.blog_image
+            blogname=userdata.name+"'s blog"
+            author=userdata.name
+            self.render("newpage.html",subject=subject, content=content, error=error, image=image, blogname=blogname, author=author)
         
 #makes a page for each specific blog entry.
 class BlogPage(Handler):
 
     def get(self, post_id):
+        userdata=self.validateCookie()
+        userbuttons=""
+
         blogpost=onepage_cache(post_id)
         querytime=memcache.get("time"+post_id)
         now=time.time()
@@ -160,8 +175,22 @@ class BlogPage(Handler):
         created=blogpost.created
         identity=blogpost.identity
         author=blogpost.author
+        if userdata:
+            userbuttons="user"
+            if userdata.name==blogpost.author:
+                userbuttons="owner"
+        blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE name='%s'"%blogpost.author)
+        image="bloghero_tower_wide.jpg"
+        if blog_owner_data:
+            for each in blog_owner_data:
+                if blogpost.author==each.name and each.blog_image:
+                    image=each.blog_image
+        blogname=blogpost.author+"'s blog"
         
-        self.render('blogpage.html', subject=subject, created=created, content=content, identity=identity, time=current, author=author)
+        self.render('blogpage.html', subject=subject, created=created,
+                    content=content, identity=identity, time=current,
+                    author=author, userbuttons=userbuttons, image=image,
+                    blogname=blogname)
 
 
 class Flush(Handler):
@@ -187,6 +216,8 @@ class Users(db.Model):
     pwsalt=db.StringProperty(required=False)
     mail=db.StringProperty(required=False)
     signedup=db.DateTimeProperty(auto_now_add=True)
+    blog_image=db.StringProperty(required=False)
+    
     
 def UsernameVal(cursor, username):
     for each in cursor:
@@ -263,8 +294,20 @@ class signUp(Handler):
             cur_salt=make_salt()
             
             token=hashlib.sha256(username+cur_salt).hexdigest()
+            #image adds some automatic variation to each blog. The next feature, outside the scope of this project,
+            #would be to make this customisable by the user.
+            image_options=["bloghero_tower_wide.jpg","annie-spratt-218459.jpg",
+                           "scott-webb-205351.jpg","rodrigo-soares-250630.jpg",
+                           "arwan-sutanto-180425.jpg","dominik-scythe-152888.jpg",
+                           "jaromir-kavan-241762.jpg","drew-hays-26240.jpg",
+                           "richard-lock-262846.jpg","sam-ferrara-136526.jpg",
+                           "keith-misner-308.jpg","ren-ran-232078.jpg",
+                           "aaron-burden-189321.jpg","michal-grosicki-221226.jpg",
+                           "joshua-earle-133254.jpg","marko-blazevic-264986.jpg",
+                           "matt-thornhill-106773.jpg","camille-kmile-201915.jpg"]
+            blog_image=random.choice(image_options)
             
-            a=Users(name=username,password=hashed_pw,salt=cur_salt,mail=email,pwsalt=static_salt)
+            a=Users(name=username,password=hashed_pw,salt=cur_salt,mail=email,pwsalt=static_salt,blog_image=blog_image)
             a.put()
             userID=str(a.key().id())
 

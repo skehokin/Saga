@@ -8,8 +8,14 @@
   <script type="text/javascript" src="static/saga.js"></script>
 
    
-  <title>blog name</title>
+  <title>{{blogname}} on saga</title>
+  <style>
+    .blogHero {
+    	background-image: url(static/{{image}});
 
+    }
+    
+  </style>
 
 
 </head>
@@ -19,7 +25,7 @@
 	<main>
 	<header class="blogHero">
 		<!-- <img src="/static/bloghero_tower.jpg" class="blogHeroImage"> -->
-		<h1 class="blogname">{{blogname}}need a blog name character limit!
+		<h1 class="blogname">{{blogname}}
 		</h1>
 		<section class="buttonwrap"><a href="/newpost"><section class="loginSubmit newpost"> NEW POST</section></a></section>
 

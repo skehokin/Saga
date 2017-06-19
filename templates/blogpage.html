@@ -4,9 +4,18 @@
   <meta charset="utf-8">
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet"> 
   <link href="static/sagastyle.css" rel="stylesheet">
-
-   
+  <link href="static/{{userbuttons}}.css" rel="stylesheet">
   <title>blog name</title>
+
+  <style>
+  .permalink{
+  	display: none;
+  }
+  .blogHero {
+    background-image: url(static/{{image}});
+
+    }
+  </style>
 
 
 </head>
@@ -16,7 +25,7 @@
 	<main>
 	<header class="blogHero">
 		<!-- <img src="/static/bloghero_tower.jpg" class="blogHeroImage"> -->
-		<h1 class="blogname"><a href="/bloghome">{{blogname}}need a blog name character limit!</a>
+		<h1 class="blogname"><a href="/{{author}}">{{blogname}}</a>
 		</h1>
 		<section class="buttonwrap"><a href="/newpost"><section class="loginSubmit newpost"> NEW POST</section></a></section>
 
