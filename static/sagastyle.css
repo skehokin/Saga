@@ -362,6 +362,7 @@ I'm proud of this solution even if it is useless
 	width:100%;
 /*	z-index:-30;*/
 	margin:auto;
+	margin-bottom:50px;
 
 }
 .optionswrapper {
@@ -433,11 +434,11 @@ font-size: 0.9em;
 	}
 	 .blognav {
 	 	position: relative;
-	 	height: 70px;
+	 	height: 90px;
 	 	width: 100px;
 	 	margin-right: 30px;
 	 	border-radius: 5px;
-	 	padding-top: 40px;
+	 	padding-top: 60px;
 		-webkit-box-shadow: 0px 15px 30px -13px rgba(41,7,15,1);
 		-moz-box-shadow: 0px 15px 30px -13px rgba(41,7,15,1);
 		box-shadow: 0px 15px 30px -13px rgba(41,7,15,1);
