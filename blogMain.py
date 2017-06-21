@@ -70,6 +70,8 @@ class BlogEntries(db.Model):
     created=db.DateTimeProperty(auto_now_add=True)
     identity=db.StringProperty(required=False)
     last_edited=db.DateTimeProperty(auto_now=True)
+    likes=db.StringListProperty(required=True)
+    likeslength=db.IntegerProperty(required=True)
 #adding caching:
 def frontpage_cache(update=False):
     key="top"
@@ -144,7 +146,7 @@ class NewPost(Handler):
         if subject and content:
             content="<p>"+content.replace("\n","</p>\n<p>")+"</p>"
             author=userdata.name
-            a=BlogEntries(subject=subject,content=content,author=author)
+            a=BlogEntries(subject=subject,content=content,author=author, likes=[],likeslength=0)
             a.put()
             a.identity=str(a.key().id())
             a.put()
@@ -175,6 +177,8 @@ class BlogPage(Handler):
         created=blogpost.created
         identity=blogpost.identity
         author=blogpost.author
+        likeslength=blogpost.likeslength
+        
         if userdata:
             userbuttons="user"
             if userdata.name==blogpost.author:
@@ -190,7 +194,7 @@ class BlogPage(Handler):
         self.render('blogpage.html', subject=subject, created=created,
                     content=content, identity=identity, time=current,
                     author=author, userbuttons=userbuttons, image=image,
-                    blogname=blogname)
+                    blogname=blogname,likeslength=likeslength)
 
 
 class Flush(Handler):
@@ -434,12 +438,12 @@ class EditPage(Handler):
             cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"% post_id)
             for each in cursor:
                 if each.identity==post_id:
-                    if userdata.name!=each.author:
-                        self.redirect("/"+post_id)
-                    else:
+                    if userdata.name==each.author: 
                         content=each.content[3:-4].replace("</p>\n<p>","\n")
                         subject=each.subject
                         self.render("newpage.html", subject=subject, content=content)
+                    else:
+                        self.redirect("/"+post_id)
 
     def post(self,post_id):
         content=""
@@ -489,9 +493,31 @@ class DeletePost(Handler):
                             time.sleep(1)
                             frontpage_cache(True)
                             onepage_cache(post_id,True)
-                            self.redirect("/bloghome")
+                            self.redirect("/"+userdata.name)
                 
-
+class LikePost(Handler):
+        def get(self, post_id):
+            userdata=self.validateCookie()
+            blogpost=BlogEntries.get_by_id(int(post_id))
+            if blogpost:    
+                if not userdata:
+                    self.redirect("/login")
+                elif blogpost.author!=userdata.name:
+                    cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"%post_id)
+                    for each in cursor:
+                        if each.identity==post_id:
+                            if userdata.name in each.likes:
+                                self.redirect("/"+post_id)
+                            else:
+                                each.likes.append(userdata.name)
+                                each.likeslength=len(each.likes)
+                            each.put()
+                            time.sleep(1)
+                            frontpage_cache(True)
+                            onepage_cache(post_id,True)
+                            self.redirect("/"+post_id)
+                else:
+                    self.redirect("/"+post_id)
                 
             
     
@@ -507,6 +533,7 @@ app=webapp2.WSGIApplication([('/', MainPage),
                              ('/flush', Flush),
                              (r'/_edit/(\d+)', EditPage),
                              (r'/_delete/(\d+)', DeletePost),
+                             (r'/_like/(\d+)', LikePost),
                              (r'/(.*)', BlogHome)],debug=True)
 
 
