@@ -204,6 +204,7 @@ class BlogPage(Handler):
         identity=blogpost.identity
         author=blogpost.author
         likeslength=blogpost.likeslength
+        last_edited=blogpost.last_edited
         comments = db.GqlQuery("SELECT * FROM Comments WHERE postidentity='%s' ORDER BY created"%post_id)
         
         if userdata:
@@ -223,7 +224,8 @@ class BlogPage(Handler):
         self.render('blogpage.html', subject=subject, created=created,
                     content=content, identity=identity, time=current,
                     author=author, userbuttons=userbuttons, image=image,
-                    blogname=blogname,likeslength=likeslength, comments=comments)
+                    blogname=blogname,likeslength=likeslength, comments=comments,
+                    last_edited=last_edited)
 
     def post(self,post_id):
         userdata=self.validateCookie()

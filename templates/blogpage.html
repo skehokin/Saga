@@ -47,7 +47,9 @@
 
 	<section class="postcontent">
 	{{content |safe}}
-
+	{%if created.strftime("%H:%M %A %d %B %Y")!=last_edited.strftime("%H:%M %A %d %B %Y")%}
+	<h4 class="posteditnote">last edited {{last_edited.strftime("%H:%M %A %d %B %Y")}}</h4>
+	{%endif%}
 	</section>
 
 	</article>

@@ -52,6 +52,10 @@
 
 			</section>
 
+			{%if element.created.strftime("%H:%M %A %d %B %Y")!=element.last_edited.strftime("%H:%M %A %d %B %Y")%}
+			<h4 class="posteditnote">last edited {{element.last_edited.strftime("%H:%M %A %d %B %Y")}}</h4>
+			{%endif%}
+
 		</article>
 
 		<footer class="blogpostoptions">
