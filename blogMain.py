@@ -72,6 +72,15 @@ class BlogEntries(db.Model):
     last_edited=db.DateTimeProperty(auto_now=True)
     likes=db.StringListProperty(required=True)
     likeslength=db.IntegerProperty(required=True)
+
+#create database for blog entries:
+class Comments(db.Model):
+    author=db.StringProperty(required=True)
+    content=db.TextProperty(required=True)
+    created=db.DateTimeProperty(auto_now_add=True)
+    postidentity=db.StringProperty(required=True)
+    last_edited=db.DateTimeProperty(auto_now=True)
+    blogloc=db.StringProperty(required=True)
 #adding caching:
 def frontpage_cache(update=False):
     key="top"
@@ -103,6 +112,7 @@ class MainPage(Handler):
 #prints all posts to the home/main page:   
 class BlogHome(Handler):
     def get(self, username):
+        comment=""
         userdata=self.validateCookie()
         blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE name='%s'"%username)
         blogposts = db.GqlQuery("SELECT * FROM BlogEntries WHERE author='%s' ORDER BY created DESC LIMIT 10"%username)
@@ -123,8 +133,24 @@ class BlogHome(Handler):
         #now=time.time()
         #current=now-querytime
         #time=current
-        self.render("bloghome.html",blogposts=blogposts,userbuttons=userbuttons,image=image,blogname=blogname)
-
+        comments = db.GqlQuery("SELECT * FROM Comments WHERE blogloc='%s' ORDER BY created"%username)
+        self.render("bloghome.html", blogposts=blogposts, userbuttons=userbuttons, image=image, blogname=blogname, comments=comments)
+    def post(self,username):
+        userdata=self.validateCookie()
+        if not userdata:
+            self.redirect("/"+username)
+        author=userdata.name
+        content=self.request.get('content')
+        postidentity=self.request.get('post_id')
+        if not content:
+            self.redirect("/"+username)
+        a=Comments(content=content, author=author, postidentity=postidentity, blogloc=username)
+        a.put()
+        time.sleep(1)
+        frontpage_cache(True)
+        self.redirect("/"+username)
+        
+        
 
 # constructs webpage for adding new posts, including form and database entry creation
 #doesn't seem like it would allow for SQL injection
@@ -178,6 +204,7 @@ class BlogPage(Handler):
         identity=blogpost.identity
         author=blogpost.author
         likeslength=blogpost.likeslength
+        comments = db.GqlQuery("SELECT * FROM Comments WHERE postidentity='%s' ORDER BY created"%post_id)
         
         if userdata:
             userbuttons="user"
@@ -190,11 +217,34 @@ class BlogPage(Handler):
                 if blogpost.author==each.name and each.blog_image:
                     image=each.blog_image
         blogname=blogpost.author+"'s blog"
+
+        
         
         self.render('blogpage.html', subject=subject, created=created,
                     content=content, identity=identity, time=current,
                     author=author, userbuttons=userbuttons, image=image,
-                    blogname=blogname,likeslength=likeslength)
+                    blogname=blogname,likeslength=likeslength, comments=comments)
+
+    def post(self,post_id):
+        userdata=self.validateCookie()
+        if not userdata:
+            self.redirect("/"+post_id)
+        author=userdata.name
+        content=self.request.get('content')
+        postidentity=post_id
+        bloglocsearch = db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"%post_id)
+        if bloglocsearch:
+            for each in bloglocsearch:
+                if each.identity==post_id:
+                    blogloc=each.author
+        
+        if not content:
+            self.redirect("/"+post_id)
+        a=Comments(content=content, author=author, postidentity=postidentity, blogloc=blogloc)
+        a.put()
+        time.sleep(1)
+        frontpage_cache(True)
+        self.redirect("/"+post_id)
 
 
 class Flush(Handler):

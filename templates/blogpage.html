@@ -42,7 +42,7 @@
 	<article class="wholepost">
 	<article class="blogpost">
 	<header class="blogheader"><h2 class="blogtitle">{{subject}}</h2>
-	<h3>by {{author}} on {{created}}. {{likeslength}} people like this post.</h3>
+	<h3>by {{author}} on {{created.strftime("%H:%M %A %d %B %Y")}}. {{likeslength}} people like this post.</h3>
 	</header>
 
 	<section class="postcontent">
@@ -66,37 +66,41 @@
 
 	<h3>comments on {{subject}}</h3>
 
-	<article class="singlecomment">
-	<section class="commentcontent">
-	 <p>This arrangement of elements is derived from <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article">the MDN website</a>. I really loved it when you said <blockquote>Etiam adipiscing, crunk for sure aliquizzle , doggy sure lacinia doggy, a sagittizzle nulla the bizzle izzle fo shizzle. Suspendisse i'm in the shizzle mattizzle pede. </blockquote> </p>
-	 </section>
-      <footer>
-        <p>
-          Posted on
-          <time datetime="2015-05-16 19:00">May 16</time>
-          by <a href="link to lisa's blog">Lisa.</a>
-        </p>
+{% for each in comments %}
+			
+			<article class="singlecomment">
+				<section class="commentcontent">
+	 				{{each.content}}
+	 			</section>
+      			<footer>
+       				 <p>
+          				Posted at
+          				<time >{{each.created.strftime("%H:%M on %A %d %B %Y")}}</time>
+         				by <a href="/{{each.author}}">{{each.author}}.</a>
+        			</p>
 
-      </footer>
+     			 </footer>
 
+			</article>
 
-	</article>
-	<article class="singlecomment">
-	<section class="commentcontent">
-	 <p>This arrangement of elements is derived from <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article">the MDN website</a>. I really loved it when you said <blockquote>Etiam adipiscing, crunk for sure aliquizzle , doggy sure lacinia doggy, a sagittizzle nulla the bizzle izzle fo shizzle. Suspendisse i'm in the shizzle mattizzle pede. </blockquote> </p>
-	 </section>
-      <footer>
-        <p>
-          Posted on
-          <time datetime="2015-05-16 19:00">May 16</time>
-          by <a href="link to lisa's blog">Lisa.</a>
-        </p>
+	{% else %}
+				<article class="singlecomment">
+				<section class="commentcontent">
+				This post has no comments yet.
+				</section>
+				</article>
 
-      </footer>
+	{%endfor%}
 
-
-	</article>
-
+	<form method="post">
+	<label><p> make a comment</p>
+	<p>
+	<textarea name="content" class="commentBox"></textarea>
+	</p>
+	</label>
+	<input type="hidden" name="post_id" value="{{identity}}">
+	<input type="submit" name="commentsubmit" class="loginSubmit newcomment" value="add comment">
+	</form>
 
 
       <footer><p id="onlyremove">click to hide comments</p>

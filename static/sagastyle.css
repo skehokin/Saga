@@ -347,7 +347,7 @@ I'm proud of this solution even if it is useless
 	letter-spacing: 2px;
 	text-transform: uppercase;
 	text-align: center;
-	max-width: 450px;
+	max-width: 500px;
 }
 
 .blogpostoptions * {
@@ -404,8 +404,9 @@ I'm proud of this solution even if it is useless
 
 }
 .commentcontent {
-border:1px solid #d3c0f6;
-border-radius:2px;
+border-top:1px solid lightgrey;
+/*border-bottom:0px;
+border-radius:5px;*/
 padding:10px;
 margin-bottom:5px;
 }
@@ -545,4 +546,12 @@ font-size: 0.9em;
 .cancel {
 	display:inline;
 	width:100px;
+}
+.commentBox {
+width: 100%;
+height: 100px;
+border-radius: 5px;
+}
+.newcomment {
+	color: white;
 }
