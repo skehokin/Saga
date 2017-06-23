@@ -61,7 +61,6 @@ class Handler(webapp2.RequestHandler):
                     return current_user
             return None
 
-
 #create database for blog entries:
 class BlogEntries(db.Model):
     author=db.StringProperty(required=True)
@@ -80,7 +79,9 @@ class Comments(db.Model):
     created=db.DateTimeProperty(auto_now_add=True)
     postidentity=db.StringProperty(required=True)
     last_edited=db.DateTimeProperty(auto_now=True)
+    comment_id=db.StringProperty(required=False)
     blogloc=db.StringProperty(required=True)
+
 #adding caching:
 def frontpage_cache(update=False):
     key="top"
@@ -350,7 +351,7 @@ class signUp(Handler):
             cur_salt=make_salt()
             
             token=hashlib.sha256(username+cur_salt).hexdigest()
-            #image adds some automatic variation to each blog. The next feature, outside the scope of this project,
+            #a random image adds some automatic variation to each blog. The next feature, outside the scope of this project,
             #would be to make this customisable by the user.
             image_options=["bloghero_tower_wide.jpg","annie-spratt-218459.jpg",
                            "scott-webb-205351.jpg","rodrigo-soares-250630.jpg",
