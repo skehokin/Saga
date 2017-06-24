@@ -164,8 +164,11 @@ class BlogHome(Handler):
         if comment_id:
             edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE comment_id='%s'"%comment_id)
             for each in edit_comment:
-                each.content=content
-                each.put()
+                if userdata.name==each.author:
+                    each.content=content
+                    each.put()
+                else:
+                    self.redirect("/"+username)
         else:
             author=userdata.name
             postidentity=self.request.get('post_id')
