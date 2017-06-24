@@ -130,8 +130,11 @@ class BlogHome(Handler):
                 edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE comment_id='%s'"%edit_comment_id)
                 if edit_comment:
                     for each in edit_comment:
-                        post_id=each.postidentity
-                        comment_content=each.content
+                        if userdata.name==each.author:
+                            post_id=each.postidentity
+                            comment_content=each.content
+                        else:
+                            self.redirect("/"+username)
             userbuttons="user"
             logged_in_user=userdata.name
             if userdata.name==username:
@@ -172,7 +175,6 @@ class BlogHome(Handler):
         else:
             author=userdata.name
             postidentity=self.request.get('post_id')
-
             a=Comments(content=content, author=author, postidentity=postidentity, blogloc=username)
             a.put()
             a.comment_id=str(a.key().id())
@@ -216,7 +218,8 @@ class NewPost(Handler):
             image=userdata.blog_image
             blogname=userdata.name+"'s blog"
             author=userdata.name
-            self.render("newpage.html",subject=subject, content=content, error=error, image=image, blogname=blogname, author=author)
+            self.render("newpage.html",subject=subject, content=content, error=error,
+                        image=image, blogname=blogname, author=author)
         
 #makes a page for each specific blog entry.
 class BlogPage(Handler):
@@ -255,7 +258,7 @@ class BlogPage(Handler):
         self.render('blogpage.html', subject=subject, created=created,
                     content=content, identity=identity, time=current,
                     author=author, userbuttons=userbuttons, image=image,
-                    blogname=blogname,likeslength=likeslength, comments=comments,
+                    blogname=blogname, likeslength=likeslength, comments=comments,
                     last_edited=last_edited)
 
     def post(self,post_id):
@@ -603,23 +606,27 @@ class LikePost(Handler):
                     self.redirect("/"+post_id)
                 
 class DeleteComment(Handler):
-        def get(self, post_id):
+        def get(self, comment_id):
             userdata=self.validateCookie()
-            blogpost=BlogEntries.get_by_id(int(post_id))
-            if blogpost:    
+            comment=Comments.get_by_id(int(comment_id))
+            if comment:
+                blogloc=comment.blogloc
+                post_loc=comment.postidentity
                 if not userdata:
                     self.redirect("/login")
-                elif blogpost.author!=userdata.name:
-                    self.redirect("/"+post_id)
+                elif comment.author!=userdata.name:
+                    self.redirect("/"+comment.blogloc)
                 else:
-                    cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"%post_id)
+                    cursor= db.GqlQuery("SELECT * FROM Comments WHERE comment_id='%s'"%comment_id)
                     for each in cursor:
-                        if each.identity==post_id:
+                        if each.comment_id==comment_id:
                             each.delete()
                             time.sleep(1)
                             frontpage_cache(True)
-                            onepage_cache(post_id,True)
-                            self.redirect("/"+userdata.name)
+                            onepage_cache(post_loc,True)
+                            self.redirect("/"+blogloc)
+            else:
+                self.redirect("/")
 
 
 app=webapp2.WSGIApplication([('/', MainPage),
@@ -634,6 +641,7 @@ app=webapp2.WSGIApplication([('/', MainPage),
                              ('/flush', Flush),
                              (r'/_edit/(\d+)', EditPage),
                              (r'/_delete/(\d+)', DeletePost),
+                             (r'/_commentdelete/(\d+)', DeleteComment),
                              (r'/_like/(\d+)', LikePost),
                              (r'/(.*)', BlogHome)],debug=True)
 
