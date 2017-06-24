@@ -1,5 +1,16 @@
   	@import url(http://weloveiconfonts.com/api/?family=entypo);
 
+  	@font-face {
+  font-family: 'entypo';
+  font-style: normal;
+  font-weight: normal;
+  src: url('http://weloveiconfonts.com/api/fonts/entypo/entypo.eot');
+  src: url('http://weloveiconfonts.com/api/fonts/entypo/entypo.eot?#iefix') format('eot'), 
+  url('http://weloveiconfonts.com/api/fonts/entypo/entypo.woff') format('woff'), 
+  url('http://weloveiconfonts.com/api/fonts/entypo/entypo.ttf') format('truetype'), 
+  url('http://weloveiconfonts.com/api/fonts/entypo/entypo.svg#entypo') format('svg');
+}
+
   	html {
   		height:100%;
   		width:100%;
@@ -542,6 +553,7 @@ font-size: 0.9em;
 }
 .commentwrap {
 	display:none;
+	background-color:rgba(255,255,255,0.9);
 }
 .cancel {
 	display:inline;
@@ -558,3 +570,13 @@ border-radius: 5px;
 .posteditnote {
 	font-size:0.7em;
 }
+.comment_option {
+	float:right;
+	padding-right:20px;
+	margin:0;
+	font-family: 'entypo';
+	background-color: transparent;
+	border:0;
+	display:inline;
+}
+

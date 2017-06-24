@@ -113,13 +113,27 @@ class MainPage(Handler):
 #prints all posts to the home/main page:   
 class BlogHome(Handler):
     def get(self, username):
+        
         comment=""
+        edit_comment_id=""
+        post_id=""
+        comment_content=""
+            
         userdata=self.validateCookie()
         blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE name='%s'"%username)
         blogposts = db.GqlQuery("SELECT * FROM BlogEntries WHERE author='%s' ORDER BY created DESC LIMIT 10"%username)
         userbuttons=""
+        logged_in_user=""
         if userdata:
+            edit_comment_id=self.request.get("comment_id")
+            if edit_comment_id:
+                edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE comment_id='%s'"%edit_comment_id)
+                if edit_comment:
+                    for each in edit_comment:
+                        post_id=each.postidentity
+                        comment_content=each.content
             userbuttons="user"
+            logged_in_user=userdata.name
             if userdata.name==username:
                 userbuttons="owner"
         image="bloghero_tower_wide.jpg"
@@ -127,7 +141,9 @@ class BlogHome(Handler):
             for each in blog_owner_data:
                 if username==each.name and each.blog_image:
                     image=each.blog_image
-        blogname=username+"'s blog"        
+            
+        blogname=username+"'s blog"
+        
             
         #blogposts=frontpage_cache()
         #querytime=memcache.get("tyme")
@@ -135,18 +151,29 @@ class BlogHome(Handler):
         #current=now-querytime
         #time=current
         comments = db.GqlQuery("SELECT * FROM Comments WHERE blogloc='%s' ORDER BY created"%username)
-        self.render("bloghome.html", blogposts=blogposts, userbuttons=userbuttons, image=image, blogname=blogname, comments=comments)
+        self.render("bloghome.html", blogposts=blogposts, userbuttons=userbuttons, image=image,
+                    blogname=blogname, comments=comments, username=username, logged_in_user=logged_in_user,
+                    edit_comment_id=edit_comment_id, post_id=post_id, comment_content=comment_content)
     def post(self,username):
+        
         userdata=self.validateCookie()
-        if not userdata:
-            self.redirect("/"+username)
-        author=userdata.name
         content=self.request.get('content')
-        postidentity=self.request.get('post_id')
-        if not content:
+        if not userdata or not content:
             self.redirect("/"+username)
-        a=Comments(content=content, author=author, postidentity=postidentity, blogloc=username)
-        a.put()
+        comment_id=self.request.get("comment_id")
+        if comment_id:
+            edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE comment_id='%s'"%comment_id)
+            for each in edit_comment:
+                each.content=content
+                each.put()
+        else:
+            author=userdata.name
+            postidentity=self.request.get('post_id')
+
+            a=Comments(content=content, author=author, postidentity=postidentity, blogloc=username)
+            a.put()
+            a.comment_id=str(a.key().id())
+            a.put()
         time.sleep(1)
         frontpage_cache(True)
         self.redirect("/"+username)
@@ -572,8 +599,26 @@ class LikePost(Handler):
                 else:
                     self.redirect("/"+post_id)
                 
-            
-    
+class DeleteComment(Handler):
+        def get(self, post_id):
+            userdata=self.validateCookie()
+            blogpost=BlogEntries.get_by_id(int(post_id))
+            if blogpost:    
+                if not userdata:
+                    self.redirect("/login")
+                elif blogpost.author!=userdata.name:
+                    self.redirect("/"+post_id)
+                else:
+                    cursor= db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"%post_id)
+                    for each in cursor:
+                        if each.identity==post_id:
+                            each.delete()
+                            time.sleep(1)
+                            frontpage_cache(True)
+                            onepage_cache(post_id,True)
+                            self.redirect("/"+userdata.name)
+
+
 app=webapp2.WSGIApplication([('/', MainPage),
                              ('/newpost', NewPost),
                              (r'/(\d+)', BlogPage),

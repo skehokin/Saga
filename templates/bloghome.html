@@ -37,7 +37,7 @@
 	</nav>
 	<div class="clear"></div>
 
-	{% for element in blogposts%}
+	{% for element in blogposts %}
 
 	<article class="wholepost">
 		<article class="blogpost">
@@ -83,7 +83,15 @@
           				Posted at
           				<time >{{each.created.strftime("%H:%M on %A %d %B %Y")}}</time>
          				by <a href="/{{each.author}}">{{each.author}}.</a>
-        			</p>
+         				{% if each.author == logged_in_user %}
+         				<form method="get">
+         				<p class="comment_options">	
+
+         				<input type="hidden" name="comment_id" value="{{each.comment_id}}">
+         				<a href="/_commentdelete/{{each.comment_id}}"><h3 class="comment_option delete"> <span class="entypo-cup"></span></h3></a>
+						<input type="submit" class="entypo-pencil comment_option edit" value="&#x270e;"> 
+        				</form>
+        			{%endif%}
 
      			 </footer>
 
@@ -98,8 +106,25 @@
 
 	{%endfor%}
 
+
+	{% if element.identity==post_id %}
 	<form method="post">
-	<label><p> make a comment</p>
+	<label>
+	<p> edit your comment</p>
+	<p>
+	<textarea name="content" class="commentBox">{{comment_content}}</textarea>
+	</p>
+	</label>
+	<input type="hidden" name="comment_id" value="{{edit_comment_id}}">
+	<input type="hidden" name="post_id" value="{{element.identity}}">
+	<input type="submit" name="commentsubmit" class="loginSubmit newcomment" value="edit comment">
+	<a href="/{{username}}"><span class="loginSubmit newcomment">cancel edit</span></a>
+	</form>
+	{%else%}
+	<form method="post">
+	<label>
+	<p> make a comment</p>
+	
 	<p>
 	<textarea name="content" class="commentBox"></textarea>
 	</p>
@@ -107,7 +132,7 @@
 	<input type="hidden" name="post_id" value="{{element.identity}}">
 	<input type="submit" name="commentsubmit" class="loginSubmit newcomment" value="add comment">
 	</form>
-
+	{%endif%}
 
       <footer><p id="remove{{loop.index}}">click to hide comments</p>
       </footer>
