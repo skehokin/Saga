@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet"> 
   <link href="static/sagastyle.css" rel="stylesheet">
-   <link href="static/{{userbuttons}}.css" rel="stylesheet">
+   <link href="static/{{user_buttons}}.css" rel="stylesheet">
   <script type="text/javascript" src="static/saga.js"></script>
 
    
@@ -37,10 +37,10 @@
 	</nav>
 	<div class="clear"></div>
 
- {% for element in blogposts %}
+ {% for element in blog_posts %}
 
 	<article class="wholepost">
-		<article class="blogpost">
+		<article class="blog_post">
 			<header class="blogheader"><h2 class="blogtitle">{{element.subject}}</h2>
 				<h3>by {{element.author}}  -  {{element.created.strftime("%H:%M %A %d %B %Y") }}. 
 				<br>{{element.likeslength}} people like this post.</h3>
@@ -72,7 +72,7 @@
 
 			<h3>comments on {{element.subject}}</h3> 
 
-	{% for each in comments if each.postidentity==element.identity%}
+	{% for each in comments if each.post_identity==element.identity%}
 			
 			<article class="singlecomment">
 				<section class="commentcontent">
@@ -179,7 +179,7 @@
 	<script>
 
 
-	{% for element in blogposts%}
+	{% for element in blog_posts%}
 	document.getElementById('button{{loop.index}}').onclick = function() {
 	document.getElementById('comment{{loop.index}}').style.display="block";
 	}
