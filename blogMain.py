@@ -53,7 +53,8 @@ class Handler(webapp2.RequestHandler):
             cookie_vals = current_cook.split("|")
             current_user = Users.get_by_id(int(cookie_vals[0]))
             if current_user:
-                if cookie_vals[1] == hashlib.sha256(current_user.name+current_user.salt).hexdigest():
+                should_cookie = hashlib.sha256(current_user.name+current_user.salt).hexdigest()
+                if cookie_vals[1] == should_cookie:
                     return current_user
             return None
 
@@ -93,7 +94,7 @@ def onepage_cache(ID, update=False):
     key = ID
     blog_post = memcache.get(key)
     if blog_post is None or update:
-        blog_post = BlogEntries.get_by_id(int(key))   
+        blog_post = BlogEntries.get_by_id(int(key))
         memcache.set(key, blog_post)
         memcache.set("time"+key, time.time())
     return blog_post
@@ -109,7 +110,6 @@ class MainPage(Handler):
 #prints all posts to the home/main page:   
 class BlogHome(Handler):
     def get(self, username):
-        comment = ""
         edit_comment_id = ""
         post_id = ""
         comment_content = ""
@@ -208,7 +208,7 @@ class NewPost(Handler):
 
         user_data = self.validate_cookie()
         if subject and content:
-            content = "<p>"+content.replace("\n","</p>\n<p>")+"</p>"
+            content = "<p>"+content.replace("\n", "</p>\n<p>")+"</p>"
             author = user_data.name
             a = BlogEntries(subject=subject, content=content, author=author, likes=[], likes_length=0)
             a.put()
@@ -231,7 +231,6 @@ class BlogPage(Handler):
 
     def get(self, post_id):
 
-        comment = ""
         edit_comment_id = ""
 
         comment_content = ""
@@ -272,9 +271,9 @@ class BlogPage(Handler):
         #current=now-querytime
         #time=current
         comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' ORDER BY created" %username)
-        self.render("bloghome.html", blog_posts = blog_posts, user_buttons = user_buttons, image = image,
-                    blog_name = blog_name, comments = comments, username = username, logged_in_user = logged_in_user,
-                    edit_comment_id = edit_comment_id, post_id = post_id, comment_content = comment_content, website_type = "single")
+        self.render("bloghome.html", blog_posts=blog_posts, user_buttons=user_buttons, image=image,
+                    blog_name=blog_name, comments=comments, username=username, logged_in_user=logged_in_user,
+                    edit_comment_id=edit_comment_id, post_id=post_id, comment_content=comment_content, website_type="single")
 
     def post(self, post_id):
         user_data = self.validate_cookie()
@@ -336,7 +335,7 @@ class Users(db.Model):
 def username_val(cursor, username):
     for each in cursor:
         if each.name == username:
-                return False
+            return False
     return True
 
 def make_salt():
@@ -368,7 +367,6 @@ class SignUp(Handler):
         username_free = username_val(cursor,username)
         error_mess = 'please enter a valid %s'
 
-        User_Name = self.request.get('username')
         #verify each input and create error messages
         ugood = valid_username(username)
         if not ugood or username.isdigit():
@@ -404,14 +402,14 @@ class SignUp(Handler):
             #a random image adds some automatic variation to each blog. The next feature, outside the scope of this project,
             #would be to make this customisable by the user.
             image_options = ["bloghero_tower_wide.jpg", "annie-spratt-218459.jpg",
-                           "scott-webb-205351.jpg", "rodrigo-soares-250630.jpg",
-                           "arwan-sutanto-180425.jpg", "dominik-scythe-152888.jpg",
-                           "jaromir-kavan-241762.jpg", "drew-hays-26240.jpg",
-                           "richard-lock-262846.jpg", "sam-ferrara-136526.jpg",
-                           "keith-misner-308.jpg", "ren-ran-232078.jpg",
-                           "aaron-burden-189321.jpg", "michal-grosicki-221226.jpg",
-                           "joshua-earle-133254.jpg", "marko-blazevic-264986.jpg",
-                           "matt-thornhill-106773.jpg", "camille-kmile-201915.jpg"]
+                             "scott-webb-205351.jpg", "rodrigo-soares-250630.jpg",
+                             "arwan-sutanto-180425.jpg", "dominik-scythe-152888.jpg",
+                             "jaromir-kavan-241762.jpg", "drew-hays-26240.jpg",
+                             "richard-lock-262846.jpg", "sam-ferrara-136526.jpg",
+                             "keith-misner-308.jpg", "ren-ran-232078.jpg",
+                             "aaron-burden-189321.jpg", "michal-grosicki-221226.jpg",
+                             "joshua-earle-133254.jpg", "marko-blazevic-264986.jpg",
+                             "matt-thornhill-106773.jpg", "camille-kmile-201915.jpg"]
             blog_image = random.choice(image_options)
 
             a = Users(name=username, password=hashed_pw, salt=cur_salt,
@@ -425,8 +423,6 @@ class SignUp(Handler):
             cookie_value = userID+"|"+str(token)
 
             self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % cookie_value)
-
-            current_cook = self.request.cookies.get("user_id")
             self.redirect("/welcome")
 
         else:
@@ -455,9 +451,8 @@ class LogIn(Handler):
                     self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % cookie_value)
                     self.redirect("/welcome")
 
-                    
                 else:
-                   self.render("login.html", error="invalid login")
+                    self.render("login.html", error="invalid login")
         if username_exists == False:
             self.render("login.html", error="invalid login")
 
@@ -486,7 +481,7 @@ class Welcome(Handler):
             current_user = Users.get_by_id(int(cookie_vals[0]))
             if current_user:
                 if cookie_vals[1] == hashlib.sha256(current_user.name+current_user.salt).hexdigest():
-                    self.redirect ("/"+current_user.name)
+                    self.redirect("/"+current_user.name)
                 else:
                     #self.write("cookie vals 1:"+cookie_vals[1]+" hash I made jsut now: "+hashlib.sha256(current_user.name+current_user.salt).hexdigest()+" user: "+current_user.name+" salt:"+current_user.salt)
                     self.redirect("/signup")
@@ -505,17 +500,17 @@ def JsonConvert(cursor):
             'created': str(entry.created)
             }
         entrylist.append(entrydict)
-    a=str(entrylist).replace('"', "@").replace("'", '"').replace("@", "'")
+    a = str(entrylist).replace('"', "@").replace("'", '"').replace("@", "'")
 
     return a
 def JsonConvertIndiv(post):
 
-    entrydict={
+    entrydict = {
         'subject': str(post.subject),
         'content': unicodedata.normalize('NFKD', post.content).encode('ascii', 'ignore'),
         'created': post.created.strftime("%H:%M on %A %d %B %Y")
         }
-    a=str(entrydict).replace('"', "@").replace("'", '"').replace("@", "'")
+    a = str(entrydict).replace('"', "@").replace("'", '"').replace("@", "'")
 
     return a
 
@@ -585,10 +580,10 @@ class DeletePost(Handler):
     def get(self, post_id):
         user_data = self.validate_cookie()
         blog_post = BlogEntries.get_by_id(int(post_id))
-        if blog_post:    
+        if blog_post:
             if not user_data:
                 self.redirect("/login")
-            elif blog_post.author!=user_data.name:
+            elif blog_post.author != user_data.name:
                 self.redirect("/"+post_id)
             else:
                 cursor = db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"%post_id)
@@ -604,7 +599,7 @@ class LikePost(Handler):
     def get(self, post_id):
         user_data = self.validate_cookie()
         blog_post = BlogEntries.get_by_id(int(post_id))
-        if blog_post:    
+        if blog_post:
             if not user_data:
                 self.redirect("/login")
             elif blog_post.author != user_data.name:
@@ -635,7 +630,6 @@ class DeleteComment(Handler):
             else:
                 target = comment.post_identity
 
-            blog_loc = comment.blog_loc
             post_loc = comment.post_identity
             if not user_data:
                 self.redirect("/login")
@@ -648,7 +642,7 @@ class DeleteComment(Handler):
                         each.delete()
                         time.sleep(1)
                         frontpage_cache(True)
-                        onepage_cache(post_loc,True)
+                        onepage_cache(post_loc, True)
                         self.redirect("/"+target)
         else:
             self.redirect("/")
@@ -659,18 +653,18 @@ class Oops(Handler):
 
 
 app = webapp2.WSGIApplication([('/', MainPage),
-                             ('/newpost', NewPost),
-                             ('/oops', Oops),
-                             (r'/(\d+)', BlogPage),
-                             (r'/(\d+).json', JsonApiIndiv),
-                             ('/signup',SignUp),
-                             ('/welcome', Welcome),
-                             ('/login', LogIn),
-                             ('/logout', LogOut),
-                             ('/.json', JsonApi),
-                             ('/flush', Flush),
-                             (r'/_edit/(\d+)', EditPage),
-                             (r'/_delete/(\d+)', DeletePost),
-                             (r'/_commentdelete/(\d+)', DeleteComment),
-                             (r'/_like/(\d+)', LikePost),
-                             (r'/(.*)', BlogHome)], debug=True)
+                               ('/newpost', NewPost),
+                               ('/oops', Oops),
+                               (r'/(\d+)', BlogPage),
+                               (r'/(\d+).json', JsonApiIndiv),
+                               ('/signup',SignUp),
+                               ('/welcome', Welcome),
+                               ('/login', LogIn),
+                               ('/logout', LogOut),
+                               ('/.json', JsonApi),
+                               ('/flush', Flush),
+                               (r'/_edit/(\d+)', EditPage),
+                               (r'/_delete/(\d+)', DeletePost),
+                               (r'/_commentdelete/(\d+)', DeleteComment),
+                               (r'/_like/(\d+)', LikePost),
+                               (r'/(.*)', BlogHome)], debug=True)
