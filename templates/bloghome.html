@@ -37,7 +37,7 @@
 	</nav>
 	<div class="clear"></div>
 
-	{% for element in blogposts %}
+ {% for element in blogposts %}
 
 	<article class="wholepost">
 		<article class="blogpost">
@@ -70,7 +70,7 @@
 
 		<section class="commentwrap" id="comment{{loop.index}}">
 
-			<h3>comments on {{element.subject}}</h3>
+			<h3>comments on {{element.subject}}</h3> 
 
 	{% for each in comments if each.postidentity==element.identity%}
 			
@@ -88,9 +88,19 @@
          				<p class="comment_options">	
 
          				<input type="hidden" name="comment_id" value="{{each.comment_id}}">
-         				<a href="/_commentdelete/{{each.comment_id}}"><h3 class="comment_option delete"> <span class="entypo-cup"></span></h3></a>
+
 						<input type="submit" class="entypo-pencil comment_option edit" value="&#x270e;"> 
         				</form>
+
+
+         				<form method="get" action="/_commentdelete/{{each.comment_id}}">
+         				<p class="comment_options">	
+
+         				<input type="hidden" name="website_type" value="{{website_type}}">
+
+						<input type="submit" class=" comment_option edit" value="&#x2615;"> 
+        				</form>
+
         			{%endif%}
 
      			 </footer>
@@ -107,7 +117,7 @@
 	{%endfor%}
 
 
-	{% if element.identity==post_id %}
+	 {% if element.identity==post_id %}
 	<form method="post">
 	<label>
 	<p> edit your comment</p>
@@ -163,7 +173,7 @@
 
 
 	{%endfor%}
-
+ 
 	</main>
 
 	<script>
@@ -184,7 +194,7 @@
 
 // }
 
-	</script>
+	</script> 
    
   </body>
 </html>
