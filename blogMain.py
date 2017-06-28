@@ -1,18 +1,14 @@
 import os
-import jinja2
-import webapp2
-from google.appengine.ext import db
-import cgi
 import re
 import random
 import string
 import hashlib
-from libs.bcrypt import bcrypt
 import unicodedata
-from google.appengine.api import memcache
-import datetime
 import time
-
+import jinja2
+import webapp2
+from google.appengine.ext import db
+from google.appengine.api import memcache
 
 #this sets up the regular expressions and puts them into functions which check if
 #certain inputs are valid
@@ -337,7 +333,7 @@ class Users(db.Model):
     blog_image = db.StringProperty(required=False)
 
 
-def UsernameVal(cursor, username):
+def username_val(cursor, username):
     for each in cursor:
         if each.name == username:
                 return False
@@ -347,7 +343,7 @@ def make_salt():
     return ''.join(random.choice(string.letters) for x in xrange(5))
 
 
-class signUp(Handler):
+class SignUp(Handler):
 
     def get(self):
         self.render('signup.html')
@@ -369,7 +365,7 @@ class signUp(Handler):
         password = self.request.get('password')
         email = self.request.get('email')
         cursor = db.GqlQuery("SELECT * FROM Users")
-        username_free = UsernameVal(cursor,username)
+        username_free = username_val(cursor,username)
         error_mess = 'please enter a valid %s'
 
         User_Name = self.request.get('username')
@@ -437,7 +433,7 @@ class signUp(Handler):
             #self.write(username_exists)
             self.render("signup.html", user=user, pass1=pass1, pass2=pass2, email=email, nameval=nameval)
 
-class logIn(Handler):
+class LogIn(Handler):
     def get(self):
         self.render("login.html")
 
@@ -465,7 +461,7 @@ class logIn(Handler):
         if username_exists == False:
             self.render("login.html", error="invalid login")
 
-class logOut(Handler):
+class LogOut(Handler):
     def get(self):
         self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%"")
         self.redirect("/signup")
@@ -500,7 +496,7 @@ class Welcome(Handler):
         else:
             self.redirect("/signup")
 
-def JSONconvert(cursor):
+def JsonConvert(cursor):
     entrylist = []
     for entry in cursor:
         entrydict = {
@@ -512,7 +508,7 @@ def JSONconvert(cursor):
     a=str(entrylist).replace('"', "@").replace("'", '"').replace("@", "'")
 
     return a
-def JSONconvert2(post):
+def JsonConvertIndiv(post):
 
     entrydict={
         'subject': str(post.subject),
@@ -523,16 +519,16 @@ def JSONconvert2(post):
 
     return a
 
-class jsonApi(Handler):
+class JsonApi(Handler):
     def get(self):
         self.response.headers.add_header('Content-Type', 'application/json; charset=UTF-8')
-        self.write(JSONconvert(db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC")))
+        self.write(JsonConvert(db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC")))
 
-class jsonApiIndiv(Handler):
+class JsonApiIndiv(Handler):
     def get(self, post_id):
         self.response.headers.add_header('Content-Type', 'application/json; charset=UTF-8')
         blog_post = BlogEntries.get_by_id(int(post_id))
-        self.write(JSONconvert2(blog_post))
+        self.write(JsonConvertIndiv(blog_post))
 
 class EditPage(Handler):
     def get(self, post_id):
@@ -666,12 +662,12 @@ app = webapp2.WSGIApplication([('/', MainPage),
                              ('/newpost', NewPost),
                              ('/oops', Oops),
                              (r'/(\d+)', BlogPage),
-                             (r'/(\d+).json', jsonApiIndiv),
-                             ('/signup',signUp),
+                             (r'/(\d+).json', JsonApiIndiv),
+                             ('/signup',SignUp),
                              ('/welcome', Welcome),
-                             ('/login', logIn),
-                             ('/logout', logOut),
-                             ('/.json', jsonApi),
+                             ('/login', LogIn),
+                             ('/logout', LogOut),
+                             ('/.json', JsonApi),
                              ('/flush', Flush),
                              (r'/_edit/(\d+)', EditPage),
                              (r'/_delete/(\d+)', DeletePost),
