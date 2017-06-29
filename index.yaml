@@ -24,6 +24,11 @@ indexes:
 
 - kind: Comments
   properties:
+  - name: blog_loc
+  - name: created
+
+- kind: Comments
+  properties:
   - name: blogloc
   - name: created
 

@@ -9,7 +9,7 @@
   <script type="text/javascript" src="static/saga.js"></script>
 
    
-  <title>{{blogname}} on saga</title>
+  <title>{{blog_name}} on saga</title>
   <style>
     .blogHero {
     	background-image: url(static/{{image}});
@@ -26,8 +26,8 @@
 	<main>
 	<header class="blogHero">
 		<!-- <img src="/static/bloghero_tower.jpg" class="blogHeroImage"> -->
-		<h1 class="blogname">{{blogname}}
-		</h1>
+		<a href="{{username}}"><h1 class="blogname">{{blog_name}}
+		</h1></a>
 		<section class="buttonwrap"><a href="/newpost"><section class="loginSubmit newpost"> NEW POST</section></a></section>
 
 	</header>
@@ -40,10 +40,10 @@
  {% for element in blog_posts %}
 
 	<article class="wholepost">
-		<article class="blog_post">
+		<article class="blogpost">
 			<header class="blogheader"><h2 class="blogtitle">{{element.subject}}</h2>
 				<h3>by {{element.author}}  -  {{element.created.strftime("%H:%M %A %d %B %Y") }}. 
-				<br>{{element.likeslength}} people like this post.</h3>
+				<br>{{element.likes_length}} people like this post.</h3>
 			</header>
 
 			<section class="postcontent">

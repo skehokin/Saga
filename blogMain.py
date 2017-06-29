@@ -339,7 +339,7 @@ def username_val(cursor, username):
 
 
 def make_salt():
-    return ''.join(random.choice(string.letters) for x in xrange(5))
+        return ''.join(random.choice(string.letters)for x in xrange(5))
 
 
 class SignUp(Handler):
@@ -441,7 +441,7 @@ class LogIn(Handler):
 
                 else:
                     self.render("login.html", error="invalid login")
-        if username_exists == False:
+        if not username_exists:
             self.render("login.html", error="invalid login")
 
 
