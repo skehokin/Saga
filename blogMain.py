@@ -30,7 +30,8 @@ def valid_email(mail):
 #sets up template paths:
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
+jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
+                               autoescape=True)
 
 
 #basic (helper?) functions to quickly and easily do certain tasks:
@@ -54,7 +55,8 @@ class Handler(webapp2.RequestHandler):
             cookie_vals = current_cook.split("|")
             current_user = Users.get_by_id(int(cookie_vals[0]))
             if current_user:
-                should_cookie = hashlib.sha256(current_user.name+current_user.salt).hexdigest()
+                should_cookie = hashlib.sha256(current_user.name 
+                                               + current_user.salt).hexdigest()
                 if cookie_vals[1] == should_cookie:
                     return current_user
             return None
@@ -88,7 +90,8 @@ def frontpage_cache(update=False):
     key = "top"
     blog_posts = memcache.get(key)
     if blog_posts is None or update:
-        blog_posts = db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC LIMIT 10")
+        blog_posts = db.GqlQuery("SELECT * FROM BlogEntries ORDER BY "
+                                 "created DESC LIMIT 10")
         blog_posts = list(blog_posts)
         memcache.set(key, blog_posts)
         memcache.set("tyme", time.time())
@@ -125,12 +128,15 @@ class BlogHome(Handler):
         user_buttons = ""
         logged_in_user = ""
         user_data = self.validate_cookie()
-        blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE name='%s'"%username)
-        blog_posts = db.GqlQuery("SELECT * FROM BlogEntries WHERE author='%s'ORDER BY created DESC LIMIT 10"%username)
+        blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE "
+                                      "name='%s'"%username)
+        blog_posts = db.GqlQuery("SELECT * FROM BlogEntries WHERE author='%s' "
+                                 "ORDER BY created DESC LIMIT 10"%username)
         if user_data:
             edit_comment_id = self.request.get("comment_id")
             if edit_comment_id:
-                edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE comment_id='%s'"%edit_comment_id)
+                edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
+                                           "comment_id='%s'"%edit_comment_id)
                 if edit_comment:
                     for each in edit_comment:
                         if user_data.name == each.author:
@@ -160,10 +166,14 @@ class BlogHome(Handler):
         #time=current
 
         website_type = "home"
-        comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' ORDER BY created"%username)
-        self.render("bloghome.html", user_buttons=user_buttons, image=image, blog_name=blog_name, comments=comments,
-                    username=username, logged_in_user=logged_in_user, edit_comment_id=edit_comment_id,
-                    post_id=post_id, comment_content=comment_content, website_type=website_type, blog_posts=blog_posts)
+        comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' "
+                               "ORDER BY created"%username)
+        self.render("bloghome.html", user_buttons=user_buttons, image=image, 
+                    blog_name=blog_name, comments=comments, username=username, 
+                    logged_in_user=logged_in_user, 
+                    edit_comment_id=edit_comment_id,
+                    post_id=post_id, comment_content=comment_content, 
+                    website_type=website_type, blog_posts=blog_posts)
 
     def post(self, username):
         user_data = self.validate_cookie()
@@ -172,7 +182,8 @@ class BlogHome(Handler):
             self.redirect("/"+username)
         comment_id = self.request.get("comment_id")
         if comment_id:
-            edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE comment_id='%s'" % comment_id)
+            edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
+                                       "comment_id='%s'" % comment_id)
             for each in edit_comment:
                 if user_data.name == each.author:
                     each.content = content
@@ -182,7 +193,8 @@ class BlogHome(Handler):
         else:
             author = user_data.name
             post_identity = self.request.get('post_id')
-            a = Comments(content=content, author=author, post_identity=post_identity, blog_loc=username)
+            a = Comments(content=content, author=author, 
+                         post_identity=post_identity, blog_loc=username)
             a.put()
             a.comment_id = str(a.key().id())
             a.put()
@@ -201,7 +213,8 @@ class NewPost(Handler):
             image = user_data.blog_image
             blog_name = user_data.name+"'s blog"
             author = user_data.name
-            self.render("newpage.html", image=image, blog_name=blog_name, author=author)
+            self.render("newpage.html", image=image, blog_name=blog_name, 
+                        author=author)
         else:
             self.redirect("/login")
             
@@ -213,7 +226,8 @@ class NewPost(Handler):
         if subject and content:
             content = "<p>"+content.replace("\n", "</p>\n<p>")+"</p>"
             author = user_data.name
-            a = BlogEntries(subject=subject, content=content, author=author, likes=[], likes_length=0)
+            a = BlogEntries(subject=subject, content=content, author=author, 
+                            likes=[], likes_length=0)
             a.put()
             a.identity = str(a.key().id())
             a.put()
@@ -226,8 +240,9 @@ class NewPost(Handler):
             image = user_data.blog_image
             blog_name = user_data.name+"'s blog"
             author = user_data.name
-            self.render("newpage.html", subject=subject, content=content, error=error,
-                        image=image, blog_name=blog_name, author=author)
+            self.render("newpage.html", subject=subject, content=content, 
+                        error=error, image=image, blog_name=blog_name, 
+                        author=author)
 
 
 #makes a page for each specific blog entry.
@@ -239,15 +254,18 @@ class BlogPage(Handler):
         blog_post = BlogEntries.get_by_id(int(post_id))
         username = blog_post.author
         user_data = self.validate_cookie()
-        blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE name='%s'" % username)
-        blog_posts = db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'" % post_id)
+        blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE "
+                                      "name='%s'" % username)
+        blog_posts = db.GqlQuery("SELECT * FROM BlogEntries WHERE "
+                                 "identity='%s'" % post_id)
         user_buttons = ""
         logged_in_user = ""
         post_id = ""
         if user_data:
             edit_comment_id = self.request.get("comment_id")
             if edit_comment_id:
-                edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE comment_id='%s'" % edit_comment_id)
+                edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
+                                           "comment_id='%s'" % edit_comment_id)
                 if edit_comment:
                     for each in edit_comment:
                         if user_data.name == each.author:
@@ -270,19 +288,26 @@ class BlogPage(Handler):
         #now=time.time()
         #current=now-querytime
         #time=current
-        comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' ORDER BY created" %username)
-        self.render("bloghome.html", blog_posts=blog_posts, user_buttons=user_buttons, image=image,
-                    blog_name=blog_name, comments=comments, username=username, logged_in_user=logged_in_user,
-                    edit_comment_id=edit_comment_id, post_id=post_id, comment_content=comment_content, website_type="single")
+        comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' "
+                               "ORDER BY created" %username)
+        self.render("bloghome.html", blog_posts=blog_posts, 
+                    user_buttons=user_buttons, image=image,
+                    blog_name=blog_name, comments=comments, 
+                    username=username, logged_in_user=logged_in_user,
+                    edit_comment_id=edit_comment_id, post_id=post_id, 
+                    comment_content=comment_content, website_type="single")
 
     def post(self, post_id):
+        blog_post = BlogEntries.get_by_id(int(post_id))
+        username = blog_post.author
         user_data = self.validate_cookie()
         content = self.request.get('content')
         if not user_data or not content:
             self.redirect("/"+username)
         comment_id = self.request.get("comment_id")
         if comment_id:
-            edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE comment_id='%s'"%comment_id)
+            edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
+                                       "comment_id='%s'"%comment_id)
             for each in edit_comment:
                 if user_data.name == each.author:
                     each.content = content
@@ -290,14 +315,16 @@ class BlogPage(Handler):
                 else:
                     self.redirect("/"+username)
         else:
-            blog_loc_search = db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"%post_id)
+            blog_loc_search = db.GqlQuery(("SELECT * FROM BlogEntries "
+                                           "WHERE identity='%s'"%post_id))
             if blog_loc_search:
                 for each in blog_loc_search:
                     if each.identity == post_id:
                         blog_loc = each.author
             post_identity = self.request.get('post_id')
             author = user_data.name
-            a = Comments(content=content, author=author, post_identity=post_identity, blog_loc=blog_loc)
+            a = Comments(content=content, author=author, 
+                         post_identity=post_identity, blog_loc=blog_loc)
             a.put()
             a.comment_id = str(a.key().id())
             a.put()
@@ -387,20 +414,30 @@ class SignUp(Handler):
         #if all good, not only redirect to new page, but also add to the users database and set a cookie.
         if ugood and pgood and pgood2 and egood and username_free:
             static_salt = make_salt()
-            hashed_pw = str(hashlib.sha256(username+password+static_salt).hexdigest())
+            values = username + password + static_salt
+            hashed_pw = str(hashlib.sha256(values).hexdigest())
             cur_salt = make_salt()
             token = hashlib.sha256(username+cur_salt).hexdigest()
             #a random image adds some automatic variation to each blog. The next feature, outside the scope of this project,
             #would be to make this customisable by the user.
-            image_options = ["bloghero_tower_wide.jpg", "annie-spratt-218459.jpg",
-                             "scott-webb-205351.jpg", "rodrigo-soares-250630.jpg",
-                             "arwan-sutanto-180425.jpg", "dominik-scythe-152888.jpg",
-                             "jaromir-kavan-241762.jpg", "drew-hays-26240.jpg",
-                             "richard-lock-262846.jpg", "sam-ferrara-136526.jpg",
-                             "keith-misner-308.jpg", "ren-ran-232078.jpg",
-                             "aaron-burden-189321.jpg", "michal-grosicki-221226.jpg",
-                             "joshua-earle-133254.jpg", "marko-blazevic-264986.jpg",
-                             "matt-thornhill-106773.jpg", "camille-kmile-201915.jpg"]
+            image_options = ["bloghero_tower_wide.jpg", 
+                             "annie-spratt-218459.jpg",
+                             "scott-webb-205351.jpg", 
+                             "rodrigo-soares-250630.jpg",
+                             "arwan-sutanto-180425.jpg", 
+                             "dominik-scythe-152888.jpg",
+                             "jaromir-kavan-241762.jpg", 
+                             "drew-hays-26240.jpg",
+                             "richard-lock-262846.jpg", 
+                             "sam-ferrara-136526.jpg",
+                             "keith-misner-308.jpg", 
+                             "ren-ran-232078.jpg",
+                             "aaron-burden-189321.jpg", 
+                             "michal-grosicki-221226.jpg",
+                             "joshua-earle-133254.jpg", 
+                             "marko-blazevic-264986.jpg",
+                             "matt-thornhill-106773.jpg", 
+                             "camille-kmile-201915.jpg"]
             blog_image = random.choice(image_options)
             a = Users(name=username, password=hashed_pw, salt=cur_salt,
                       mail=email, pwsalt=static_salt, blog_image=blog_image)
@@ -409,11 +446,13 @@ class SignUp(Handler):
             #here we put all the data together to make the correct cookie, which is a
             #string made of userid, an exclamation mark, and our token, which is the username hashed with salt.
             cookie_value = userID+"|"+str(token)
-            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % cookie_value)
+            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'
+                                             % cookie_value)
             self.redirect("/welcome")
         else:
             #self.write(username_exists)
-            self.render("signup.html", user=user, pass1=pass1, pass2=pass2, email=email, nameval=nameval)
+            self.render("signup.html", user=user, pass1=pass1, pass2=pass2, 
+                        email=email, nameval=nameval)
 
 
 class LogIn(Handler):
@@ -430,13 +469,16 @@ class LogIn(Handler):
             if each.name == username:
                 username_exists = True
                 #self.write(each.name+each.password+each.pwsalt)
-                if each.password == str(hashlib.sha256(username+password+each.pwsalt).hexdigest()):
+                values_hash=hashlib.sha256(username + password + each.pwsalt)
+                if each.password == str(values_hash.hexdigest()):
                     each.salt = make_salt()
                     each.put()
                     userID = each.key().id()
                     token = hashlib.sha256(each.name+each.salt).hexdigest()
                     cookie_value = str(userID)+"|"+str(token)
-                    self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/' % cookie_value)
+                    self.response.headers.add_header('Set-Cookie', 
+                                                     'user_id=%s; Path=/' 
+                                                     % cookie_value)
                     self.redirect("/welcome")
 
                 else:
@@ -469,7 +511,8 @@ class Welcome(Handler):
             cookie_vals = current_cook.split("|")
             current_user = Users.get_by_id(int(cookie_vals[0]))
             if current_user:
-                if cookie_vals[1] == hashlib.sha256(current_user.name+current_user.salt).hexdigest():
+                values = current_user.name + current_user.salt
+                if cookie_vals[1] == hashlib.sha256(values).hexdigest():
                     self.redirect("/"+current_user.name)
                 else:
                     #self.write("cookie vals 1:"+cookie_vals[1]+" hash I made jsut now: "+hashlib.sha256(current_user.name+current_user.salt).hexdigest()+" user: "+current_user.name+" salt:"+current_user.salt)
@@ -484,9 +527,11 @@ class Welcome(Handler):
 def JsonConvert(cursor):
     entrylist = []
     for entry in cursor:
+        content=unicodedata.normalize('NFKD', entry.content)
+        content=content.encode('ascii', 'ignore')
         entrydict = {
             'subject': str(entry.subject),
-            'content': unicodedata.normalize('NFKD', entry.content).encode('ascii', 'ignore'),
+            'content': content,
             'created': str(entry.created)
             }
         entrylist.append(entrydict)
@@ -495,9 +540,11 @@ def JsonConvert(cursor):
 
 
 def JsonConvertIndiv(post):
+    content=unicodedata.normalize('NFKD', post.content)
+    content=content.encode('ascii', 'ignore')
     entrydict = {
         'subject': str(post.subject),
-        'content': unicodedata.normalize('NFKD', post.content).encode('ascii', 'ignore'),
+        'content': content,
         'created': post.created.strftime("%H:%M on %A %d %B %Y")
         }
     a = str(entrydict).replace('"', "@").replace("'", '"').replace("@", "'")
@@ -507,14 +554,17 @@ def JsonConvertIndiv(post):
 class JsonApi(Handler):
     
     def get(self):
-        self.response.headers.add_header('Content-Type', 'application/json; charset=UTF-8')
-        self.write(JsonConvert(db.GqlQuery("SELECT * FROM BlogEntries ORDER BY created DESC")))
+        self.response.headers.add_header('Content-Type', 
+                                         'application/json; charset=UTF-8')
+        self.write(JsonConvert(db.GqlQuery("SELECT * FROM BlogEntries "
+                                           "ORDER BY created DESC")))
 
 
 class JsonApiIndiv(Handler):
     
     def get(self, post_id):
-        self.response.headers.add_header('Content-Type', 'application/json; charset=UTF-8')
+        self.response.headers.add_header('Content-Type', 
+                                         'application/json; charset=UTF-8')
         blog_post = BlogEntries.get_by_id(int(post_id))
         self.write(JsonConvertIndiv(blog_post))
 
@@ -528,14 +578,16 @@ class EditPage(Handler):
         if not user_data:
             self.redirect("/login")
         else:
-            cursor = db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'" % post_id)
+            cursor = db.GqlQuery("SELECT * FROM BlogEntries "
+                                 "WHERE identity='%s'" % post_id)
             for each in cursor:
                 if each.identity == post_id:
                     if user_data.name == each.author:
                         image = user_data.blog_image
                         content = each.content[3:-4].replace("</p>\n<p>", "\n")
                         subject = each.subject
-                        self.render("newpage.html", subject=subject, content=content, image=image)
+                        self.render("newpage.html", subject=subject, 
+                                    content=content, image=image)
                     else:
                         self.redirect("/"+post_id)
 
@@ -545,7 +597,8 @@ class EditPage(Handler):
         if not user_data:
             self.redirect("/login")
         else:
-            cursor = db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'" % post_id)
+            cursor = db.GqlQuery("SELECT * FROM BlogEntries "
+                                 "WHERE identity='%s'" % post_id)
             for each in cursor:
                 if each.identity == post_id:
                     if user_data.name != each.author:
@@ -554,8 +607,11 @@ class EditPage(Handler):
                         subject = self.request.get('subject')
                         content = self.request.get('content')
                         if content and subject:
-                            content = "<p>"+content.replace("\n", "</p>\n<p>")+"</p>"
-                            cursor = db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'" % post_id)
+                            content = content.replace("\n", "</p>\n<p>")
+                            content = "<p>"+content+"</p>"
+                            cursor = db.GqlQuery("SELECT * FROM BlogEntries "
+                                                 "WHERE identity='%s'" 
+                                                 % post_id)
                             for each in cursor:
                                 if each.identity == post_id:
                                     each.subject = subject
@@ -566,8 +622,10 @@ class EditPage(Handler):
                                     onepage_cache(post_id, True)
                                     self.redirect("/"+post_id)
                         else:
-                            error = "please add both a subject and body for your blog entry!"
-                            self.render("newpage.html", subject=subject, content=content, error=error)
+                            error = "please add both a subject and "
+                                    "body for your blog entry!"
+                            self.render("newpage.html", subject=subject, 
+                                        content=content, error=error)
 
 
 class DeletePost(Handler):
@@ -581,7 +639,8 @@ class DeletePost(Handler):
             elif blog_post.author != user_data.name:
                 self.redirect("/"+post_id)
             else:
-                cursor = db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'"%post_id)
+                cursor = db.GqlQuery("SELECT * FROM BlogEntries "
+                                     "WHERE identity='%s'"%post_id)
                 for each in cursor:
                     if each.identity == post_id:
                         each.delete()
@@ -599,7 +658,8 @@ class LikePost(Handler):
             if not user_data:
                 self.redirect("/login")
             elif blog_post.author != user_data.name:
-                cursor = db.GqlQuery("SELECT * FROM BlogEntries WHERE identity='%s'" % post_id)
+                cursor = db.GqlQuery("SELECT * FROM BlogEntries "
+                                     "WHERE identity='%s'" % post_id)
                 for each in cursor:
                     if each.identity == post_id:
                         if user_data.name in each.likes:
@@ -632,7 +692,8 @@ class DeleteComment(Handler):
             elif comment.author != user_data.name:
                 self.redirect("/"+target)
             else:
-                cursor = db.GqlQuery("SELECT * FROM Comments WHERE comment_id='%s'"%comment_id)
+                cursor = db.GqlQuery("SELECT * FROM Comments "
+                                     "WHERE comment_id='%s'"%comment_id)
                 for each in cursor:
                     if each.comment_id == comment_id:
                         each.delete()
