@@ -38,18 +38,41 @@ jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
 # taught by reddit's spez
 
 class Handler(webapp2.RequestHandler):
+    """This handler class extends the webapp2 RequestHandler class, 
+    and was primarily created by Steve Huffman to reduce the difficulty
+    of typing out the webapp2 write function and the jinja2 template
+    rendering process. The cookie validation function was later added
+    by Siobhan Hokin.
+    """
 
     def write(self, *a, **kw):
+        """This shortens the webapp2 write function so it is called 
+        with just "self.write".
+        """
         self.response.out.write(*a, **kw)
 
     def render_str(self, template, **params):
+        """This function is used as part of the final render function,
+        which can be used to shortcut rendering a jinja2 template. It
+        retrieves the requisite html template and includes the given
+        keywords in the template.
+        """
         t = jinja_env.get_template(template)
         return t.render(params)
 
     def render(self, template, **kw):
+        """This function is the final one in the jinja2 template rendering
+        shortcut. It writes the template (put together by render_str) to the 
+        output website.
+        """
         self.write(self.render_str(template, **kw))
 
     def validate_cookie(self):
+        """This function is a summary of the "Welcome" handler's activity:
+        it checks to make sure that the the login cookie is legitimate - 
+        the same as a cookie created by the info in the User database.
+        if so, it returns the current user's data.
+        """
         current_cook = self.request.cookies.get("user_id")
         if current_cook:
             cookie_vals = current_cook.split("|")
@@ -64,6 +87,11 @@ class Handler(webapp2.RequestHandler):
 
 #create database for blog entries:
 class BlogEntries(db.Model):
+    """Not much to explain here. This class creates a new data entry for 
+    datastore as per the model instance docs:
+    https://cloud.google.com/appengine/docs/standard/python/datastore/modelclass
+    This one is for blog entries.
+    """
     author = db.StringProperty(required=True)
     subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
@@ -76,6 +104,11 @@ class BlogEntries(db.Model):
 
 #create database for blog entries:
 class Comments(db.Model):
+    """Not much to explain here. This class creates a new data entry for 
+    datastore as per the Model instance docs:
+    https://cloud.google.com/appengine/docs/standard/python/datastore/modelclass
+    This one is for comments on blog posts.
+    """
     author = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)
@@ -87,6 +120,10 @@ class Comments(db.Model):
 
 #adding caching:
 def frontpage_cache(update=False):
+    """This function does one of two things: updates memcache, or gives
+    the current memcache value for the front page.
+    Pretty sure the code has changed so it's no longer useful, though.
+    """
     key = "top"
     blog_posts = memcache.get(key)
     if blog_posts is None or update:
@@ -99,6 +136,10 @@ def frontpage_cache(update=False):
 
 
 def onepage_cache(ID, update=False):
+    """This function does one of two things: updates memcache, or gives
+    the current memcache value for a single given page.
+    Pretty sure the code has changed so it's no longer useful, though.
+    """
     key = ID
     blog_post = memcache.get(key)
     if blog_post is None or update:
@@ -109,8 +150,13 @@ def onepage_cache(ID, update=False):
 
 
 class MainPage(Handler):
+    """Renders the saga main page, or redirects to a user's blog homepage.
+    """
     
     def get(self):
+        """Renders the saga main page, or redirects to a user's blog 
+        homepage.
+        """
         user_data = self.validate_cookie()
         if user_data:
             self.redirect("/"+user_data.name)
@@ -120,8 +166,14 @@ class MainPage(Handler):
 
 #prints all posts to the home/main page:   
 class BlogHome(Handler):
+    """Renders any blog's homepage.
+    """
     
     def get(self, username):
+        """Renders any blog's homepage based on the username in the URL.
+        Also handles pre-entering comment data into the comments form for
+        comment editing initiated on this page.
+        """
         edit_comment_id = ""
         post_id = ""
         comment_content = ""
@@ -176,6 +228,9 @@ class BlogHome(Handler):
                     website_type=website_type, blog_posts=blog_posts)
 
     def post(self, username):
+        """Takes the comment data from a blog homepage and enters it into
+        the Comment database.
+        """
         user_data = self.validate_cookie()
         content = self.request.get('content')
         if not user_data or not content:
@@ -206,8 +261,13 @@ class BlogHome(Handler):
 # constructs webpage for adding new posts, including form and database entry creation
 #doesn't seem like it would allow for SQL injection
 class NewPost(Handler):
+    """Renders a form then acts upon the given data, adding it as a new 
+    blog entry.
+    """
     
     def get(self):
+        """Renders a new post form with the user's custom data.
+        """
         user_data = self.validate_cookie()
         if user_data:
             image = user_data.blog_image
@@ -219,6 +279,9 @@ class NewPost(Handler):
             self.redirect("/login")
             
     def post(self):
+        """Checks the new post data, and either enters it into the database,
+        or asks again for the right data.
+         """
         subject = self.request.get('subject')
         content = self.request.get('content')
 
@@ -245,10 +308,18 @@ class NewPost(Handler):
                         author=author)
 
 
-#makes a page for each specific blog entry.
+
 class BlogPage(Handler):
+    """Renders the appropriate webpage for any single blog entry, also 
+    stores any comment data entered on that page.
+    """
     
     def get(self, post_id):
+        """Sets up and renders a page for a single blog entry, based 
+        on the entry data and the author's customised blog appearance.
+        Also handles pre-entering comment data into the comments form for
+        any comment editing initiated on this page.
+        """
         edit_comment_id = ""
         comment_content = ""
         blog_post = BlogEntries.get_by_id(int(post_id))
@@ -298,6 +369,9 @@ class BlogPage(Handler):
                     comment_content=comment_content, website_type="single")
 
     def post(self, post_id):
+        """Takes the comment data from a single blog page and enters it into
+        the Comment database.
+        """
         blog_post = BlogEntries.get_by_id(int(post_id))
         username = blog_post.author
         user_data = self.validate_cookie()
@@ -334,6 +408,8 @@ class BlogPage(Handler):
 
 
 class Flush(Handler):
+    """Removes all data from the cache.
+    """
     def get(self):
         memcache.flush_all()
         self.redirect("/")
@@ -349,6 +425,11 @@ class Flush(Handler):
 
 #creates a database for the users of the blog with current needed fields
 class Users(db.Model):
+    """Not much to explain here. This class creates a new data entity for 
+    datastore as per the model instance docs:
+    https://cloud.google.com/appengine/docs/standard/python/datastore/modelclass
+    This one is for blog user data.
+    """
     name = db.StringProperty(required=True)
     password = db.StringProperty(required=True)
     salt = db.StringProperty(required=False)
@@ -359,6 +440,8 @@ class Users(db.Model):
 
 
 def username_val(cursor, username):
+    """Checks to see if the requested username already exists.
+    """
     for each in cursor:
         if each.name == username:
             return False
@@ -366,12 +449,21 @@ def username_val(cursor, username):
 
 
 def make_salt():
-        return ''.join(random.choice(string.letters)for x in xrange(5))
+    """Makes a random 5-letter salt to add to any hashing security 
+    measures. This is Steven Huffman's version.
+    """
+    return ''.join(random.choice(string.letters)for x in xrange(5))
 
 
 class SignUp(Handler):
+    """Renders the saga signup form, then, if all the given user data is
+    acceptable, stores the user data in the User database,
+    "signing up the user" and creates and sets the login cookie.
+    """
 
     def get(self):
+        """Renders a simple signup form with no customised elements.
+        """
         self.render('signup.html')
 
     def post(self):
@@ -381,6 +473,12 @@ class SignUp(Handler):
         #so what we actually need to do is create a list of users and check if username is among them. 
         #!!!!!!!! man this defs allows sql injection but I'll
         #leave escaping it til I've checked the easy way to do that again
+        """Takes the user data, checks it, creates any needed error 
+        messages, and finally either stores the data and creates the login 
+        cookie, or issues a new copy of the form with errors for the user
+        to correct.
+        
+        """
         user = ""
         pass1 = ""
         pass2 = ""
@@ -456,11 +554,23 @@ class SignUp(Handler):
 
 
 class LogIn(Handler):
+    """Renders a basic login page for saga, then if all the data 
+    is correct, creates a new login cookie, with a new salt, 
+    and enters that into the database. This means that even if cookie 
+    theft were to happen, it would only be valid until the account-owner 
+    goes through the login process again.
+    """
     
     def get(self):
+        """Renders the login form.
+        """
         self.render("login.html")
 
     def post(self):
+        """Checks the data posted from the login form, constructs and sets
+        the login cookie if appropriate, re-displays the login form with an
+        error if not.
+        """
         username_exists = False
         username = self.request.get('username')
         password = self.request.get('password')
@@ -488,12 +598,17 @@ class LogIn(Handler):
 
 
 class LogOut(Handler):
+    """Deletes the cookie content to log out the user.
+    """
     def get(self):
+        """Deletes the cookie content to log out the user.
+        """
         self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%"")
         self.redirect("/signup")
         
         
 class Welcome(Handler):
+    """probs can just delete this, right?"""
     #I will need to get the email address to the new page. I'll need to send it by get somehow?
     #possibly actually I can just retrieve it from the database.
     #nah, nah, we get it from the cookie.
@@ -525,6 +640,7 @@ class Welcome(Handler):
 
 
 def JsonConvert(cursor):
+    """This function converts an entire set of blog entries to JSON"""
     entrylist = []
     for entry in cursor:
         content=unicodedata.normalize('NFKD', entry.content)
@@ -540,6 +656,7 @@ def JsonConvert(cursor):
 
 
 def JsonConvertIndiv(post):
+    """This function converts a single blog entry to JSON"""
     content=unicodedata.normalize('NFKD', post.content)
     content=content.encode('ascii', 'ignore')
     entrydict = {
@@ -552,7 +669,8 @@ def JsonConvertIndiv(post):
 
 
 class JsonApi(Handler):
-    
+    """This API uses the JSON convert fucntion to create a JSON version of
+    all the blog entries"""
     def get(self):
         self.response.headers.add_header('Content-Type', 
                                          'application/json; charset=UTF-8')
@@ -561,6 +679,8 @@ class JsonApi(Handler):
 
 
 class JsonApiIndiv(Handler):
+    """This API uses the JSON convert fucntion to create a JSON version of
+    a single blog entry"""
     
     def get(self, post_id):
         self.response.headers.add_header('Content-Type', 
@@ -570,8 +690,15 @@ class JsonApiIndiv(Handler):
 
 
 class EditPage(Handler):
-    
+    """This handler allows for the editing of blog posts by the user who 
+    originally made them. It uses the same newpage.html form as the 
+    NewPost handler, but enters the data from the requested blog post.
+    """
     def get(self, post_id):
+        """retrieving the post id from the URL, this function finds the user
+        data appropriate to the logged in user, checking that the user is also
+        the author of the post. This and the post's data are used to 
+        create the edit page."""
         content = ""
         subject = ""
         user_data = self.validate_cookie()
@@ -592,6 +719,9 @@ class EditPage(Handler):
                         self.redirect("/"+post_id)
 
     def post(self, post_id):
+        """Once the edit form has been posted, this function overwrites 
+        the content of the original post with the new content.
+        """
         content = ""
         user_data = self.validate_cookie()
         if not user_data:
@@ -606,6 +736,7 @@ class EditPage(Handler):
                     else:
                         subject = self.request.get('subject')
                         content = self.request.get('content')
+                        image = user_data.blog_image
                         if content and subject:
                             content = content.replace("\n", "</p>\n<p>")
                             content = "<p>"+content+"</p>"
@@ -622,15 +753,21 @@ class EditPage(Handler):
                                     onepage_cache(post_id, True)
                                     self.redirect("/"+post_id)
                         else:
-                            error = "please add both a subject and "
-                                    "body for your blog entry!"
+                            error = ("please add both a subject and "
+                                    "body for your blog entry!")
                             self.render("newpage.html", subject=subject, 
-                                        content=content, error=error)
+                                        content=content, error=error, 
+                                        image=image)
 
 
 class DeletePost(Handler):
-    
+    """This handler allows a user to delete a blog entry they wrote. 
+    """
     def get(self, post_id):
+        """This function retrieves the post id from the URL and, after 
+        checking that the user is the author of the post, deletes it 
+        from the database.
+        """
         user_data = self.validate_cookie()
         blog_post = BlogEntries.get_by_id(int(post_id))
         if blog_post:
@@ -651,7 +788,18 @@ class DeletePost(Handler):
 
 
 class LikePost(Handler):
+    """This Handler allows any user to like a post they did not write. 
+    This is limited to only one like per user per post.
+    """
     def get(self, post_id):
+        """After checking that the user making this request is not the 
+        author of the post, the user's name is added to a list of users
+        who have liked the post, which is recorded in the post's database
+        entry. This list is checked each time anyone attempts to like a 
+        post, so they can only like the post once. The current length 
+        of this list is also recorded in the database for easy addition 
+        to the blog post representations on the website.
+        """
         user_data = self.validate_cookie()
         blog_post = BlogEntries.get_by_id(int(post_id))
         if blog_post:
@@ -676,6 +824,7 @@ class LikePost(Handler):
                 self.redirect("/"+post_id)
 
 class DeleteComment(Handler):
+    """This handler allows the author of a comment to delete it"""
     def get(self, comment_id):
         user_data = self.validate_cookie()
         comment = Comments.get_by_id(int(comment_id))
@@ -706,6 +855,9 @@ class DeleteComment(Handler):
 
 
 class Oops(Handler):
+    """This is the "404" page, which is visited each time a post or user
+    does not exist.
+    """
     def get(self):
         self.render("oops.html")
 
