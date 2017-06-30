@@ -16,14 +16,20 @@ from google.appengine.api import memcache
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
+    """Checks a username against the USER_RE regex. 
+    """
     return USER_RE.match(username)
 
 PASS_RE = re.compile(r"^.{3,20}$")
 def valid_pass(passw):
+    """Checks a password against the PASS_RE regex. 
+    """
     return PASS_RE.match(passw)
 
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 def valid_email(mail):
+    """Checks an email address against the EMAIL_RE regex. 
+    """
     return EMAIL_RE.match(mail)
 
 
@@ -410,6 +416,8 @@ class Flush(Handler):
     """Removes all data from the cache.
     """
     def get(self):
+        """Removes all data from the cache.
+        """
         memcache.flush_all()
         self.redirect("/")
 
@@ -637,7 +645,7 @@ class Welcome(Handler):
             self.redirect("/signup")
 
 
-def JsonConvert(cursor):
+def json_convert(cursor):
     """This function converts an entire set of blog entries to JSON"""
     entrylist = []
     for entry in cursor:
@@ -653,7 +661,7 @@ def JsonConvert(cursor):
     return a
 
 
-def JsonConvertIndiv(post):
+def json_convert_indiv(post):
     """This function converts a single blog entry to JSON"""
     content = unicodedata.normalize('NFKD', post.content)
     content = content.encode('ascii', 'ignore')
@@ -667,24 +675,29 @@ def JsonConvertIndiv(post):
 
 
 class JsonApi(Handler):
-    """This API uses the JSON convert fucntion to create a JSON version of
+    """This API uses the JSON convert function to create a JSON version of
     all the blog entries"""
+
     def get(self):
+        """This function uses the JSON convert function to create a JSON 
+        version of all the blog entries"""
         self.response.headers.add_header('Content-Type',
                                          'application/json; charset=UTF-8')
-        self.write(JsonConvert(db.GqlQuery("SELECT * FROM BlogEntries "
+        self.write(json_convert(db.GqlQuery("SELECT * FROM BlogEntries "
                                            "ORDER BY created DESC")))
 
 
 class JsonApiIndiv(Handler):
-    """This API uses the JSON convert fucntion to create a JSON version of
+    """This API uses the JSON convert function to create a JSON version of
     a single blog entry"""
     
     def get(self, post_id):
+        """This function uses the JSON convert function to create a 
+        JSON version of a single blog entry"""
         self.response.headers.add_header('Content-Type',
                                          'application/json; charset=UTF-8')
         blog_post = BlogEntries.get_by_id(int(post_id))
-        self.write(JsonConvertIndiv(blog_post))
+        self.write(json_convert_indiv(blog_post))
 
 
 class EditPage(Handler):
@@ -692,6 +705,7 @@ class EditPage(Handler):
     originally made them. It uses the same newpage.html form as the
     NewPost handler, but enters the data from the requested blog post.
     """
+
     def get(self, post_id):
         """retrieving the post id from the URL, this function finds the user
         data appropriate to the logged in user, checking that the user is also
@@ -761,6 +775,7 @@ class EditPage(Handler):
 class DeletePost(Handler):
     """This handler allows a user to delete a blog entry they wrote.
     """
+
     def get(self, post_id):
         """This function retrieves the post id from the URL and, after
         checking that the user is the author of the post, deletes it
@@ -789,6 +804,7 @@ class LikePost(Handler):
     """This Handler allows any user to like a post they did not write.
     This is limited to only one like per user per post.
     """
+
     def get(self, post_id):
         """After checking that the user making this request is not the
         author of the post, the user's name is added to a list of users
@@ -821,9 +837,14 @@ class LikePost(Handler):
             else:
                 self.redirect("/"+post_id)
 
+
 class DeleteComment(Handler):
     """This handler allows the author of a comment to delete it"""
+
     def get(self, comment_id):
+        """This function allows the author of a comment to delete it.
+        It then redirects to the page the user was on previously,
+        using data posted by the comment delete button."""
         user_data = self.validate_cookie()
         comment = Comments.get_by_id(int(comment_id))
         if comment:
@@ -853,8 +874,8 @@ class DeleteComment(Handler):
 
 
 class Oops(Handler):
-    """This is the "404" page, which is visited each time a post or user
-    does not exist.
+    """This is the "404" page, which is visited each time a post or
+    user page proves not to exist.
     """
     def get(self):
         self.render("oops.html")
