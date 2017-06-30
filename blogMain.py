@@ -10,38 +10,32 @@ import webapp2
 from google.appengine.ext import db
 from google.appengine.api import memcache
 
-#this sets up the regular expressions and puts them into functions which check if
-#certain inputs are valid
-
-
+#This sets up the regular expressions and 
+#uses each in a function which checks if
+#certain inputs are valid:
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+PASS_RE = re.compile(r"^.{3,20}$")
+EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
+
 def valid_username(username):
     """Checks a username against the USER_RE regex. 
     """
     return USER_RE.match(username)
 
-PASS_RE = re.compile(r"^.{3,20}$")
 def valid_pass(passw):
     """Checks a password against the PASS_RE regex. 
     """
     return PASS_RE.match(passw)
 
-EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 def valid_email(mail):
     """Checks an email address against the EMAIL_RE regex. 
     """
     return EMAIL_RE.match(mail)
 
-
-#sets up template paths:
-
+# Sets up template paths:
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
                                autoescape=True)
-
-
-#basic (helper?) functions to quickly and easily do certain tasks:
-# taught by reddit's spez
 
 class Handler(webapp2.RequestHandler):
     """This handler class extends the webapp2 RequestHandler class,
@@ -91,7 +85,9 @@ class Handler(webapp2.RequestHandler):
             return None
 
 
-#create database for blog entries:
+### Databases
+
+# Create database for blog entries:
 class BlogEntries(db.Model):
     """Not much to explain here. This class creates a new data entry for
     datastore as per the model instance docs:
@@ -108,7 +104,7 @@ class BlogEntries(db.Model):
     likes_length = db.IntegerProperty(required=True)
 
 
-#create database for blog entries:
+# Create database for Comment entries:
 class Comments(db.Model):
     """Not much to explain here. This class creates a new data entry for
     datastore as per the Model instance docs:
@@ -124,7 +120,22 @@ class Comments(db.Model):
     blog_loc = db.StringProperty(required=True)
 
 
-#adding caching:
+class Users(db.Model):
+    """Not much to explain here. This class creates a new data entity for
+    datastore as per the model instance docs:
+    https://cloud.google.com/appengine/docs/standard/python/datastore/modelclass
+    This one is for blog user data.
+    """
+    name = db.StringProperty(required=True)
+    password = db.StringProperty(required=True)
+    salt = db.StringProperty(required=False)
+    pwsalt = db.StringProperty(required=False)
+    mail = db.StringProperty(required=False)
+    signed_up = db.DateTimeProperty(auto_now_add=True)
+    blog_image = db.StringProperty(required=False)
+
+
+# Caching functions:
 def frontpage_cache(update=False):
     """This function does one of two things: updates memcache, or gives
     the current memcache value for the front page.
@@ -154,6 +165,52 @@ def onepage_cache(ID, update=False):
         memcache.set("time"+key, time.time())
     return blog_post
 
+# User account validating functions
+def username_val(cursor, username):
+    """Checks to see if the requested username already exists.
+    """
+    for each in cursor:
+        if each.name == username:
+            return False
+    return True
+
+def make_salt():
+    """Makes a random 5-letter salt to add to any hashing security
+    measures. This is Steven Huffman's version.
+    """
+    return ''.join(random.choice(string.letters)for x in xrange(5))
+
+#JSON functions
+def json_convert(cursor):
+    """This function converts an entire set of blog entries to JSON"""
+    entrylist = []
+    for entry in cursor:
+        content = unicodedata.normalize('NFKD', entry.content)
+        content = content.encode('ascii', 'ignore')
+        entrydict = {
+            'subject': str(entry.subject),
+            'content': content,
+            'created': str(entry.created)
+            }
+        entrylist.append(entrydict)
+    a = str(entrylist).replace('"', "@").replace("'", '"').replace("@", "'")
+    return a
+
+
+def json_convert_indiv(post):
+    """This function converts a single blog entry to JSON"""
+    content = unicodedata.normalize('NFKD', post.content)
+    content = content.encode('ascii', 'ignore')
+    entrydict = {
+        'subject': str(post.subject),
+        'content': content,
+        'created': post.created.strftime("%H:%M on %A %d %B %Y")
+        }
+    a = str(entrydict).replace('"', "@").replace("'", '"').replace("@", "'")
+    return a
+
+
+### Handlers that render pages.
 
 class MainPage(Handler):
     """Renders the saga main page, or redirects to a user's blog homepage.
@@ -168,6 +225,137 @@ class MainPage(Handler):
             self.redirect("/"+user_data.name)
         else:
             self.render("saga.html")
+
+
+class SignUp(Handler):
+    """Renders the saga signup form, then, if all the given user data is
+    acceptable, stores the user data in the User database,
+    "signing up the user" and creates and sets the login cookie.
+    """
+
+    def get(self):
+        """Renders a simple signup form with no customised elements.
+        """
+        self.render('signup.html')
+
+    def post(self):
+        """Takes the user data, checks it, creates any needed error
+        messages, and finally either stores the data and creates the login
+        cookie, or issues a new copy of the form with errors for the user
+        to correct.
+        """
+        user = ""
+        pass1 = ""
+        pass2 = ""
+        email = ""
+        nameval = ""
+        username = self.request.get('username')
+        password = self.request.get('password')
+        email = self.request.get('email')
+        cursor = db.GqlQuery("SELECT * FROM Users")
+        username_free = username_val(cursor, username)
+        error_mess = 'please enter a valid %s'
+        #verify each input and create error messages
+        ugood = valid_username(username)
+        if not ugood or username.isdigit():
+            user = error_mess % 'username'
+        pgood = valid_pass(password)
+        if not pgood:
+            pass1 = error_mess % 'password'
+        pgood2 = password == self.request.get('verify')
+        if not pgood2:
+            pass2 = 'your passwords did not match'
+        egood = valid_email(email) or email == ""
+        if not egood:
+            email = error_mess % 'email'
+        if not username_free:
+            nameval = 'the username "%s" is already in use.' % username
+
+        if ugood and pgood and pgood2 and egood and username_free:
+            static_salt = make_salt()
+            values = username + password + static_salt
+            hashed_pw = str(hashlib.sha256(values).hexdigest())
+            cur_salt = make_salt()
+            token = hashlib.sha256(username+cur_salt).hexdigest()
+            # A random image adds some automatic variation to each blog. 
+            # The next feature, outside the scope of this project,
+            # would be to make this customisable by the user.
+            image_options = ["bloghero_tower_wide.jpg", 
+                             "annie-spratt-218459.jpg",
+                             "scott-webb-205351.jpg",
+                             "rodrigo-soares-250630.jpg",
+                             "arwan-sutanto-180425.jpg",
+                             "dominik-scythe-152888.jpg",
+                             "jaromir-kavan-241762.jpg",
+                             "drew-hays-26240.jpg",
+                             "richard-lock-262846.jpg",
+                             "sam-ferrara-136526.jpg",
+                             "keith-misner-308.jpg",
+                             "ren-ran-232078.jpg",
+                             "aaron-burden-189321.jpg",
+                             "michal-grosicki-221226.jpg",
+                             "joshua-earle-133254.jpg",
+                             "marko-blazevic-264986.jpg",
+                             "matt-thornhill-106773.jpg",
+                             "camille-kmile-201915.jpg"]
+            blog_image = random.choice(image_options)
+            a = Users(name=username, password=hashed_pw, salt=cur_salt,
+                      mail=email, pwsalt=static_salt, blog_image=blog_image)
+            a.put()
+            userID = str(a.key().id())
+            # Here we put all the data together to make the correct
+            # cookie, which is a string made of userid, a bar symbol,
+            # and our token, which is the username hashed with salt.
+            cookie_value = userID+"|"+str(token)
+            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'
+                                             % cookie_value)
+            self.redirect("/")
+        else:
+            self.render("signup.html", user=user, pass1=pass1, pass2=pass2, 
+                        email=email, nameval=nameval)
+
+
+class LogIn(Handler):
+    """Renders a basic login page for saga, then if all the data
+    is correct, creates a new login cookie, with a new salt,
+    and enters that into the database. This means that even if cookie
+    theft were to happen, it would only be valid until the account-owner
+    goes through the login process again.
+    """
+
+    def get(self):
+        """Renders the login form.
+        """
+        self.render("login.html")
+
+    def post(self):
+        """Checks the data posted from the login form, constructs and sets
+        the login cookie if appropriate, re-displays the login form with an
+        error if not.
+        """
+        username_exists = False
+        username = self.request.get('username')
+        password = self.request.get('password')
+        cursor = db.GqlQuery("SELECT * FROM Users")
+        for each in cursor:
+            if each.name == username:
+                username_exists = True
+                values_hash = hashlib.sha256(username + password + each.pwsalt)
+                if each.password == str(values_hash.hexdigest()):
+                    each.salt = make_salt()
+                    each.put()
+                    userID = each.key().id()
+                    token = hashlib.sha256(each.name+each.salt).hexdigest()
+                    cookie_value = str(userID)+"|"+str(token)
+                    self.response.headers.add_header('Set-Cookie',
+                                                     'user_id=%s; Path=/'
+                                                     % cookie_value)
+                    self.redirect("/")
+
+                else:
+                    self.render("login.html", error="invalid login")
+        if not username_exists:
+            self.render("login.html", error="invalid login")
 
 
 #prints all posts to the home/main page:
@@ -262,56 +450,6 @@ class BlogHome(Handler):
         time.sleep(1)
         frontpage_cache(True)
         self.redirect("/"+username)
-
-
-# constructs webpage for adding new posts, including form and database entry creation
-#doesn't seem like it would allow for SQL injection
-class NewPost(Handler):
-    """Renders a form then acts upon the given data, adding it as a new
-    blog entry.
-    """
-
-    def get(self):
-        """Renders a new post form with the user's custom data.
-        """
-        user_data = self.validate_cookie()
-        if user_data:
-            image = user_data.blog_image
-            blog_name = user_data.name+"'s blog"
-            author = user_data.name
-            self.render("newpage.html", image=image, blog_name=blog_name,
-                        author=author)
-        else:
-            self.redirect("/login")
-
-    def post(self):
-        """Checks the new post data, and either enters it into the database,
-        or asks again for the right data.
-         """
-        subject = self.request.get('subject')
-        content = self.request.get('content')
-
-        user_data = self.validate_cookie()
-        if subject and content:
-            content = "<p>"+content.replace("\n", "</p>\n<p>")+"</p>"
-            author = user_data.name
-            a = BlogEntries(subject=subject, content=content, author=author,
-                            likes=[], likes_length=0)
-            a.put()
-            a.identity = str(a.key().id())
-            a.put()
-            post_id = a.identity
-            time.sleep(1)
-            frontpage_cache(True)
-            self.redirect("/"+post_id)
-        else:
-            error = "please add both a subject and body for your blog entry!"
-            image = user_data.blog_image
-            blog_name = user_data.name+"'s blog"
-            author = user_data.name
-            self.render("newpage.html", subject=subject, content=content,
-                        error=error, image=image, blog_name=blog_name, 
-                        author=author)
 
 
 class BlogPage(Handler):
@@ -412,292 +550,54 @@ class BlogPage(Handler):
         self.redirect("/"+post_id)
 
 
-class Flush(Handler):
-    """Removes all data from the cache.
-    """
-    def get(self):
-        """Removes all data from the cache.
-        """
-        memcache.flush_all()
-        self.redirect("/")
-
-#okay so. for this we need to get my form HTML, (done)
-#and feed the results into a script that:
-
-# - checks to see if the user is in the database
-# - hashes the password with salt(and a secret)
-# - wacks the hashed password with salt, the username,
-#   and the email(if extant) into a database.
-# - does something with a cookie?? idk. sets it? basically logs you in.
-
-#creates a database for the users of the blog with current needed fields
-class Users(db.Model):
-    """Not much to explain here. This class creates a new data entity for
-    datastore as per the model instance docs:
-    https://cloud.google.com/appengine/docs/standard/python/datastore/modelclass
-    This one is for blog user data.
-    """
-    name = db.StringProperty(required=True)
-    password = db.StringProperty(required=True)
-    salt = db.StringProperty(required=False)
-    pwsalt = db.StringProperty(required=False)
-    mail = db.StringProperty(required=False)
-    signed_up = db.DateTimeProperty(auto_now_add=True)
-    blog_image = db.StringProperty(required=False)
-
-
-def username_val(cursor, username):
-    """Checks to see if the requested username already exists.
-    """
-    for each in cursor:
-        if each.name == username:
-            return False
-    return True
-
-
-def make_salt():
-    """Makes a random 5-letter salt to add to any hashing security
-    measures. This is Steven Huffman's version.
-    """
-    return ''.join(random.choice(string.letters)for x in xrange(5))
-
-
-class SignUp(Handler):
-    """Renders the saga signup form, then, if all the given user data is
-    acceptable, stores the user data in the User database,
-    "signing up the user" and creates and sets the login cookie.
+# constructs webpage for adding new posts, including form and database entry creation
+#doesn't seem like it would allow for SQL injection
+class NewPost(Handler):
+    """Renders a form then acts upon the given data, adding it as a new
+    blog entry.
     """
 
     def get(self):
-        """Renders a simple signup form with no customised elements.
+        """Renders a new post form with the user's custom data.
         """
-        self.render('signup.html')
+        user_data = self.validate_cookie()
+        if user_data:
+            image = user_data.blog_image
+            blog_name = user_data.name+"'s blog"
+            author = user_data.name
+            self.render("newpage.html", image=image, blog_name=blog_name,
+                        author=author)
+        else:
+            self.redirect("/login")
 
     def post(self):
-        #Validation stuff. here we need to add an SQL? query which checks if the username is already
-        #in the user database. if it is it needs to add on to the user error message or add another error
-        #message
-        #so what we actually need to do is create a list of users and check if username is among them. 
-        #!!!!!!!! man this defs allows sql injection but I'll
-        #leave escaping it til I've checked the easy way to do that again
-        """Takes the user data, checks it, creates any needed error
-        messages, and finally either stores the data and creates the login
-        cookie, or issues a new copy of the form with errors for the user
-        to correct.
-        """
-        user = ""
-        pass1 = ""
-        pass2 = ""
-        email = ""
-        nameval = ""
-        username = self.request.get('username')
-        password = self.request.get('password')
-        email = self.request.get('email')
-        cursor = db.GqlQuery("SELECT * FROM Users")
-        username_free = username_val(cursor, username)
-        error_mess = 'please enter a valid %s'
-        #verify each input and create error messages
-        ugood = valid_username(username)
-        if not ugood or username.isdigit():
-            user = error_mess % 'username'
-        pgood = valid_pass(password)
-        if not pgood:
-            pass1 = error_mess % 'password'
-        pgood2 = password == self.request.get('verify')
-        if not pgood2:
-            pass2 = 'your passwords did not match'
-        egood = valid_email(email) or email == ""
-        if not egood:
-            email = error_mess % 'email'
-        if not username_free:
-            nameval = 'the username "%s" is already in use.' % username
+        """Checks the new post data, and either enters it into the database,
+        or asks again for the right data.
+         """
+        subject = self.request.get('subject')
+        content = self.request.get('content')
 
-        #okay so, notes: when the email is blank it's all good. when it isn't,
-            #and it's not a valid email address, then it's bad.
-
-        #if all good, not only redirect to new page, but also add to the users database and set a cookie.
-        if ugood and pgood and pgood2 and egood and username_free:
-            static_salt = make_salt()
-            values = username + password + static_salt
-            hashed_pw = str(hashlib.sha256(values).hexdigest())
-            cur_salt = make_salt()
-            token = hashlib.sha256(username+cur_salt).hexdigest()
-            #a random image adds some automatic variation to each blog. The next feature, outside the scope of this project,
-            #would be to make this customisable by the user.
-            image_options = ["bloghero_tower_wide.jpg", 
-                             "annie-spratt-218459.jpg",
-                             "scott-webb-205351.jpg",
-                             "rodrigo-soares-250630.jpg",
-                             "arwan-sutanto-180425.jpg",
-                             "dominik-scythe-152888.jpg",
-                             "jaromir-kavan-241762.jpg",
-                             "drew-hays-26240.jpg",
-                             "richard-lock-262846.jpg",
-                             "sam-ferrara-136526.jpg",
-                             "keith-misner-308.jpg",
-                             "ren-ran-232078.jpg",
-                             "aaron-burden-189321.jpg",
-                             "michal-grosicki-221226.jpg",
-                             "joshua-earle-133254.jpg",
-                             "marko-blazevic-264986.jpg",
-                             "matt-thornhill-106773.jpg",
-                             "camille-kmile-201915.jpg"]
-            blog_image = random.choice(image_options)
-            a = Users(name=username, password=hashed_pw, salt=cur_salt,
-                      mail=email, pwsalt=static_salt, blog_image=blog_image)
+        user_data = self.validate_cookie()
+        if subject and content:
+            content = "<p>"+content.replace("\n", "</p>\n<p>")+"</p>"
+            author = user_data.name
+            a = BlogEntries(subject=subject, content=content, author=author,
+                            likes=[], likes_length=0)
             a.put()
-            userID = str(a.key().id())
-            #here we put all the data together to make the correct cookie, which is a
-            #string made of userid, an exclamation mark, and our token, which is the username hashed with salt.
-            cookie_value = userID+"|"+str(token)
-            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'
-                                             % cookie_value)
-            self.redirect("/welcome")
+            a.identity = str(a.key().id())
+            a.put()
+            post_id = a.identity
+            time.sleep(1)
+            frontpage_cache(True)
+            self.redirect("/"+post_id)
         else:
-            #self.write(username_exists)
-            self.render("signup.html", user=user, pass1=pass1, pass2=pass2, 
-                        email=email, nameval=nameval)
-
-
-class LogIn(Handler):
-    """Renders a basic login page for saga, then if all the data
-    is correct, creates a new login cookie, with a new salt,
-    and enters that into the database. This means that even if cookie
-    theft were to happen, it would only be valid until the account-owner
-    goes through the login process again.
-    """
-
-    def get(self):
-        """Renders the login form.
-        """
-        self.render("login.html")
-
-    def post(self):
-        """Checks the data posted from the login form, constructs and sets
-        the login cookie if appropriate, re-displays the login form with an
-        error if not.
-        """
-        username_exists = False
-        username = self.request.get('username')
-        password = self.request.get('password')
-        cursor = db.GqlQuery("SELECT * FROM Users")
-        for each in cursor:
-            if each.name == username:
-                username_exists = True
-                #self.write(each.name+each.password+each.pwsalt)
-                values_hash = hashlib.sha256(username + password + each.pwsalt)
-                if each.password == str(values_hash.hexdigest()):
-                    each.salt = make_salt()
-                    each.put()
-                    userID = each.key().id()
-                    token = hashlib.sha256(each.name+each.salt).hexdigest()
-                    cookie_value = str(userID)+"|"+str(token)
-                    self.response.headers.add_header('Set-Cookie',
-                                                     'user_id=%s; Path=/'
-                                                     % cookie_value)
-                    self.redirect("/welcome")
-
-                else:
-                    self.render("login.html", error="invalid login")
-        if not username_exists:
-            self.render("login.html", error="invalid login")
-
-
-class LogOut(Handler):
-    """Deletes the cookie content to log out the user.
-    """
-    def get(self):
-        """Deletes the cookie content to log out the user.
-        """
-        self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%"")
-        self.redirect("/signup")
-
-
-class Welcome(Handler):
-    """probs can just delete this, right?"""
-    #I will need to get the email address to the new page. I'll need to send it by get somehow?
-    #possibly actually I can just retrieve it from the database.
-    #nah, nah, we get it from the cookie.
-    #cookie should be named user_id
-    #with the value of the User id (in the database), a pipe and a hash
-    #the cookie will also need to be validated.
-    #In order to get a cookie you receive from the user, you can use 'self.request.cookies.get(name)'
-    #In order to send a cookie to a user, you simply add the header to your response.
-    #For example, 'self.response.headers.add_header('Set-Cookie', 'name=value; Path=/')',
-    #where name is the name of the cookie, and value is the value you're setting it to.
-    #Model.get_by_id (ids, parent=None) 
-    def get(self):
-        current_cook = self.request.cookies.get("user_id")
-        if current_cook:
-            cookie_vals = current_cook.split("|")
-            current_user = Users.get_by_id(int(cookie_vals[0]))
-            if current_user:
-                values = current_user.name + current_user.salt
-                if cookie_vals[1] == hashlib.sha256(values).hexdigest():
-                    self.redirect("/"+current_user.name)
-                else:
-                    #self.write("cookie vals 1:"+cookie_vals[1]+" hash I made jsut now: "+hashlib.sha256(current_user.name+current_user.salt).hexdigest()+" user: "+current_user.name+" salt:"+current_user.salt)
-                    self.redirect("/signup")
-            else:
-                self.redirect("/signup")
-                #self.write("user:"+cookie_vals[0])
-        else:
-            self.redirect("/signup")
-
-
-def json_convert(cursor):
-    """This function converts an entire set of blog entries to JSON"""
-    entrylist = []
-    for entry in cursor:
-        content = unicodedata.normalize('NFKD', entry.content)
-        content = content.encode('ascii', 'ignore')
-        entrydict = {
-            'subject': str(entry.subject),
-            'content': content,
-            'created': str(entry.created)
-            }
-        entrylist.append(entrydict)
-    a = str(entrylist).replace('"', "@").replace("'", '"').replace("@", "'")
-    return a
-
-
-def json_convert_indiv(post):
-    """This function converts a single blog entry to JSON"""
-    content = unicodedata.normalize('NFKD', post.content)
-    content = content.encode('ascii', 'ignore')
-    entrydict = {
-        'subject': str(post.subject),
-        'content': content,
-        'created': post.created.strftime("%H:%M on %A %d %B %Y")
-        }
-    a = str(entrydict).replace('"', "@").replace("'", '"').replace("@", "'")
-    return a
-
-
-class JsonApi(Handler):
-    """This API uses the JSON convert function to create a JSON version of
-    all the blog entries"""
-
-    def get(self):
-        """This function uses the JSON convert function to create a JSON 
-        version of all the blog entries"""
-        self.response.headers.add_header('Content-Type',
-                                         'application/json; charset=UTF-8')
-        self.write(json_convert(db.GqlQuery("SELECT * FROM BlogEntries "
-                                           "ORDER BY created DESC")))
-
-
-class JsonApiIndiv(Handler):
-    """This API uses the JSON convert function to create a JSON version of
-    a single blog entry"""
-    
-    def get(self, post_id):
-        """This function uses the JSON convert function to create a 
-        JSON version of a single blog entry"""
-        self.response.headers.add_header('Content-Type',
-                                         'application/json; charset=UTF-8')
-        blog_post = BlogEntries.get_by_id(int(post_id))
-        self.write(json_convert_indiv(blog_post))
+            error = "please add both a subject and body for your blog entry!"
+            image = user_data.blog_image
+            blog_name = user_data.name+"'s blog"
+            author = user_data.name
+            self.render("newpage.html", subject=subject, content=content,
+                        error=error, image=image, blog_name=blog_name, 
+                        author=author)
 
 
 class EditPage(Handler):
@@ -770,6 +670,17 @@ class EditPage(Handler):
                             self.render("newpage.html", subject=subject,
                                         content=content, error=error,
                                         image=image)
+
+
+class Oops(Handler):
+    """This is the "404" page, which is visited each time a post or
+    user page proves not to exist.
+    """
+    def get(self):
+        self.render("oops.html")
+
+
+### Utility handlers that don't render webpages.
 
 
 class DeletePost(Handler):
@@ -873,12 +784,83 @@ class DeleteComment(Handler):
             self.redirect("/")
 
 
-class Oops(Handler):
-    """This is the "404" page, which is visited each time a post or
-    user page proves not to exist.
+class LogOut(Handler):
+    """Deletes the cookie content to log out the user.
     """
     def get(self):
-        self.render("oops.html")
+        """Deletes the cookie content to log out the user.
+        """
+        self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%"")
+        self.redirect("/signup")
+
+
+class Flush(Handler):
+    """Removes all data from the cache.
+    """
+    def get(self):
+        """Removes all data from the cache.
+        """
+        memcache.flush_all()
+        self.redirect("/")
+
+
+class JsonApi(Handler):
+    """This API uses the JSON convert function to create a JSON version of
+    all the blog entries"""
+
+    def get(self):
+        """This function uses the JSON convert function to create a JSON 
+        version of all the blog entries"""
+        self.response.headers.add_header('Content-Type',
+                                         'application/json; charset=UTF-8')
+        self.write(json_convert(db.GqlQuery("SELECT * FROM BlogEntries "
+                                           "ORDER BY created DESC")))
+
+
+class JsonApiIndiv(Handler):
+    """This API uses the JSON convert function to create a JSON version of
+    a single blog entry"""
+    
+    def get(self, post_id):
+        """This function uses the JSON convert function to create a 
+        JSON version of a single blog entry"""
+        self.response.headers.add_header('Content-Type',
+                                         'application/json; charset=UTF-8')
+        blog_post = BlogEntries.get_by_id(int(post_id))
+        self.write(json_convert_indiv(blog_post))
+
+
+
+###class Welcome(Handler):
+    #"""probs can just delete this, right?"""
+    #I will need to get the email address to the new page. I'll need to send it by get somehow?
+    #possibly actually I can just retrieve it from the database.
+    #nah, nah, we get it from the cookie.
+    #cookie should be named user_id
+    #with the value of the User id (in the database), a pipe and a hash
+    #the cookie will also need to be validated.
+    #In order to get a cookie you receive from the user, you can use 'self.request.cookies.get(name)'
+    #In order to send a cookie to a user, you simply add the header to your response.
+    #For example, 'self.response.headers.add_header('Set-Cookie', 'name=value; Path=/')',
+    #where name is the name of the cookie, and value is the value you're setting it to.
+    #Model.get_by_id (ids, parent=None) 
+    #def get(self):
+#        current_cook = self.request.cookies.get("user_id")
+ #       if current_cook:
+  #          cookie_vals = current_cook.split("|")
+   #         current_user = Users.get_by_id(int(cookie_vals[0]))
+    #        if current_user:
+     #           values = current_user.name + current_user.salt
+      #          if cookie_vals[1] == hashlib.sha256(values).hexdigest():
+       #             self.redirect("/"+current_user.name)
+        #        else:
+         #           #self.write("cookie vals 1:"+cookie_vals[1]+" hash I made jsut now: "+hashlib.sha256(current_user.name+current_user.salt).hexdigest()+" user: "+current_user.name+" salt:"+current_user.salt)
+          #          self.redirect("/signup")
+           # else:
+            #    self.redirect("/signup")
+             #   #self.write("user:"+cookie_vals[0])
+       # else:
+        #    self.redirect("/signup")
 
 
 app = webapp2.WSGIApplication([('/', MainPage),
@@ -887,7 +869,7 @@ app = webapp2.WSGIApplication([('/', MainPage),
                                (r'/(\d+)', BlogPage),
                                (r'/(\d+).json', JsonApiIndiv),
                                ('/signup', SignUp),
-                               ('/welcome', Welcome),
+                               #('/welcome', Welcome),
                                ('/login', LogIn),
                                ('/logout', LogOut),
                                ('/.json', JsonApi),
