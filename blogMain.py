@@ -830,46 +830,12 @@ class JsonApiIndiv(Handler):
         self.write(json_convert_indiv(blog_post))
 
 
-
-###class Welcome(Handler):
-    #"""probs can just delete this, right?"""
-    #I will need to get the email address to the new page. I'll need to send it by get somehow?
-    #possibly actually I can just retrieve it from the database.
-    #nah, nah, we get it from the cookie.
-    #cookie should be named user_id
-    #with the value of the User id (in the database), a pipe and a hash
-    #the cookie will also need to be validated.
-    #In order to get a cookie you receive from the user, you can use 'self.request.cookies.get(name)'
-    #In order to send a cookie to a user, you simply add the header to your response.
-    #For example, 'self.response.headers.add_header('Set-Cookie', 'name=value; Path=/')',
-    #where name is the name of the cookie, and value is the value you're setting it to.
-    #Model.get_by_id (ids, parent=None) 
-    #def get(self):
-#        current_cook = self.request.cookies.get("user_id")
- #       if current_cook:
-  #          cookie_vals = current_cook.split("|")
-   #         current_user = Users.get_by_id(int(cookie_vals[0]))
-    #        if current_user:
-     #           values = current_user.name + current_user.salt
-      #          if cookie_vals[1] == hashlib.sha256(values).hexdigest():
-       #             self.redirect("/"+current_user.name)
-        #        else:
-         #           #self.write("cookie vals 1:"+cookie_vals[1]+" hash I made jsut now: "+hashlib.sha256(current_user.name+current_user.salt).hexdigest()+" user: "+current_user.name+" salt:"+current_user.salt)
-          #          self.redirect("/signup")
-           # else:
-            #    self.redirect("/signup")
-             #   #self.write("user:"+cookie_vals[0])
-       # else:
-        #    self.redirect("/signup")
-
-
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/newpost', NewPost),
                                ('/oops', Oops),
                                (r'/(\d+)', BlogPage),
                                (r'/(\d+).json', JsonApiIndiv),
                                ('/signup', SignUp),
-                               #('/welcome', Welcome),
                                ('/login', LogIn),
                                ('/logout', LogOut),
                                ('/.json', JsonApi),
