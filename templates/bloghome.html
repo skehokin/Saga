@@ -13,15 +13,29 @@
   <style>
     .blogHero {
     	background-image: url(static/{{image}});
-
     }
+    {% if error == "other" %}
+    .edit_delete {
+    	display: block;
+    }
+    {% endif %}
     
+    {% if error == "self" %}
+    .like_error {
+    	display: block;
+    }
+    {% endif %}
+    {% if website_type == "single" %}
+    .permalink {
+    	display: none;
+    }
+    {% endif %}
   </style>
 
 
 </head>
   <body class="blogbody">
-	<header class="header"> <img src = "/static/sagaLogo.svg" class = "smallLogo"> <span class="toprightlinks"> <a href="/logout" class="logout">log out</a> <a href="/login" class="login">log in</a></span>
+	<header class="header"> <a href="/"><img src = "/static/sagaLogo.svg" class = "smallLogo"></a> <span class="toprightlinks"> <a href="/logout" class="logout">log out</a> <a href="/login" class="login">log in</a></span>
 	</header>
 	<main>
 	<header class="blogHero">
@@ -36,6 +50,21 @@
 	<h3 class="blognav">about</h3> <h3 class="blognav">archive</h3>
 	</nav>
 	<div class="clear"></div>
+
+	<section class="error_msg like_error hidden" id="like_error"> 
+	dude,<br> I'm sorry to tell you this, <br> but you can't like your own post.<br><br>
+
+	<button class="loginSubmit" id="like_error_button"> ok fine</button>
+
+	</section>
+
+	<section class="error_msg edit_delete hidden" id="edit_delete"> 
+	you're not {{error_author}}!<br> you can't do that!<br><br>
+
+	<button class="loginSubmit" id="edit_delete_button">oops</button>
+
+	</section>
+
 
  {% for element in blog_posts %}
 
@@ -144,8 +173,7 @@
 	</form>
 	{%endif%}
 
-      <footer><p id="remove{{loop.index}}">click to hide comments</p>
-      </footer>
+
 	</section>
 
 	</article>
@@ -181,18 +209,27 @@
 
 	{% for element in blog_posts%}
 	document.getElementById('button{{loop.index}}').onclick = function() {
-	document.getElementById('comment{{loop.index}}').style.display="block";
-	}
-	document.getElementById('remove{{loop.index}}').onclick = function() {
-	document.getElementById('comment{{loop.index}}').style.display="none";
+		var thecomment = document.getElementById('comment{{loop.index}}')
+		if (thecomment.style.display==="block") {
+			thecomment.style.display="none";
+		}
+		else {
+			thecomment.style.display="block";
+		}
 	}
 
 	{%endfor%}
 
 
-// 		document.getElementById('comment'+String(i)).style.display="none";
+	document.getElementById('like_error_button').onclick = function() {
+		document.getElementById('like_error').style.display="none";
+	}
 
-// }
+	document.getElementById('edit_delete_button').onclick = function() {
+		document.getElementById('edit_delete').style.display="none";
+	}
+
+
 
 	</script> 
    

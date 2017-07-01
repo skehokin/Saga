@@ -405,11 +405,17 @@ class BlogHome(Handler):
         comment_content = ""
         user_buttons = ""
         logged_in_user = ""
+        error=""
+        error_author=""
         user_data = self.validate_cookie()
         blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE "
                                       "name='%s'"%username)
         blog_posts = db.GqlQuery("SELECT * FROM BlogEntries WHERE author='%s' "
                                  "ORDER BY created DESC LIMIT 10"%username)
+        error = self.request.get("error")
+        if error:
+            if error == "other":
+                error_author=self.request.get("author")
         if user_data:
             edit_comment_id = self.request.get("comment_id")
             if edit_comment_id:
@@ -444,7 +450,7 @@ class BlogHome(Handler):
                     logged_in_user=logged_in_user,
                     edit_comment_id=edit_comment_id,
                     post_id=post_id, comment_content=comment_content,
-                    website_type=website_type, blog_posts=blog_posts)
+                    website_type=website_type, blog_posts=blog_posts, error=error, error_author=error_author)
 
     def post(self, username):
         """Enter any comment made on this page.
@@ -498,6 +504,12 @@ class BlogPage(Handler):
         user_buttons = ""
         logged_in_user = ""
         post_id = ""
+        error=""
+        error_author=""
+        error = self.request.get("error")
+        if error:
+            if error == "other":
+                error_author=self.request.get("author")
         if user_data:
             edit_comment_id = self.request.get("comment_id")
             if edit_comment_id:
@@ -532,7 +544,7 @@ class BlogPage(Handler):
                     blog_name=blog_name, comments=comments,
                     username=username, logged_in_user=logged_in_user,
                     edit_comment_id=edit_comment_id, post_id=post_id,
-                    comment_content=comment_content, website_type="single")
+                    comment_content=comment_content, website_type="single", error=error, error_author=error_author)
 
     def post(self, post_id):
         """Takes the comment data from a single blog page and enters it into
@@ -717,7 +729,7 @@ class DeletePost(Handler):
             if not user_data:
                 self.redirect("/login")
             elif blog_post.author != user_data.name:
-                self.redirect("/"+post_id)
+                self.redirect("/"+post_id+"?error=other&author="+blog_post.author)
             else:
                 cursor = db.GqlQuery("SELECT * FROM BlogEntries "
                                      "WHERE identity='%s'"%post_id)
@@ -753,15 +765,16 @@ class LikePost(Handler):
                 for each in cursor:
                     if each.identity == post_id:
                         if user_data.name in each.likes:
-                            self.redirect("/"+post_id)
+                            #remove username from each.likes
+                            each.likes.remove(user_data.name)
                         else:
                             each.likes.append(user_data.name)
-                            each.likes_length = len(each.likes)
+                        each.likes_length = len(each.likes)
                         each.put()
                         time.sleep(1)
                         self.redirect("/"+post_id)
             else:
-                self.redirect("/"+post_id)
+                self.redirect("/"+post_id+"?error=self")
 
 
 class DeleteComment(Handler):
@@ -782,7 +795,7 @@ class DeleteComment(Handler):
             if not user_data:
                 self.redirect("/login")
             elif comment.author != user_data.name:
-                self.redirect("/"+target)
+                self.redirect("/"+target+"?error=other&author="+comment.author)
             else:
                 cursor = db.GqlQuery("SELECT * FROM Comments "
                                      "WHERE comment_id='%s'"%comment_id)
