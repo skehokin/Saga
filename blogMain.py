@@ -10,32 +10,38 @@ import webapp2
 from google.appengine.ext import db
 from google.appengine.api import memcache
 
-#This sets up the regular expressions and 
-#uses each in a function which checks if
-#certain inputs are valid:
+
+# This sets up the regular expressions and
+# uses each in a function which checks if
+# certain inputs are valid:
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 
+
 def valid_username(username):
-    """Checks a username against the USER_RE regex. 
+    """Checks a username against the USER_RE regex.
     """
     return USER_RE.match(username)
 
+
 def valid_pass(passw):
-    """Checks a password against the PASS_RE regex. 
+    """Checks a password against the PASS_RE regex.
     """
     return PASS_RE.match(passw)
 
+
 def valid_email(mail):
-    """Checks an email address against the EMAIL_RE regex. 
+    """Checks an email address against the EMAIL_RE regex.
     """
     return EMAIL_RE.match(mail)
+
 
 # Sets up template paths:
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
                                autoescape=True)
+
 
 class Handler(webapp2.RequestHandler):
     """This handler class extends the webapp2 RequestHandler class,
@@ -165,7 +171,8 @@ def onepage_cache(ID, update=False):
         memcache.set("time"+key, time.time())
     return blog_post
 
-# User account validating functions
+
+# User account validation functions
 def username_val(cursor, username):
     """Checks to see if the requested username already exists.
     """
@@ -174,13 +181,15 @@ def username_val(cursor, username):
             return False
     return True
 
+
 def make_salt():
     """Makes a random 5-letter salt to add to any hashing security
     measures. This is Steven Huffman's version.
     """
     return ''.join(random.choice(string.letters)for x in xrange(5))
 
-#JSON functions
+
+# JSON functions
 def json_convert(cursor):
     """This function converts an entire set of blog entries to JSON"""
     entrylist = []
@@ -255,7 +264,7 @@ class SignUp(Handler):
         cursor = db.GqlQuery("SELECT * FROM Users")
         username_free = username_val(cursor, username)
         error_mess = 'please enter a valid %s'
-        #verify each input and create error messages
+        # verify each input and create error messages
         ugood = valid_username(username)
         if not ugood or username.isdigit():
             user = error_mess % 'username'
@@ -277,10 +286,10 @@ class SignUp(Handler):
             hashed_pw = str(hashlib.sha256(values).hexdigest())
             cur_salt = make_salt()
             token = hashlib.sha256(username+cur_salt).hexdigest()
-            # A random image adds some automatic variation to each blog. 
+            # A random image adds some automatic variation to each blog.
             # The next feature, outside the scope of this project,
             # would be to make this customisable by the user.
-            image_options = ["bloghero_tower_wide.jpg", 
+            image_options = ["bloghero_tower_wide.jpg",
                              "annie-spratt-218459.jpg",
                              "scott-webb-205351.jpg",
                              "rodrigo-soares-250630.jpg",
@@ -311,7 +320,7 @@ class SignUp(Handler):
                                              % cookie_value)
             self.redirect("/")
         else:
-            self.render("signup.html", user=user, pass1=pass1, pass2=pass2, 
+            self.render("signup.html", user=user, pass1=pass1, pass2=pass2,
                         email=email, nameval=nameval)
 
 
@@ -358,7 +367,7 @@ class LogIn(Handler):
             self.render("login.html", error="invalid login")
 
 
-#prints all posts to the home/main page:
+# prints all posts to the home/main page:
 class BlogHome(Handler):
     """Renders any blog's homepage.
     """
@@ -405,11 +414,11 @@ class BlogHome(Handler):
             self.redirect("/oops")
         blog_name = username+"'s blog"
 
-        #blog_posts=frontpage_cache()
-        #querytime=memcache.get("tyme")
-        #now=time.time()
-        #current=now-querytime
-        #time=current
+        # blog_posts=frontpage_cache()
+        # querytime=memcache.get("tyme")
+        # now=time.time()
+        # current=now-querytime
+        # time=current
 
         website_type = "home"
         comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' "
@@ -497,11 +506,11 @@ class BlogPage(Handler):
                 if username == each.name and each.blog_image:
                     image = each.blog_image
         blog_name = username+"'s blog"
-        #blog_posts=frontpage_cache()
-        #querytime=memcache.get("tyme")
-        #now=time.time()
-        #current=now-querytime
-        #time=current
+        # blog_posts=frontpage_cache()
+        # querytime=memcache.get("tyme")
+        # now=time.time()
+        # current=now-querytime
+        # time=current
         comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' "
                                "ORDER BY created" %username)
         self.render("bloghome.html", blog_posts=blog_posts,
@@ -551,7 +560,7 @@ class BlogPage(Handler):
 
 
 # constructs webpage for adding new posts, including form and database entry creation
-#doesn't seem like it would allow for SQL injection
+# doesn't seem like it would allow for SQL injection
 class NewPost(Handler):
     """Renders a form then acts upon the given data, adding it as a new
     blog entry.
@@ -596,7 +605,7 @@ class NewPost(Handler):
             blog_name = user_data.name+"'s blog"
             author = user_data.name
             self.render("newpage.html", subject=subject, content=content,
-                        error=error, image=image, blog_name=blog_name, 
+                        error=error, image=image, blog_name=blog_name,
                         author=author)
 
 
