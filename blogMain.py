@@ -33,7 +33,7 @@ def valid_email(mail):
 
 
 # Sets up template paths:
-template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+template_dir = os.path.join(os.path.dirname(__file__), "templates")
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
                                autoescape=True)
 
@@ -207,7 +207,7 @@ def username_val(cursor, username):
         and is not a number.)
     
     Returns:
-      A boolean representing the validity of the username: False if it
+      A Boolean representing the validity of the username: False if it
       already used, True if it is not yet in the database. 
     """
     for each in cursor:
@@ -224,7 +224,7 @@ def make_salt():
     Returns:
         A pseudo-random 5-letter string.
     """
-    return ''.join(random.choice(string.letters)for x in xrange(5))
+    return "".join(random.choice(string.letters)for x in xrange(5))
 
 
 ### Handlers that render pages.
@@ -254,7 +254,7 @@ class SignUp(Handler):
 
     def get(self):
         """Render a simple saga signup form with no customised elements."""
-        self.render('signup.html')
+        self.render("signup.html")
 
     def post(self):
         """Sign-up the user or give same sign-up form with errors.
@@ -269,27 +269,27 @@ class SignUp(Handler):
         pass2 = ""
         email = ""
         nameval = ""
-        username = self.request.get('username')
-        password = self.request.get('password')
-        email = self.request.get('email')
+        username = self.request.get("username")
+        password = self.request.get("password")
+        email = self.request.get("email")
         cursor = db.GqlQuery("SELECT * FROM Users")
         username_free = username_val(cursor, username)
-        error_mess = 'please enter a valid %s'
+        error_mess = "please enter a valid %s"
         # verify each input and create error messages
         ugood = valid_username(username)
         if not ugood or username.isdigit():
-            user = error_mess % 'username'
+            user = error_mess % "username"
         pgood = valid_pass(password)
         if not pgood:
-            pass1 = error_mess % 'password'
-        pgood2 = password == self.request.get('verify')
+            pass1 = error_mess % "password"
+        pgood2 = password == self.request.get("verify")
         if not pgood2:
-            pass2 = 'your passwords did not match'
+            pass2 = "your passwords did not match"
         egood = valid_email(email) or email == ""
         if not egood:
-            email = error_mess % 'email'
+            email = error_mess % "email"
         if not username_free:
-            nameval = 'the username "%s" is already in use.' % username
+            nameval = "the username "%s" is already in use." % username
 
         if ugood and pgood and pgood2 and egood and username_free:
             static_salt = make_salt()
@@ -327,7 +327,7 @@ class SignUp(Handler):
             # cookie, which is a string made of userid, a bar symbol,
             # and our token, which is the username hashed with salt.
             cookie_value = userID+"|"+str(token)
-            self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'
+            self.response.headers.add_header("Set-Cookie", "user_id=%s; Path=/"
                                              % cookie_value)
             self.redirect("/")
         else:
@@ -357,8 +357,8 @@ class LogIn(Handler):
         error if not.
         """
         username_exists = False
-        username = self.request.get('username')
-        password = self.request.get('password')
+        username = self.request.get("username")
+        password = self.request.get("password")
         cursor = db.GqlQuery("SELECT * FROM Users")
         for each in cursor:
             if each.name == username:
@@ -370,8 +370,8 @@ class LogIn(Handler):
                     userID = each.key().id()
                     token = hashlib.sha256(each.name+each.salt).hexdigest()
                     cookie_value = str(userID)+"|"+str(token)
-                    self.response.headers.add_header('Set-Cookie',
-                                                     'user_id=%s; Path=/'
+                    self.response.headers.add_header("Set-Cookie",
+                                                     "user_id=%s; Path=/"
                                                      % cookie_value)
                     self.redirect("/")
 
@@ -444,7 +444,7 @@ class BlogHome(Handler):
         blog_name = username+"'s blog"
         website_type = "home"
         comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' "
-                               "ORDER BY created"%username)
+                               "ORDER BY created" % username)
         self.render("bloghome.html", user_buttons=user_buttons, image=image,
                     blog_name=blog_name, comments=comments, username=username,
                     logged_in_user=logged_in_user,
@@ -466,7 +466,7 @@ class BlogHome(Handler):
           which the comment is located.
         """
         user_data = self.validate_cookie()
-        content = self.request.get('content')
+        content = self.request.get("content")
         if not user_data or not content:
             self.redirect("/"+username)
         comment_id = self.request.get("comment_id")
@@ -583,7 +583,7 @@ class BlogPage(Handler):
         blog_post = BlogEntries.get_by_id(int(post_id))
         username = blog_post.author
         user_data = self.validate_cookie()
-        content = self.request.get('content')
+        content = self.request.get("content")
         if not user_data or not content:
             self.redirect("/"+username)
         comment_id = self.request.get("comment_id")
@@ -603,7 +603,7 @@ class BlogPage(Handler):
                 for each in blog_loc_search:
                     if each.identity == post_id:
                         blog_loc = each.author
-            post_identity = self.request.get('post_id')
+            post_identity = self.request.get("post_id")
             author = user_data.name
             a = Comments(content=content, author=author,
                          post_identity=post_identity, blog_loc=blog_loc)
@@ -637,8 +637,8 @@ class NewPost(Handler):
         Check the new post data, and either enter it into the database,
         or re-display the form with an error.
         """
-        subject = self.request.get('subject')
-        content = self.request.get('content')
+        subject = self.request.get("subject")
+        content = self.request.get("content")
 
         user_data = self.validate_cookie()
         if subject and content:
@@ -726,8 +726,8 @@ class EditPage(Handler):
                         self.redirect("/"+post_id+"?error=other&author="
                                       +each.author)
                     else:
-                        subject = self.request.get('subject')
-                        content = self.request.get('content')
+                        subject = self.request.get("subject")
+                        content = self.request.get("content")
                         image = user_data.blog_image
                         if content and subject:
                             content = content.replace("\n", "</p>\n<p>")
@@ -880,19 +880,19 @@ class LogOut(Handler):
     """Deletes the cookie content to log out the user."""
     def get(self):
         """Delete the cookie content to log out the user."""
-        self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%"")
+        self.response.headers.add_header("Set-Cookie", "user_id=; Path=/")
         self.redirect("/signup")
 
 
-app = webapp2.WSGIApplication([('/', MainPage),
-                               ('/newpost', NewPost),
-                               ('/oops', Oops),
-                               (r'/(\d+)', BlogPage),
-                               ('/signup', SignUp),
-                               ('/login', LogIn),
-                               ('/logout', LogOut),
-                               (r'/_edit/(\d+)', EditPage),
-                               (r'/_delete/(\d+)', DeletePost),
-                               (r'/_commentdelete/(\d+)', DeleteComment),
-                               (r'/_like/(\d+)', LikePost),
-                               (r'/(.*)', BlogHome)], debug=True)
+app = webapp2.WSGIApplication([("/", MainPage),
+                               ("/newpost", NewPost),
+                               ("/oops", Oops),
+                               (r"/(\d+)", BlogPage),
+                               ("/signup", SignUp),
+                               ("/login", LogIn),
+                               ("/logout", LogOut),
+                               (r"/_edit/(\d+)", EditPage),
+                               (r"/_delete/(\d+)", DeletePost),
+                               (r"/_commentdelete/(\d+)", DeleteComment),
+                               (r"/_like/(\d+)", LikePost),
+                               (r"/(.*)", BlogHome)], debug=True)
