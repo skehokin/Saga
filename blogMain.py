@@ -20,20 +20,17 @@ EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 
 
 def valid_username(username):
-    """Checks a username against the USER_RE regex.
-    """
+    """Check a username against the USER_RE regex."""
     return USER_RE.match(username)
 
 
 def valid_pass(passw):
-    """Checks a password against the PASS_RE regex.
-    """
+    """Check a password against the PASS_RE regex."""
     return PASS_RE.match(passw)
 
 
 def valid_email(mail):
-    """Checks an email address against the EMAIL_RE regex.
-    """
+    """Check an email address against the EMAIL_RE regex."""
     return EMAIL_RE.match(mail)
 
 
@@ -44,40 +41,98 @@ jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
 
 
 class Handler(webapp2.RequestHandler):
-    """This handler class extends the webapp2 RequestHandler class,
-    and was primarily created by Steve Huffman to reduce the difficulty
+    """Extend the webapp2 RequestHandler class for quick access.
+    
+    Primarily created by Steve Huffman to reduce the difficulty
     of typing out the webapp2 write function and the jinja2 template
     rendering process. The cookie validation function was later added
     by Siobhan Hokin.
     """
 
     def write(self, *a, **kw):
-        """This shortens the webapp2 write function so it is called
-        with just "self.write".
-        """
+        """Shorten the webapp2 response.write function.
+        
+        Alter the webapp2 response object - the final HTTP
+        response. A guide to the webapp2 response object can be
+        found here:
+        http://webapp2.readthedocs.io/en/latest/guide/response.html
+        
+        Args:
+          *a:
+            Typically a string representing an HTML webpage. Can 
+            also be any other object, although if expected to be
+            human-readble, the object must usually be human-readable 
+            without any interfacing commands, e.g. lists, intergers.
+          **kw:
+            I honestly have no idea why response.write would take any
+            keyword arguments. But if you figure out why, you can add
+            them in with no trouble.
+          """
         self.response.out.write(*a, **kw)
 
     def render_str(self, template, **params):
-        """This function is used as part of the final render function,
-        which can be used to shortcut rendering a jinja2 template. It
-        retrieves the requisite html template and includes the given
-        keywords in the template.
+        """Create a string from a jinja2 template and variables.
+
+        Args:
+          template:
+            The file name of a jinja2 HTML template which is located
+            in the "templates" folder, which was set up earlier in the
+            module.
+            The jinja2 documentation is available here:
+            http://jinja.pocoo.org/docs/2.9/templates/
+          **params:
+            Any number of variables which are already part of the
+            given jinja2 template. The function of these variables is 
+            similar to string formatting. Quite often these variables
+            are also strings, but they can also be dictionaries, lists,
+            or other iterables.
+            Once again, the relevant
+            documentation is available here:
+            http://jinja.pocoo.org/docs/2.9/templates/
+
+        Returns:
+          A string, which is the complete HTML of a website. Any
+          jinja2 syntax or undefined variables within the template
+          will be omitted.
         """
         t = jinja_env.get_template(template)
         return t.render(params)
 
     def render(self, template, **kw):
-        """This function is the final one in the jinja2 template rendering
-        shortcut. It writes the template (put together by render_str) to the
-        output website.
+        """Write the filled-out jinja2 template to the response object.
+        
+        Call the above two functions (write and render_str) to first 
+        retrieve a jinja2 template, fill it out with the requisite 
+        variables, and then write it as a string to the response object.
+        
+        Args:
+          template:
+            The file name of a jinja2 HTML template which is located
+            in the "templates" folder, which was set up earlier in the
+            module.
+            The jinja2 documentation is available here:
+            http://jinja.pocoo.org/docs/2.9/templates/
+          **kw:
+            Any number of variables which are already part of the
+            given jinja2 template. The function of these variables is 
+            similar to string formatting. Quite often these variables
+            are also strings, but they can also be dictionaries, lists,
+            or other iterables, as some python-like syntax ("tags")
+            are available within templates.
+            A keyword argument should here be entered in the form of:
+            name_of_variable_in_template=data_to_be_filled_in
+            Once again, the relevant
+            documentation is available here:
+            http://jinja.pocoo.org/docs/2.9/templates/
         """
         self.write(self.render_str(template, **kw))
 
     def validate_cookie(self):
-        """This function is a summary of the "Welcome" handler's activity:
-        it checks to make sure that the the login cookie is legitimate -
-        the same as a cookie created by the info in the User database.
-        if so, it returns the current user's data.
+        """ Validate the login cookie and retrieve user data.
+        
+        Returns:
+          The database entity representing the logged in user, or 
+          if the cookie is invalid, returns None.
         """
         current_cook = self.request.cookies.get("user_id")
         if current_cook:
@@ -174,7 +229,19 @@ def onepage_cache(ID, update=False):
 
 # User account validation functions
 def username_val(cursor, username):
-    """Checks to see if the requested username already exists.
+    """Check to see if the requested username already exists.
+    
+    Args:
+      cursor: a GqlQuery object, querying the User database and including
+        all columns.
+        Docs for the GqlQuery class can be found here:
+        https://cloud.google.com/appengine/docs/standard/python/datastore/gqlqueryclass
+      username: Any valid username (doesn't violate the USER_RE regex
+        and is not a number.)
+    
+    Returns:
+      A boolean representing the validity of the username: False if it
+      already used, True if it is not yet in the database. 
     """
     for each in cursor:
         if each.name == username:
@@ -183,8 +250,12 @@ def username_val(cursor, username):
 
 
 def make_salt():
-    """Makes a random 5-letter salt to add to any hashing security
-    measures. This is Steven Huffman's version.
+    """Make a pseudo-random 5-letter salt for security hashing.
+    
+    Originally written by Steven Huffman.
+    
+    Returns:
+        A pseudo-random 5-letter string.
     """
     return ''.join(random.choice(string.letters)for x in xrange(5))
 
@@ -222,12 +293,14 @@ def json_convert_indiv(post):
 ### Handlers that render pages.
 
 class MainPage(Handler):
-    """Renders the saga main page, or redirects to a user's blog homepage.
-    """
+    """Render the saga main page, or redirect to a user's blog homepage."""
 
     def get(self):
-        """Renders the saga main page, or redirects to a user's blog
-        homepage.
+        """Render the saga main page/redirect to a user's blog homepage.
+     
+        Render the page usually available at "/" - the "saga" homepage,
+        or, if there is a valid logged-in user, redirect to that user's
+        blog homepage.
         """
         user_data = self.validate_cookie()
         if user_data:
@@ -237,20 +310,21 @@ class MainPage(Handler):
 
 
 class SignUp(Handler):
-    """Renders the saga signup form, then, if all the given user data is
-    acceptable, stores the user data in the User database,
-    "signing up the user" and creates and sets the login cookie.
+    """Render the saga signup form, then, if all the given user data is
+    acceptable, store the user data in the User database,
+    "signing up the user". Create and set the login cookie.
     """
 
     def get(self):
-        """Renders a simple signup form with no customised elements.
-        """
+        """Render a simple saga signup form with no customised elements."""
         self.render('signup.html')
 
     def post(self):
-        """Takes the user data, checks it, creates any needed error
-        messages, and finally either stores the data and creates the login
-        cookie, or issues a new copy of the form with errors for the user
+        """Sign-up the user or give same sign-up form with errors.
+        
+        Take the user data, validate it, create any needed error
+        messages, and finally either store the data and create the login
+        cookie, or issue a new copy of the form with errors for the user
         to correct.
         """
         user = ""
@@ -325,21 +399,24 @@ class SignUp(Handler):
 
 
 class LogIn(Handler):
-    """Renders a basic login page for saga, then if all the data
-    is correct, creates a new login cookie, with a new salt,
-    and enters that into the database. This means that even if cookie
-    theft were to happen, it would only be valid until the account-owner
-    goes through the login process again.
+    """Render a basic login page for saga.
+    
+    Take data from the login page. If all the data
+    is correct, create a new login cookie, with a new salt,
+    and overwrite the salt in the database. 
+    Rationale: even if cookie theft were to happen, it would only be
+    valid until the account-owner goes through the login process again.
     """
 
     def get(self):
-        """Renders the login form.
-        """
+        """Render the saga login form."""
         self.render("login.html")
 
     def post(self):
-        """Checks the data posted from the login form, constructs and sets
-        the login cookie if appropriate, re-displays the login form with an
+        """Log the user in or re-display the login form with an error.
+        
+        Validate the data posted from the login form, construct and set
+        the login cookie if all valid, re-display the login form with an
         error if not.
         """
         username_exists = False
@@ -369,13 +446,22 @@ class LogIn(Handler):
 
 # prints all posts to the home/main page:
 class BlogHome(Handler):
-    """Renders any blog's homepage.
+    """Render any blog's homepage.
     """
 
     def get(self, username):
-        """Renders any blog's homepage based on the username in the URL.
-        Also handles pre-entering comment data into the comments form for
-        comment editing initiated on this page.
+        """Render any blog's homepage
+        
+        Render a user's blog homepage based on the username in the URL.
+        Will also, using form data in the URL, pre-enter any relevent comment
+        data into the relevent comments form for any comment editing previously 
+        initiated on this page.
+        
+        Args:
+          username: this argument is derived from the URL. It represents
+          any existing username. If the username does not exist,
+          meaning there is no signed-up user with this name, then the
+          user is redirected to a 404 page.
         """
         edit_comment_id = ""
         post_id = ""
@@ -431,8 +517,7 @@ class BlogHome(Handler):
                     website_type=website_type, blog_posts=blog_posts)
 
     def post(self, username):
-        """Takes the comment data from a blog homepage and enters it into
-        the Comment database.
+        """Enter any comment made on this page.
         """
         user_data = self.validate_cookie()
         content = self.request.get('content')
