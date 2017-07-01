@@ -450,10 +450,20 @@ class BlogHome(Handler):
                     logged_in_user=logged_in_user,
                     edit_comment_id=edit_comment_id,
                     post_id=post_id, comment_content=comment_content,
-                    website_type=website_type, blog_posts=blog_posts, error=error, error_author=error_author)
+                    website_type=website_type, blog_posts=blog_posts,
+                    error=error, error_author=error_author)
 
     def post(self, username):
-        """Enter any comment made on this page.
+        """Enter or update any comment made on this page.
+        
+        Comments are implemented so that they're handled on the same
+        page that they're made.
+        
+        Args:
+          As is the same with the get method function in this handler,
+          the post method function takes the blog owner's username as
+          an argument. This is added as the "blog_loc", the blog on
+          which the comment is located.
         """
         user_data = self.validate_cookie()
         content = self.request.get('content')
@@ -471,7 +481,7 @@ class BlogHome(Handler):
                     self.redirect("/"+username)
         else:
             author = user_data.name
-            post_identity = self.request.get('post_id')
+            post_identity = self.request.get("post_id")
             a = Comments(content=content, author=author,
                          post_identity=post_identity, blog_loc=username)
             a.put()
@@ -487,25 +497,36 @@ class BlogPage(Handler):
     """
 
     def get(self, post_id):
-        """Sets up and renders a page for a single blog entry, based
+        """Render a page for a single blog entry.
+        
+        Set up and render a page for a single blog entry, based
         on the entry data and the author's customised blog appearance.
-        Also handles pre-entering comment data into the comments form for
+        Also, handle pre-entering comment data into the comments form for
         any comment editing initiated on this page.
+        
+        Args:
+          post_id: this is automatically recieved from the URL. it is
+          used to get the right post from the database and create the
+          page. If this post_id doesn't refer to a real entry in the
+          database the user is redirected to the 404 page "/oops".
         """
         edit_comment_id = ""
         comment_content = ""
+        user_buttons = ""
+        logged_in_user = ""
+        post_id = ""
+        error=""
+        error_author=""
         blog_post = BlogEntries.get_by_id(int(post_id))
+        if not blog_post:
+            self.redirect("/oops")
         username = blog_post.author
         user_data = self.validate_cookie()
         blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE "
                                       "name='%s'" % username)
         blog_posts = db.GqlQuery("SELECT * FROM BlogEntries WHERE "
                                  "identity='%s'" % post_id)
-        user_buttons = ""
-        logged_in_user = ""
-        post_id = ""
-        error=""
-        error_author=""
+
         error = self.request.get("error")
         if error:
             if error == "other":
@@ -544,11 +565,20 @@ class BlogPage(Handler):
                     blog_name=blog_name, comments=comments,
                     username=username, logged_in_user=logged_in_user,
                     edit_comment_id=edit_comment_id, post_id=post_id,
-                    comment_content=comment_content, website_type="single", error=error, error_author=error_author)
+                    comment_content=comment_content, website_type="single",
+                    error=error, error_author=error_author)
 
     def post(self, post_id):
-        """Takes the comment data from a single blog page and enters it into
-        the Comment database.
+        """Enters or updates the comment data from this page.
+        
+        Similarly to the BlogHome handler, any comments made on this page
+        are also managed on this page, and entered into the Comments
+        database.
+        
+        Args:
+          the post_id is accessible to the post method as well. Its main
+          purpose in this function is to ocate the comment in relation to
+          the post.
         """
         blog_post = BlogEntries.get_by_id(int(post_id))
         username = blog_post.author
@@ -587,13 +617,10 @@ class BlogPage(Handler):
 # constructs webpage for adding new posts, including form and database entry creation
 # doesn't seem like it would allow for SQL injection
 class NewPost(Handler):
-    """Renders a form then acts upon the given data, adding it as a new
-    blog entry.
-    """
+    """Render and act upon a "new post" form."""
 
     def get(self):
-        """Renders a new post form with the user's custom data.
-        """
+        """Render a new post form with the user's custom data."""
         user_data = self.validate_cookie()
         if user_data:
             image = user_data.blog_image
@@ -605,9 +632,11 @@ class NewPost(Handler):
             self.redirect("/login")
 
     def post(self):
-        """Checks the new post data, and either enters it into the database,
-        or asks again for the right data.
-         """
+        """Validate the new post data, and either enter or reject it.
+        
+        Check the new post data, and either enter it into the database,
+        or re-display the form with an error.
+        """
         subject = self.request.get('subject')
         content = self.request.get('content')
 
@@ -640,13 +669,21 @@ class EditPage(Handler):
     """
 
     def get(self, post_id):
-        """retrieving the post id from the URL, this function finds the user
-        data appropriate to the logged in user, checking that the user is also
-        the author of the post. This and the post's data are used to
-        create the edit page."""
+        """Show a form for editing an existing post.
+        
+        Retrieve the post id from the URL, find the user data 
+        appropriate to the logged in user, checking that the user
+        is also the author of the post. Use this and the post's data
+        to create the edit page.
+        
+        Args:
+          post_id: A number in the URL which refers to an existing blog
+          post.
+        """
         content = ""
         subject = ""
         user_data = self.validate_cookie()
+        post_exists = False
         if not user_data:
             self.redirect("/login")
         else:
@@ -654,6 +691,7 @@ class EditPage(Handler):
                                  "WHERE identity='%s'" % post_id)
             for each in cursor:
                 if each.identity == post_id:
+                    post_exists = True
                     if user_data.name == each.author:
                         image = user_data.blog_image
                         content = each.content[3:-4].replace("</p>\n<p>", "\n")
@@ -662,10 +700,18 @@ class EditPage(Handler):
                                     content=content, image=image)
                     else:
                         self.redirect("/"+post_id)
-
+        if not post_exists:
+            self.redirect("/oops")
     def post(self, post_id):
-        """Once the edit form has been posted, this function overwrites
-        the content of the original post with the new content.
+        """Overwrite original post.
+        
+        Once the edit form has been posted, overwrite the content of
+        the original post with the new content. Or don't, if the editor
+        isn't the original author.
+        
+        Args:
+          post_id: A number in the URL which refers to an existing blog
+          post.
         """
         content = ""
         user_data = self.validate_cookie()
@@ -677,7 +723,8 @@ class EditPage(Handler):
             for each in cursor:
                 if each.identity == post_id:
                     if user_data.name != each.author:
-                        self.redirect("/"+post_id)
+                        self.redirect("/"+post_id+"?error=other&author="
+                                      +each.author)
                     else:
                         subject = self.request.get('subject')
                         content = self.request.get('content')
@@ -708,6 +755,8 @@ class Oops(Handler):
     user page proves not to exist.
     """
     def get(self):
+        """Render a 404 error page"""
+        self.request.status=404
         self.render("oops.html")
 
 
@@ -719,9 +768,14 @@ class DeletePost(Handler):
     """
 
     def get(self, post_id):
-        """This function retrieves the post id from the URL and, after
-        checking that the user is the author of the post, deletes it
-        from the database.
+        """Delete a post.
+        
+        Retrieves the post id from the URL and, if the user is the
+        author of the post, delete it from the BlogEntries database.
+        
+        Args:
+          post_id: A number in the URL which refers to an existing blog
+          post.
         """
         user_data = self.validate_cookie()
         blog_post = BlogEntries.get_by_id(int(post_id))
@@ -729,7 +783,8 @@ class DeletePost(Handler):
             if not user_data:
                 self.redirect("/login")
             elif blog_post.author != user_data.name:
-                self.redirect("/"+post_id+"?error=other&author="+blog_post.author)
+                self.redirect("/"+post_id+"?error=other&author="
+                              +blog_post.author)
             else:
                 cursor = db.GqlQuery("SELECT * FROM BlogEntries "
                                      "WHERE identity='%s'"%post_id)
@@ -741,18 +796,26 @@ class DeletePost(Handler):
 
 
 class LikePost(Handler):
-    """This Handler allows any user to like a post they did not write.
+    """Like a post.
+    
+    This Handler allows any user to like a post they did not write.
     This is limited to only one like per user per post.
     """
 
     def get(self, post_id):
-        """After checking that the user making this request is not the
-        author of the post, the user's name is added to a list of users
-        who have liked the post, which is recorded in the post's database
-        entry. This list is checked each time anyone attempts to like a
-        post, so they can only like the post once. The current length
-        of this list is also recorded in the database for easy addition
-        to the blog post representations on the website.
+        """Like a post.
+        
+        If the user making this request is not the author of the post,
+        add the user's name to a list of users who have liked the post,
+        which is recorded in the post's database entry. check this list
+        each time anyone attempts to like a post, so they can use this
+        handler to also unlike this post.  Record the current length
+        of this list in the database for easy addition to the blog post
+        representations on the website.
+        
+        Args:
+          post_id: A number in the URL which refers to an existing blog
+          post.
         """
         user_data = self.validate_cookie()
         blog_post = BlogEntries.get_by_id(int(post_id))
@@ -781,9 +844,14 @@ class DeleteComment(Handler):
     """This handler allows the author of a comment to delete it"""
 
     def get(self, comment_id):
-        """This function allows the author of a comment to delete it.
-        It then redirects to the page the user was on previously,
-        using data posted by the comment delete button."""
+        """Delete a comment.
+        
+        Let the author of a comment delete it from the Comments database.
+        Then redirects to the previous page the user was on.
+        
+        Args:
+          post_id: A number in the URL which refers to an existing comment.
+        """
         user_data = self.validate_cookie()
         comment = Comments.get_by_id(int(comment_id))
         if comment:
@@ -809,11 +877,9 @@ class DeleteComment(Handler):
 
 
 class LogOut(Handler):
-    """Deletes the cookie content to log out the user.
-    """
+    """Deletes the cookie content to log out the user."""
     def get(self):
-        """Deletes the cookie content to log out the user.
-        """
+        """Delete the cookie content to log out the user."""
         self.response.headers.add_header('Set-Cookie', 'user_id=%s; Path=/'%"")
         self.redirect("/signup")
 
