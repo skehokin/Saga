@@ -3,12 +3,10 @@ import re
 import random
 import string
 import hashlib
-import unicodedata
 import time
 import jinja2
 import webapp2
 from google.appengine.ext import db
-from google.appengine.api import memcache
 
 
 # This sets up the regular expressions and
@@ -196,37 +194,6 @@ class Users(db.Model):
     blog_image = db.StringProperty(required=False)
 
 
-# Caching functions:
-def frontpage_cache(update=False):
-    """This function does one of two things: updates memcache, or gives
-    the current memcache value for the front page.
-    Pretty sure the code has changed so it's no longer useful, though.
-    """
-    key = "top"
-    blog_posts = memcache.get(key)
-    if blog_posts is None or update:
-        blog_posts = db.GqlQuery("SELECT * FROM BlogEntries ORDER BY "
-                                 "created DESC LIMIT 10")
-        blog_posts = list(blog_posts)
-        memcache.set(key, blog_posts)
-        memcache.set("tyme", time.time())
-    return blog_posts
-
-
-def onepage_cache(ID, update=False):
-    """This function does one of two things: updates memcache, or gives
-    the current memcache value for a single given page.
-    Pretty sure the code has changed so it's no longer useful, though.
-    """
-    key = ID
-    blog_post = memcache.get(key)
-    if blog_post is None or update:
-        blog_post = BlogEntries.get_by_id(int(key))
-        memcache.set(key, blog_post)
-        memcache.set("time"+key, time.time())
-    return blog_post
-
-
 # User account validation functions
 def username_val(cursor, username):
     """Check to see if the requested username already exists.
@@ -258,36 +225,6 @@ def make_salt():
         A pseudo-random 5-letter string.
     """
     return ''.join(random.choice(string.letters)for x in xrange(5))
-
-
-# JSON functions
-def json_convert(cursor):
-    """This function converts an entire set of blog entries to JSON"""
-    entrylist = []
-    for entry in cursor:
-        content = unicodedata.normalize('NFKD', entry.content)
-        content = content.encode('ascii', 'ignore')
-        entrydict = {
-            'subject': str(entry.subject),
-            'content': content,
-            'created': str(entry.created)
-            }
-        entrylist.append(entrydict)
-    a = str(entrylist).replace('"', "@").replace("'", '"').replace("@", "'")
-    return a
-
-
-def json_convert_indiv(post):
-    """This function converts a single blog entry to JSON"""
-    content = unicodedata.normalize('NFKD', post.content)
-    content = content.encode('ascii', 'ignore')
-    entrydict = {
-        'subject': str(post.subject),
-        'content': content,
-        'created': post.created.strftime("%H:%M on %A %d %B %Y")
-        }
-    a = str(entrydict).replace('"', "@").replace("'", '"').replace("@", "'")
-    return a
 
 
 ### Handlers that render pages.
@@ -499,13 +436,6 @@ class BlogHome(Handler):
         if not exists:
             self.redirect("/oops")
         blog_name = username+"'s blog"
-
-        # blog_posts=frontpage_cache()
-        # querytime=memcache.get("tyme")
-        # now=time.time()
-        # current=now-querytime
-        # time=current
-
         website_type = "home"
         comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' "
                                "ORDER BY created"%username)
@@ -542,7 +472,6 @@ class BlogHome(Handler):
             a.comment_id = str(a.key().id())
             a.put()
         time.sleep(1)
-        frontpage_cache(True)
         self.redirect("/"+username)
 
 
@@ -640,7 +569,6 @@ class BlogPage(Handler):
             a.comment_id = str(a.key().id())
             a.put()
         time.sleep(1)
-        frontpage_cache(True)
         self.redirect("/"+post_id)
 
 
@@ -682,7 +610,6 @@ class NewPost(Handler):
             a.put()
             post_id = a.identity
             time.sleep(1)
-            frontpage_cache(True)
             self.redirect("/"+post_id)
         else:
             error = "please add both a subject and body for your blog entry!"
@@ -755,8 +682,6 @@ class EditPage(Handler):
                                     each.content = content
                                     each.put()
                                     time.sleep(1)
-                                    frontpage_cache(True)
-                                    onepage_cache(post_id, True)
                                     self.redirect("/"+post_id)
                         else:
                             error = ("please add both a subject and "
@@ -800,8 +725,6 @@ class DeletePost(Handler):
                     if each.identity == post_id:
                         each.delete()
                         time.sleep(1)
-                        frontpage_cache(True)
-                        onepage_cache(post_id, True)
                         self.redirect("/"+user_data.name)
 
 
@@ -836,8 +759,6 @@ class LikePost(Handler):
                             each.likes_length = len(each.likes)
                         each.put()
                         time.sleep(1)
-                        frontpage_cache(True)
-                        onepage_cache(post_id, True)
                         self.redirect("/"+post_id)
             else:
                 self.redirect("/"+post_id)
@@ -858,8 +779,6 @@ class DeleteComment(Handler):
                 target = comment.blog_loc
             else:
                 target = comment.post_identity
-
-            post_loc = comment.post_identity
             if not user_data:
                 self.redirect("/login")
             elif comment.author != user_data.name:
@@ -871,8 +790,6 @@ class DeleteComment(Handler):
                     if each.comment_id == comment_id:
                         each.delete()
                         time.sleep(1)
-                        frontpage_cache(True)
-                        onepage_cache(post_loc, True)
                         self.redirect("/"+target)
         else:
             self.redirect("/")
@@ -888,52 +805,13 @@ class LogOut(Handler):
         self.redirect("/signup")
 
 
-class Flush(Handler):
-    """Removes all data from the cache.
-    """
-    def get(self):
-        """Removes all data from the cache.
-        """
-        memcache.flush_all()
-        self.redirect("/")
-
-
-class JsonApi(Handler):
-    """This API uses the JSON convert function to create a JSON version of
-    all the blog entries"""
-
-    def get(self):
-        """This function uses the JSON convert function to create a JSON 
-        version of all the blog entries"""
-        self.response.headers.add_header('Content-Type',
-                                         'application/json; charset=UTF-8')
-        self.write(json_convert(db.GqlQuery("SELECT * FROM BlogEntries "
-                                           "ORDER BY created DESC")))
-
-
-class JsonApiIndiv(Handler):
-    """This API uses the JSON convert function to create a JSON version of
-    a single blog entry"""
-    
-    def get(self, post_id):
-        """This function uses the JSON convert function to create a 
-        JSON version of a single blog entry"""
-        self.response.headers.add_header('Content-Type',
-                                         'application/json; charset=UTF-8')
-        blog_post = BlogEntries.get_by_id(int(post_id))
-        self.write(json_convert_indiv(blog_post))
-
-
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/newpost', NewPost),
                                ('/oops', Oops),
                                (r'/(\d+)', BlogPage),
-                               (r'/(\d+).json', JsonApiIndiv),
                                ('/signup', SignUp),
                                ('/login', LogIn),
                                ('/logout', LogOut),
-                               ('/.json', JsonApi),
-                               ('/flush', Flush),
                                (r'/_edit/(\d+)', EditPage),
                                (r'/_delete/(\d+)', DeletePost),
                                (r'/_commentdelete/(\d+)', DeleteComment),
