@@ -93,8 +93,8 @@ class Handler(webapp2.RequestHandler):
           jinja2 syntax or undefined variables within the template
           will be omitted.
         """
-        t = jinja_env.get_template(template)
-        return t.render(params)
+        temp = jinja_env.get_template(template)
+        return temp.render(params)
 
     def render(self, template, **kw):
         """Write the filled-out jinja2 template to the response object.
@@ -289,13 +289,15 @@ class SignUp(Handler):
         if not egood:
             email = error_mess % "email"
         if not username_free:
-            nameval = "the username "%s" is already in use." % username
+            nameval = "the username '%s' is already in use." % username
 
         if ugood and pgood and pgood2 and egood and username_free:
-            static_salt = make_salt()
+            static_salt = make_salt() # To be hashed with the password.
             values = username + password + static_salt
             hashed_pw = str(hashlib.sha256(values).hexdigest())
-            cur_salt = make_salt()
+            # cur_salt is hashed with the user ID for the cookie.
+            # It changes each time the user logs in.
+            cur_salt = make_salt() 
             token = hashlib.sha256(username+cur_salt).hexdigest()
             # A random image adds some automatic variation to each blog.
             # The next feature, outside the scope of this project,
@@ -319,18 +321,21 @@ class SignUp(Handler):
                              "matt-thornhill-106773.jpg",
                              "camille-kmile-201915.jpg"]
             blog_image = random.choice(image_options)
-            a = Users(name=username, password=hashed_pw, salt=cur_salt,
-                      mail=email, pwsalt=static_salt, blog_image=blog_image)
-            a.put()
-            userID = str(a.key().id())
+            # Place the new user's data in the Users database.
+            new_entity = Users(name=username, password=hashed_pw,
+                               salt=cur_salt, mail=email, pwsalt=static_salt,
+                               blog_image=blog_image)
+            new_entity.put()
+            user_id = str(new_entity.key().id())
             # Here we put all the data together to make the correct
             # cookie, which is a string made of userid, a bar symbol,
             # and our token, which is the username hashed with salt.
-            cookie_value = userID+"|"+str(token)
+            cookie_value = user_id+"|"+str(token)
             self.response.headers.add_header("Set-Cookie", "user_id=%s; Path=/"
                                              % cookie_value)
             self.redirect("/")
         else:
+            # The sign-up page with relevant errors.
             self.render("signup.html", user=user, pass1=pass1, pass2=pass2,
                         email=email, nameval=nameval)
 
@@ -361,10 +366,12 @@ class LogIn(Handler):
         password = self.request.get("password")
         cursor = db.GqlQuery("SELECT * FROM Users")
         for each in cursor:
-            if each.name == username:
+            if each.name == username and username_exists:
                 username_exists = True
                 values_hash = hashlib.sha256(username + password + each.pwsalt)
+                # Check the given password against the one in the database.
                 if each.password == str(values_hash.hexdigest()):
+                    #Make a new salt for a new token.
                     each.salt = make_salt()
                     each.put()
                     userID = each.key().id()
@@ -377,11 +384,8 @@ class LogIn(Handler):
 
                 else:
                     self.render("login.html", error="invalid login")
-        if not username_exists:
-            self.render("login.html", error="invalid login")
 
 
-# prints all posts to the home/main page:
 class BlogHome(Handler):
     """Render any blog's homepage.
     """
@@ -393,6 +397,10 @@ class BlogHome(Handler):
         Will also, using form data in the URL, pre-enter any relevent comment
         data into the relevent comments form for any comment editing previously 
         initiated on this page.
+        
+        A user's blog homepage consists of their blog's image, any relevent
+        links (depending on the accessing user's identity) and the ten most
+        recent posts by that user.
         
         Args:
           username: this argument is derived from the URL. It represents
@@ -408,15 +416,28 @@ class BlogHome(Handler):
         error=""
         error_author=""
         user_data = self.validate_cookie()
+        # Check that the username exists and redirects if not:
         blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE "
                                       "name='%s'"%username)
+        image = "bloghero_tower_wide.jpg"
+        exists = False
+        if blog_owner_data:
+            for each in blog_owner_data:
+                exists = True
+                if username == each.name and each.blog_image:
+                    image = each.blog_image
+        if not exists:
+            self.redirect("/oops")
         blog_posts = db.GqlQuery("SELECT * FROM BlogEntries WHERE author='%s' "
                                  "ORDER BY created DESC LIMIT 10"%username)
+        
+        # Check for user permission errors indicated in the URL.
         error = self.request.get("error")
         if error:
             if error == "other":
                 error_author=self.request.get("author")
         if user_data:
+            # Check for comment data to be edited.
             edit_comment_id = self.request.get("comment_id")
             if edit_comment_id:
                 edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
@@ -427,20 +448,14 @@ class BlogHome(Handler):
                             post_id = each.post_identity
                             comment_content = each.content
                         else:
-                            self.redirect("/"+username)
+                            self.redirect("/" + username 
+                                          + "?error=other&author="
+                                          + each.author)
             user_buttons = "user"
             logged_in_user = user_data.name
             if user_data.name == username:
                 user_buttons = "owner"
-        image = "bloghero_tower_wide.jpg"
-        exists = False
-        if blog_owner_data:
-            for each in blog_owner_data:
-                exists = True
-                if username == each.name and each.blog_image:
-                    image = each.blog_image
-        if not exists:
-            self.redirect("/oops")
+       
         blog_name = username+"'s blog"
         website_type = "home"
         comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' "
@@ -478,16 +493,18 @@ class BlogHome(Handler):
                     each.content = content
                     each.put()
                 else:
-                    self.redirect("/"+username)
+                    self.redirect("/" + username 
+                                  + "?error=other&author="
+                                  + each.author)
         else:
             author = user_data.name
             post_identity = self.request.get("post_id")
-            a = Comments(content=content, author=author,
+            new_entity = Comments(content=content, author=author,
                          post_identity=post_identity, blog_loc=username)
-            a.put()
-            a.comment_id = str(a.key().id())
-            a.put()
-        time.sleep(1)
+            new_entity.put()
+            new_entity.comment_id = str(new_entity.key().id())
+            new_entity.put()
+        time.sleep(1) # Gives the database a little time to update.
         self.redirect("/"+username)
 
 
@@ -526,12 +543,13 @@ class BlogPage(Handler):
                                       "name='%s'" % username)
         blog_posts = db.GqlQuery("SELECT * FROM BlogEntries WHERE "
                                  "identity='%s'" % post_id)
-
+        # Check for user permission errors indicated in the URL.
         error = self.request.get("error")
         if error:
             if error == "other":
                 error_author=self.request.get("author")
         if user_data:
+            # Check for comment data to be edited.
             edit_comment_id = self.request.get("comment_id")
             if edit_comment_id:
                 edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
@@ -542,7 +560,9 @@ class BlogPage(Handler):
                             post_id = each.post_identity
                             comment_content = each.content
                         else:
-                            self.redirect("/"+username)
+                            self.redirect("/" + username 
+                                          + "?error=other&author="
+                                          + each.author)
             user_buttons = "user"
             logged_in_user = user_data.name
             if user_data.name == username:
@@ -553,11 +573,6 @@ class BlogPage(Handler):
                 if username == each.name and each.blog_image:
                     image = each.blog_image
         blog_name = username+"'s blog"
-        # blog_posts=frontpage_cache()
-        # querytime=memcache.get("tyme")
-        # now=time.time()
-        # current=now-querytime
-        # time=current
         comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' "
                                "ORDER BY created" %username)
         self.render("bloghome.html", blog_posts=blog_posts,
@@ -610,12 +625,10 @@ class BlogPage(Handler):
             a.put()
             a.comment_id = str(a.key().id())
             a.put()
-        time.sleep(1)
+        time.sleep(1) # Gives the database a little time to update.
         self.redirect("/"+post_id)
 
 
-# constructs webpage for adding new posts, including form and database entry creation
-# doesn't seem like it would allow for SQL injection
 class NewPost(Handler):
     """Render and act upon a "new post" form."""
 
@@ -642,14 +655,16 @@ class NewPost(Handler):
 
         user_data = self.validate_cookie()
         if subject and content:
+            #Allow for new lines, although not any other kinds of HTML.
             content = "<p>"+content.replace("\n", "</p>\n<p>")+"</p>"
             author = user_data.name
-            a = BlogEntries(subject=subject, content=content, author=author,
-                            likes=[], likes_length=0)
-            a.put()
-            a.identity = str(a.key().id())
-            a.put()
-            post_id = a.identity
+            new_entity = BlogEntries(subject=subject, content=content,
+                                     author=author, likes=[], likes_length=0)
+            new_entity.put()
+            # For easy post ID searches:
+            new_entity.identity = str(new_entity.key().id())
+            new_entity.put()
+            post_id = new_entity.identity
             time.sleep(1)
             self.redirect("/"+post_id)
         else:
@@ -694,6 +709,10 @@ class EditPage(Handler):
                     post_exists = True
                     if user_data.name == each.author:
                         image = user_data.blog_image
+                        # Transform back from HTML. A future fix might be to
+                        # only add the tags just before putting the post on 
+                        # the site. That sounds a little more processing-heavy
+                        # though.
                         content = each.content[3:-4].replace("</p>\n<p>", "\n")
                         subject = each.subject
                         self.render("newpage.html", subject=subject,
@@ -714,6 +733,7 @@ class EditPage(Handler):
           post.
         """
         content = ""
+        post_exists = False
         user_data = self.validate_cookie()
         if not user_data:
             self.redirect("/login")
@@ -722,6 +742,7 @@ class EditPage(Handler):
                                  "WHERE identity='%s'" % post_id)
             for each in cursor:
                 if each.identity == post_id:
+                    post_exists = True
                     if user_data.name != each.author:
                         self.redirect("/"+post_id+"?error=other&author="
                                       +each.author)
@@ -737,10 +758,11 @@ class EditPage(Handler):
                                                  % post_id)
                             for each in cursor:
                                 if each.identity == post_id:
+                                    # Overwrite old post.
                                     each.subject = subject
                                     each.content = content
                                     each.put()
-                                    time.sleep(1)
+                                    time.sleep(1) # Wait for the database.
                                     self.redirect("/"+post_id)
                         else:
                             error = ("please add both a subject and "
@@ -748,15 +770,16 @@ class EditPage(Handler):
                             self.render("newpage.html", subject=subject,
                                         content=content, error=error,
                                         image=image)
-
+        if not post_exists:
+            self.redirect("/oops")
 
 class Oops(Handler):
-    """This is the "404" page, which is visited each time a post or
+    """This is the "404" page, which is visited each time a post, comment or
     user page proves not to exist.
     """
     def get(self):
         """Render a 404 error page"""
-        self.request.status=404
+        self.request.status=404 # Does this do anything?
         self.render("oops.html")
 
 
@@ -770,7 +793,7 @@ class DeletePost(Handler):
     def get(self, post_id):
         """Delete a post.
         
-        Retrieves the post id from the URL and, if the user is the
+        Retrieve the post id from the URL and, if the user is the
         author of the post, delete it from the BlogEntries database.
         
         Args:
@@ -791,9 +814,10 @@ class DeletePost(Handler):
                 for each in cursor:
                     if each.identity == post_id:
                         each.delete()
-                        time.sleep(1)
+                        time.sleep(1) # Gives the database a little time.
                         self.redirect("/"+user_data.name)
-
+        else:
+            self.redirect("/oops")
 
 class LikePost(Handler):
     """Like a post.
@@ -828,16 +852,19 @@ class LikePost(Handler):
                 for each in cursor:
                     if each.identity == post_id:
                         if user_data.name in each.likes:
-                            #remove username from each.likes
+                            # Remove username from the list of people
+                            # who have liked the post.
                             each.likes.remove(user_data.name)
                         else:
                             each.likes.append(user_data.name)
                         each.likes_length = len(each.likes)
                         each.put()
-                        time.sleep(1)
+                        time.sleep(1) # Gives the database a little time.
                         self.redirect("/"+post_id)
             else:
                 self.redirect("/"+post_id+"?error=self")
+        else:
+            self.redirect("/oops")
 
 
 class DeleteComment(Handler):
@@ -870,10 +897,10 @@ class DeleteComment(Handler):
                 for each in cursor:
                     if each.comment_id == comment_id:
                         each.delete()
-                        time.sleep(1)
+                        time.sleep(1) # Gives the database a little time.
                         self.redirect("/"+target)
         else:
-            self.redirect("/")
+            self.redirect("/oops")
 
 
 class LogOut(Handler):
@@ -885,14 +912,14 @@ class LogOut(Handler):
 
 
 app = webapp2.WSGIApplication([("/", MainPage),
-                               ("/newpost", NewPost),
-                               ("/oops", Oops),
-                               (r"/(\d+)", BlogPage),
                                ("/signup", SignUp),
                                ("/login", LogIn),
-                               ("/logout", LogOut),
+                               (r"/(.*)", BlogHome),
+                               (r"/(\d+)", BlogPage),
+                               ("/newpost", NewPost),
                                (r"/_edit/(\d+)", EditPage),
+                               ("/oops", Oops),
                                (r"/_delete/(\d+)", DeletePost),
-                               (r"/_commentdelete/(\d+)", DeleteComment),
                                (r"/_like/(\d+)", LikePost),
-                               (r"/(.*)", BlogHome)], debug=True)
+                               (r"/_commentdelete/(\d+)", DeleteComment),
+                               ("/logout", LogOut)], debug=True)
