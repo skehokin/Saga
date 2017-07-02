@@ -33,14 +33,14 @@ def valid_email(mail):
 
 
 # Sets up template paths:
-template_dir = os.path.join(os.path.dirname(__file__), "templates")
-jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
+TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "templates")
+JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
                                autoescape=True)
 
 
 class Handler(webapp2.RequestHandler):
     """Extend the webapp2 RequestHandler class for quick access.
-    
+
     Primarily created by Steve Huffman to reduce the difficulty
     of typing out the webapp2 write function and the jinja2 template
     rendering process. The cookie validation function was later added
@@ -49,17 +49,17 @@ class Handler(webapp2.RequestHandler):
 
     def write(self, *a, **kw):
         """Shorten the webapp2 response.write function.
-        
+
         Alter the webapp2 response object - the final HTTP
         response. A guide to the webapp2 response object can be
         found here:
         http://webapp2.readthedocs.io/en/latest/guide/response.html
-        
+
         Args:
           *a:
-            Typically a string representing an HTML webpage. Can 
+            Typically a string representing an HTML webpage. Can
             also be any other object, although if expected to be
-            human-readble, the object must usually be human-readable 
+            human-readble, the object must usually be human-readable
             without any interfacing commands, e.g. lists, intergers.
           **kw:
             I honestly have no idea why response.write would take any
@@ -80,7 +80,7 @@ class Handler(webapp2.RequestHandler):
             http://jinja.pocoo.org/docs/2.9/templates/
           **params:
             Any number of variables which are already part of the
-            given jinja2 template. The function of these variables is 
+            given jinja2 template. The function of these variables is
             similar to string formatting. Quite often these variables
             are also strings, but they can also be dictionaries, lists,
             or other iterables.
@@ -93,16 +93,16 @@ class Handler(webapp2.RequestHandler):
           jinja2 syntax or undefined variables within the template
           will be omitted.
         """
-        temp = jinja_env.get_template(template)
+        temp = JINJA_ENV.get_template(template)
         return temp.render(params)
 
     def render(self, template, **kw):
         """Write the filled-out jinja2 template to the response object.
-        
-        Call the above two functions (write and render_str) to first 
-        retrieve a jinja2 template, fill it out with the requisite 
+
+        Call the above two functions (write and render_str) to first
+        retrieve a jinja2 template, fill it out with the requisite
         variables, and then write it as a string to the response object.
-        
+
         Args:
           template:
             The file name of a jinja2 HTML template which is located
@@ -112,7 +112,7 @@ class Handler(webapp2.RequestHandler):
             http://jinja.pocoo.org/docs/2.9/templates/
           **kw:
             Any number of variables which are already part of the
-            given jinja2 template. The function of these variables is 
+            given jinja2 template. The function of these variables is
             similar to string formatting. Quite often these variables
             are also strings, but they can also be dictionaries, lists,
             or other iterables, as some python-like syntax ("tags")
@@ -127,9 +127,9 @@ class Handler(webapp2.RequestHandler):
 
     def validate_cookie(self):
         """ Validate the login cookie and retrieve user data.
-        
+
         Returns:
-          The database entity representing the logged in user, or 
+          The database entity representing the logged in user, or
           if the cookie is invalid, returns None.
         """
         current_cook = self.request.cookies.get("user_id")
@@ -197,7 +197,7 @@ class Users(db.Model):
 # User account validation functions
 def username_val(cursor, username):
     """Check to see if the requested username already exists.
-    
+
     Args:
       cursor: a GqlQuery object, querying the User database and including
         all columns.
@@ -205,10 +205,10 @@ def username_val(cursor, username):
         https://cloud.google.com/appengine/docs/standard/python/datastore/gqlqueryclass
       username: Any valid username (doesn't violate the USER_RE regex
         and is not a number.)
-    
+
     Returns:
       A Boolean representing the validity of the username: False if it
-      already used, True if it is not yet in the database. 
+      already used, True if it is not yet in the database.
     """
     for each in cursor:
         if each.name == username:
@@ -218,9 +218,9 @@ def username_val(cursor, username):
 
 def make_salt():
     """Make a pseudo-random 5-letter salt for security hashing.
-    
+
     Originally written by Steven Huffman.
-    
+
     Returns:
         A pseudo-random 5-letter string.
     """
@@ -234,7 +234,7 @@ class MainPage(Handler):
 
     def get(self):
         """Render the saga main page/redirect to a user's blog homepage.
-     
+
         Render the page usually available at "/" - the "saga" homepage,
         or, if there is a valid logged-in user, redirect to that user's
         blog homepage.
@@ -258,7 +258,7 @@ class SignUp(Handler):
 
     def post(self):
         """Sign-up the user or give same sign-up form with errors.
-        
+
         Take the user data, validate it, create any needed error
         messages, and finally either store the data and create the login
         cookie, or issue a new copy of the form with errors for the user
@@ -297,7 +297,7 @@ class SignUp(Handler):
             hashed_pw = str(hashlib.sha256(values).hexdigest())
             # cur_salt is hashed with the user ID for the cookie.
             # It changes each time the user logs in.
-            cur_salt = make_salt() 
+            cur_salt = make_salt()
             token = hashlib.sha256(username+cur_salt).hexdigest()
             # A random image adds some automatic variation to each blog.
             # The next feature, outside the scope of this project,
@@ -328,7 +328,7 @@ class SignUp(Handler):
             new_entity.put()
             user_id = str(new_entity.key().id())
             # Here we put all the data together to make the correct
-            # cookie, which is a string made of userid, a bar symbol,
+            # cookie, which is a string made of the user ID, a bar symbol,
             # and our token, which is the username hashed with salt.
             cookie_value = user_id+"|"+str(token)
             self.response.headers.add_header("Set-Cookie", "user_id=%s; Path=/"
@@ -342,10 +342,10 @@ class SignUp(Handler):
 
 class LogIn(Handler):
     """Render a basic login page for saga.
-    
+
     Take data from the login page. If all the data
     is correct, create a new login cookie, with a new salt,
-    and overwrite the salt in the database. 
+    and overwrite the salt in the database.
     Rationale: even if cookie theft were to happen, it would only be
     valid until the account-owner goes through the login process again.
     """
@@ -356,7 +356,7 @@ class LogIn(Handler):
 
     def post(self):
         """Log the user in or re-display the login form with an error.
-        
+
         Validate the data posted from the login form, construct and set
         the login cookie if all valid, re-display the login form with an
         error if not.
@@ -374,9 +374,9 @@ class LogIn(Handler):
                     #Make a new salt for a new token.
                     each.salt = make_salt()
                     each.put()
-                    userID = each.key().id()
+                    user_id = each.key().id()
                     token = hashlib.sha256(each.name+each.salt).hexdigest()
-                    cookie_value = str(userID)+"|"+str(token)
+                    cookie_value = str(user_id)+"|"+str(token)
                     self.response.headers.add_header("Set-Cookie",
                                                      "user_id=%s; Path=/"
                                                      % cookie_value)
@@ -392,16 +392,16 @@ class BlogHome(Handler):
 
     def get(self, username):
         """Render any blog's homepage
-        
+
         Render a user's blog homepage based on the username in the URL.
         Will also, using form data in the URL, pre-enter any relevent comment
-        data into the relevent comments form for any comment editing previously 
+        data into the relevent comments form for any comment editing previously
         initiated on this page.
-        
+
         A user's blog homepage consists of their blog's image, any relevent
         links (depending on the accessing user's identity) and the ten most
         recent posts by that user.
-        
+
         Args:
           username: this argument is derived from the URL. It represents
           any existing username. If the username does not exist,
@@ -413,8 +413,8 @@ class BlogHome(Handler):
         comment_content = ""
         user_buttons = ""
         logged_in_user = ""
-        error=""
-        error_author=""
+        error = ""
+        error_author = ""
         user_data = self.validate_cookie()
         # Check that the username exists and redirects if not:
         blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE "
@@ -430,12 +430,12 @@ class BlogHome(Handler):
             self.redirect("/oops")
         blog_posts = db.GqlQuery("SELECT * FROM BlogEntries WHERE author='%s' "
                                  "ORDER BY created DESC LIMIT 10"%username)
-        
+
         # Check for user permission errors indicated in the URL.
         error = self.request.get("error")
         if error:
             if error == "other":
-                error_author=self.request.get("author")
+                error_author = self.request.get("author")
         if user_data:
             # Check for comment data to be edited.
             edit_comment_id = self.request.get("comment_id")
@@ -448,14 +448,14 @@ class BlogHome(Handler):
                             post_id = each.post_identity
                             comment_content = each.content
                         else:
-                            self.redirect("/" + username 
+                            self.redirect("/" + username
                                           + "?error=other&author="
                                           + each.author)
             user_buttons = "user"
             logged_in_user = user_data.name
             if user_data.name == username:
                 user_buttons = "owner"
-       
+
         blog_name = username+"'s blog"
         website_type = "home"
         comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' "
@@ -470,10 +470,10 @@ class BlogHome(Handler):
 
     def post(self, username):
         """Enter or update any comment made on this page.
-        
+
         Comments are implemented so that they're handled on the same
         page that they're made.
-        
+
         Args:
           As is the same with the get method function in this handler,
           the post method function takes the blog owner's username as
@@ -493,14 +493,15 @@ class BlogHome(Handler):
                     each.content = content
                     each.put()
                 else:
-                    self.redirect("/" + username 
+                    self.redirect("/" + username
                                   + "?error=other&author="
                                   + each.author)
         else:
             author = user_data.name
             post_identity = self.request.get("post_id")
             new_entity = Comments(content=content, author=author,
-                         post_identity=post_identity, blog_loc=username)
+                                  post_identity=post_identity,
+                                  blog_loc=username)
             new_entity.put()
             new_entity.comment_id = str(new_entity.key().id())
             new_entity.put()
@@ -515,12 +516,12 @@ class BlogPage(Handler):
 
     def get(self, post_id):
         """Render a page for a single blog entry.
-        
+
         Set up and render a page for a single blog entry, based
         on the entry data and the author's customised blog appearance.
         Also, handle pre-entering comment data into the comments form for
         any comment editing initiated on this page.
-        
+
         Args:
           post_id: this is automatically recieved from the URL. it is
           used to get the right post from the database and create the
@@ -532,8 +533,8 @@ class BlogPage(Handler):
         user_buttons = ""
         logged_in_user = ""
         post_id = ""
-        error=""
-        error_author=""
+        error = ""
+        error_author = ""
         blog_post = BlogEntries.get_by_id(int(post_id))
         if not blog_post:
             self.redirect("/oops")
@@ -547,7 +548,7 @@ class BlogPage(Handler):
         error = self.request.get("error")
         if error:
             if error == "other":
-                error_author=self.request.get("author")
+                error_author = self.request.get("author")
         if user_data:
             # Check for comment data to be edited.
             edit_comment_id = self.request.get("comment_id")
@@ -560,7 +561,7 @@ class BlogPage(Handler):
                             post_id = each.post_identity
                             comment_content = each.content
                         else:
-                            self.redirect("/" + username 
+                            self.redirect("/" + username
                                           + "?error=other&author="
                                           + each.author)
             user_buttons = "user"
@@ -585,11 +586,11 @@ class BlogPage(Handler):
 
     def post(self, post_id):
         """Enters or updates the comment data from this page.
-        
+
         Similarly to the BlogHome handler, any comments made on this page
         are also managed on this page, and entered into the Comments
         database.
-        
+
         Args:
           the post_id is accessible to the post method as well. Its main
           purpose in this function is to ocate the comment in relation to
@@ -646,7 +647,7 @@ class NewPost(Handler):
 
     def post(self):
         """Validate the new post data, and either enter or reject it.
-        
+
         Check the new post data, and either enter it into the database,
         or re-display the form with an error.
         """
@@ -685,12 +686,12 @@ class EditPage(Handler):
 
     def get(self, post_id):
         """Show a form for editing an existing post.
-        
-        Retrieve the post id from the URL, find the user data 
+
+        Retrieve the post id from the URL, find the user data
         appropriate to the logged in user, checking that the user
         is also the author of the post. Use this and the post's data
         to create the edit page.
-        
+
         Args:
           post_id: A number in the URL which refers to an existing blog
           post.
@@ -710,7 +711,7 @@ class EditPage(Handler):
                     if user_data.name == each.author:
                         image = user_data.blog_image
                         # Transform back from HTML. A future fix might be to
-                        # only add the tags just before putting the post on 
+                        # only add the tags just before putting the post on
                         # the site. That sounds a little more processing-heavy
                         # though.
                         content = each.content[3:-4].replace("</p>\n<p>", "\n")
@@ -723,11 +724,11 @@ class EditPage(Handler):
             self.redirect("/oops")
     def post(self, post_id):
         """Overwrite original post.
-        
+
         Once the edit form has been posted, overwrite the content of
         the original post with the new content. Or don't, if the editor
         isn't the original author.
-        
+
         Args:
           post_id: A number in the URL which refers to an existing blog
           post.
@@ -779,7 +780,7 @@ class Oops(Handler):
     """
     def get(self):
         """Render a 404 error page"""
-        self.request.status=404 # Does this do anything?
+        self.request.status = 404 # Does this do anything?
         self.render("oops.html")
 
 
@@ -792,10 +793,10 @@ class DeletePost(Handler):
 
     def get(self, post_id):
         """Delete a post.
-        
+
         Retrieve the post id from the URL and, if the user is the
         author of the post, delete it from the BlogEntries database.
-        
+
         Args:
           post_id: A number in the URL which refers to an existing blog
           post.
@@ -821,14 +822,14 @@ class DeletePost(Handler):
 
 class LikePost(Handler):
     """Like a post.
-    
+
     This Handler allows any user to like a post they did not write.
     This is limited to only one like per user per post.
     """
 
     def get(self, post_id):
         """Like a post.
-        
+
         If the user making this request is not the author of the post,
         add the user's name to a list of users who have liked the post,
         which is recorded in the post's database entry. check this list
@@ -836,7 +837,7 @@ class LikePost(Handler):
         handler to also unlike this post.  Record the current length
         of this list in the database for easy addition to the blog post
         representations on the website.
-        
+
         Args:
           post_id: A number in the URL which refers to an existing blog
           post.
@@ -872,10 +873,10 @@ class DeleteComment(Handler):
 
     def get(self, comment_id):
         """Delete a comment.
-        
+
         Let the author of a comment delete it from the Comments database.
         Then redirects to the previous page the user was on.
-        
+
         Args:
           post_id: A number in the URL which refers to an existing comment.
         """
