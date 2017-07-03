@@ -13,7 +13,7 @@
 				background-image: url(static/{{image}});
 			}
 		/*this is for showing/hiding errors
-		TODO(Siobhan): turn these into html hidden attributes*/
+		TODO: turn these into HTML hidden attributes*/
 			{% if error == "other" %}
 				.edit_delete {
 					display: block;
@@ -98,7 +98,9 @@
 						{{post.content |safe}}
 					</section>
 					<!-- Here I've added a marker of when the post was last edited, but it
-					only appears when last_edited is (definitely) different from created. it's necessary to strftime both because the milliseconds in the normal formatting automatically make the times different from one another. -->
+					only appears when last_edited is (definitely) different from created.
+					It's necessary to strftime both because the milliseconds in the normal
+					formatting automatically make the times different from one another. -->
 						{% if post.created.strftime("%H:%M %A %d %B %Y") != post.last_edited.strftime("%H:%M %A %d %B %Y") %}
 							<h4 class="posteditnote">
 								last edited {{post.last_edited.strftime("%H:%M %A %d %B %Y")}}
@@ -118,7 +120,12 @@
 
 					<section class="commentwrap" id="comment{{loop.index}}">
 						<h3>comments on {{post.subject}}</h3>
-						<!-- This is my solution to sorting all the comments into each different post, since they're all in the cursor. It says, only put a comment here if that comment has the same post_identity (saying which post it was in response to) as this post.-->
+						<!-- Below is my solution to sorting the comments into the right posts,
+						since they're all in the cursor. It says, only put a comment here if that comment
+						has the same post_identity as this post. (A comment's post_identity records which
+						post it was in response to.) I didn't want to store the dates in the database
+						post-strftime because if I'm right, that would make them strings instead of
+						data-time objects.-->
 						{% for comment in comments if comment.post_identity==post.identity%}
 							<article class="singlecomment">
 								<section class="commentcontent">
@@ -142,6 +149,7 @@
 										{%endif%}
 								</footer>
 							</article>
+						<!-- This next bit only appears if there are no entries in Comments.  -->
 						{% else %}
 							<article class="singlecomment">
 								<section class="commentcontent">
@@ -149,8 +157,9 @@
 								</section>
 							</article>
 						{%endfor%}
-
+						<!-- This is what changes when there is comment data to fill into the edit comment form. -->
 						{% if post.identity==post_id %}
+						<!-- Meaning, if the blog post in this loop is the same as the editable comment's original post location -->
 							<form method="post">
 								<label>
 									<p>
@@ -186,6 +195,8 @@
 					</section>
 				</article>
 			{%else%}
+			<!-- If there are no blog posts: -->
+			<!-- TODO: display a different original post if the person reading is the blog owner -->
 				<article class="wholepost">
 					<article class="blogpost">
 						<header class="blogheader">
@@ -200,6 +211,12 @@
 			{%endfor%}
 		</main>
 		<script>
+		// There are a couple of terrible things here: for one thing, I've put some JavaScript in
+		// with my HTML. It's really only justified because this way I can generate the necessary
+		// code at runtime and not type the same thing out 10 times and have to check every time
+		// whether the relevant ID actually exists or not.
+		// I'm also using IDs. For whatever reason, "getElementsByClassName" didn't work, probably
+		// because all the necessary class attributes have more than one class written into them.
 			{% for post in blog_posts%}
 				document.getElementById('button{{loop.index}}').onclick = function() {
 					var thecomment = document.getElementById('comment{{loop.index}}')
@@ -212,7 +229,7 @@
 				}
 
 			{%endfor%}
-
+			// this stuff just needs to be moved into a js file.
 			document.getElementById('like_error_button').onclick = function() {
 				document.getElementById('like_error').style.display="none";
 			}
