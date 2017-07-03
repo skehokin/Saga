@@ -6,13 +6,14 @@
 		<link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">
 		<link href="static/sagastyle.css" rel="stylesheet">
 		<link href="static/{{user_buttons}}.css" rel="stylesheet">
-		<script type="text/javascript" src="static/saga.js"></script>
+		<script src="static/saga.js"></script>
 		<title>{{blog_name}} on saga</title>
 		<style>
 			.blogHero {
 				background-image: url(static/{{image}});
 			}
-
+		/*this is for showing/hiding errors
+		TODO(Siobhan): turn these into html hidden attributes*/
 			{% if error == "other" %}
 				.edit_delete {
 					display: block;
@@ -38,21 +39,13 @@
 				<img src = "/static/sagaLogo.svg" class = "smallLogo">
 			</a>
 			<span class="toprightlinks">
-				<a href="/logout" class="logout">
-					log out
-				</a>
-				<a href="/login" class="login">
-					log in
-				</a>
+				<a href="/logout" class="logout">log out</a>
+				<a href="/login" class="login">log in</a>
 			</span>
 		</header>
 		<main>
 			<header class="blogHero">
-				<a href="{{username}}">
-					<h1 class="blogname">
-						{{blog_name}}
-					</h1>
-				</a>
+				<a href="{{username}}"><h1 class="blogname">{{blog_name}}</h1></a>
 				<section class="buttonwrap">
 					<a href="/newpost">
 						<section class="loginSubmit newpost">
@@ -62,15 +55,11 @@
 				</section>
 			</header>
 			<nav class="blognavwrap">
-				<h3 class="blognav">
-					about
-				</h3>
-				<h3 class="blognav">
-					archive
-				</h3>
+				<h3 class="blognav">about</h3>
+				<h3 class="blognav">archive</h3>
 			</nav>
 			<!-- <div class="clear"></div> -->
-
+			<!-- Error messages. Kind of silly in tone, for fun. Usually hidden: -->
 			<section class="error_msg like_error hidden" id="like_error">
 				dude,
 				<br>
@@ -94,88 +83,58 @@
 				</button>
 			</section>
 
-			{% for element in blog_posts %}
+			{% for post in blog_posts %}
 				<article class="wholepost">
 					<article class="blogpost">
 						<header class="blogheader">
-							<h2 class="blogtitle">
-								{{element.subject}}
-							</h2>
+							<h2 class="blogtitle">{{post.subject}}</h2>
 							<h3>
-								by {{element.author}}  -  {{element.created.strftime("%H:%M %A %d %B %Y")}}.
+								by {{post.author}}  -  {{post.created.strftime("%H:%M %A %d %B %Y")}}.
 								<br>
-								{{element.likes_length}} people like this post.
+								{{post.likes_length}} people like this post.
 							</h3>
 						</header>
 					<section class="postcontent">
-						{{element.content |safe}}
+						{{post.content |safe}}
 					</section>
-						{% if element.created.strftime("%H:%M %A %d %B %Y") != element.last_edited.strftime("%H:%M %A %d %B %Y") %}
+					<!-- Here I've added a marker of when the post was last edited, but it
+					only appears when last_edited is (definitely) different from created. it's necessary to strftime both because the milliseconds in the normal formatting automatically make the times different from one another. -->
+						{% if post.created.strftime("%H:%M %A %d %B %Y") != post.last_edited.strftime("%H:%M %A %d %B %Y") %}
 							<h4 class="posteditnote">
-								last edited {{element.last_edited.strftime("%H:%M %A %d %B %Y")}}
+								last edited {{post.last_edited.strftime("%H:%M %A %d %B %Y")}}
 							</h4>
 						{%endif%}
 					</article>
 					<footer class="blogpostoptions">
 						<div class="optionswrapper">
-							<a href="/_like/{{element.identity}}">
-								<h3 class="option like">
-									<span class="entypo-heart">
-									</span>
-								</h3>
-							</a>
-							<a href="/_delete/{{element.identity}}">
-								<h3 class="option delete">
-									<span class="entypo-cup">
-									</span>
-								</h3>
-							</a>
-							<a href="/_edit/{{element.identity}}">
-								<h3 class="option edit">
-									<span class="entypo-pencil">
-									</span>
-								</h3>
-							</a>
-								<h3 class="option commentbutton" id="button{{loop.index}}">
-								<span class="entypo-chat">
-								</span>
-								</h3>
-							<a href="/{{element.identity}}">
-								<h3 class="option permalink">
-									<span class="entypo-infinity">
-									</span>
-								</h3>
-							</a>
+						<!-- TODO: make these icons accessible with aria-hidden-->
+							<a href="/_like/{{post.identity}}"><h3 class="option like"><span class="entypo-heart"></span></h3></a>
+							<a href="/_delete/{{post.identity}}"><h3 class="option delete"><span class="entypo-cup"></span></h3></a>
+							<a href="/_edit/{{post.identity}}"><h3 class="option edit"><span class="entypo-pencil"></span></h3>
+							</a><h3 class="option commentbutton" id="button{{loop.index}}"><span class="entypo-chat"></span></h3>
+							<a href="/{{post.identity}}"><h3 class="option permalink"><span class="entypo-infinity"></span></h3></a>
 						</div>
 					</footer>
 
 					<section class="commentwrap" id="comment{{loop.index}}">
-						<h3>
-						comments on {{element.subject}}
-						</h3>
-
-						{% for each in comments if each.post_identity==element.identity%}
+						<h3>comments on {{post.subject}}</h3>
+						<!-- This is my solution to sorting all the comments into each different post, since they're all in the cursor. It says, only put a comment here if that comment has the same post_identity (saying which post it was in response to) as this post.-->
+						{% for comment in comments if comment.post_identity==post.identity%}
 							<article class="singlecomment">
 								<section class="commentcontent">
-									{{each.content}}
+									{{comment.content}}
 								</section>
 								<footer>
 									<p>
-										Posted at
-										<time>
-											{{each.created.strftime("%H:%M on %A %d %B %Y")}}
-										</time>
-										by
-										<a href="/{{each.author}}">
-											{{each.author}}.
-										</a>
-										{% if each.author == logged_in_user %}
+										Posted at <time>{{comment.created.strftime("%H:%M on %A %d %B %Y")}}</time> by <a href="/{{comment.author}}">{{comment.author}}</a>.
+									</p>
+										{% if comment.author == logged_in_user %}
 											<form method="get">
 												<p class="comment_options">
-												<input type="hidden" name="comment_id" value="{{each.comment_id}}">
+												<input type="hidden" name="comment_id" value="{{comment.comment_id}}">
 												<input type="submit" class="entypo-pencil comment_option edit" value="&#x270e;">
 											</form>
-											<form method="get" action="/_commentdelete/{{each.comment_id}}">
+											<form method="post" action="/_commentdelete/{{comment.comment_id}}">
 												<p class="comment_options">
 												<input type="hidden" name="website_type" value="{{website_type}}">
 												<input type="submit" class=" comment_option edit" value="&#x2615;">
@@ -191,7 +150,7 @@
 							</article>
 						{%endfor%}
 
-						{% if element.identity==post_id %}
+						{% if post.identity==post_id %}
 							<form method="post">
 								<label>
 									<p>
@@ -202,7 +161,7 @@
 									</p>
 								</label>
 								<input type="hidden" name="comment_id" value="{{edit_comment_id}}">
-								<input type="hidden" name="post_id" value="{{element.identity}}">
+								<input type="hidden" name="post_id" value="{{post.identity}}">
 								<input type="submit" name="commentsubmit" class="loginSubmit newcomment" value="edit comment">
 								<a href="/{{username}}">
 									<span class="loginSubmit newcomment">
@@ -217,11 +176,10 @@
 										make a comment
 									</p>
 									<p>
-										<textarea name="content" class="commentBox">
-										</textarea>
+										<textarea name="content" class="commentBox"></textarea>
 									</p>
 								</label>
-								<input type="hidden" name="post_id" value="{{element.identity}}">
+								<input type="hidden" name="post_id" value="{{post.identity}}">
 								<input type="submit" name="commentsubmit" class="loginSubmit newcomment" value="add comment">
 							</form>
 						{%endif%}
@@ -231,12 +189,8 @@
 				<article class="wholepost">
 					<article class="blogpost">
 						<header class="blogheader">
-							<h2 class="blogtitle">
-								No Posts Yet!
-							</h2>
-							<h3>
-								by saga
-							</h3>
+							<h2 class="blogtitle">No Posts Yet!</h2>
+							<h3>by saga</h3>
 						</header>
 							<section class="postcontent">
 								It looks like {{username}} hasn't made any posts yet.
@@ -246,7 +200,7 @@
 			{%endfor%}
 		</main>
 		<script>
-			{% for element in blog_posts%}
+			{% for post in blog_posts%}
 				document.getElementById('button{{loop.index}}').onclick = function() {
 					var thecomment = document.getElementById('comment{{loop.index}}')
 					if (thecomment.style.display==="block") {

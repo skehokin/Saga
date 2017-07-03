@@ -6,12 +6,12 @@
   	display: block;
   }
   .buttonwrap{
-  	display:block;
+  	display: block;
   }
   .login{
-  	display:none;
+  	display: none;
   }
 
  .logout{
-  	display:inline;
+  	display: inline;
   }

@@ -426,8 +426,7 @@ class BlogHome(Handler):
                 exists = True
                 if username == each.name and each.blog_image:
                     image = each.blog_image
-        if not exists:
-            self.redirect("/oops")
+
         blog_posts = db.GqlQuery("SELECT * FROM BlogEntries WHERE author='%s' "
                                  "ORDER BY created DESC LIMIT 10"%username)
 
@@ -460,6 +459,8 @@ class BlogHome(Handler):
         website_type = "home"
         comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' "
                                "ORDER BY created" % username)
+        if not exists:
+            self.redirect("/oops")
         self.render("bloghome.html", user_buttons=user_buttons, image=image,
                     blog_name=blog_name, comments=comments, username=username,
                     logged_in_user=logged_in_user,
@@ -532,7 +533,6 @@ class BlogPage(Handler):
         comment_content = ""
         user_buttons = ""
         logged_in_user = ""
-        post_id = ""
         error = ""
         error_author = ""
         blog_post = BlogEntries.get_by_id(int(post_id))
@@ -549,6 +549,7 @@ class BlogPage(Handler):
         if error:
             if error == "other":
                 error_author = self.request.get("author")
+        post_id = ""
         if user_data:
             # Check for comment data to be edited.
             edit_comment_id = self.request.get("comment_id")
@@ -780,7 +781,7 @@ class Oops(Handler):
     """
     def get(self):
         """Render a 404 error page"""
-        self.request.status = 404 # Does this do anything?
+        #self.request.status = 404 # Does this do anything?
         self.render("oops.html")
 
 
@@ -871,7 +872,7 @@ class LikePost(Handler):
 class DeleteComment(Handler):
     """This handler allows the author of a comment to delete it"""
 
-    def get(self, comment_id):
+    def post(self, comment_id):
         """Delete a comment.
 
         Let the author of a comment delete it from the Comments database.
@@ -900,8 +901,7 @@ class DeleteComment(Handler):
                         each.delete()
                         time.sleep(1) # Gives the database a little time.
                         self.redirect("/"+target)
-        else:
-            self.redirect("/oops")
+            
 
 
 class LogOut(Handler):
@@ -915,12 +915,12 @@ class LogOut(Handler):
 app = webapp2.WSGIApplication([("/", MainPage),
                                ("/signup", SignUp),
                                ("/login", LogIn),
-                               (r"/(.*)", BlogHome),
-                               (r"/(\d+)", BlogPage),
-                               ("/newpost", NewPost),
-                               (r"/_edit/(\d+)", EditPage),
+                               ("/logout", LogOut),
                                ("/oops", Oops),
+                               ("/newpost", NewPost),
+                               (r"/(\d+)", BlogPage),
+                               (r"/_edit/(\d+)", EditPage),
                                (r"/_delete/(\d+)", DeletePost),
                                (r"/_like/(\d+)", LikePost),
                                (r"/_commentdelete/(\d+)", DeleteComment),
-                               ("/logout", LogOut)], debug=True)
+                               (r"/(.*)", BlogHome)], debug=True)
