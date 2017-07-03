@@ -1,56 +1,68 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">
+        <link href="static/sagastyle.css" rel="stylesheet">
+        <title>
+            saga - tell it here
+        </title>
+        <style>
+            .newpagebody{
+                background-image:url(static/{{image}});
+            }
+        </style>
 
-  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet"> 
-  <link href="static/sagastyle.css" rel="stylesheet">   
-
-  <title>saga - tell it here</title>
-  <style>
-.newpagebody{
-  background-image:url(static/{{image}});
-
-}
-
-</style>
-
-</head>
-  <body class="newpagebody">
-	<header class="header"> <img src = "/static/sagaLogo.svg" class = "smallLogo"> <div class="toprightlinks"> <a href="/logout">log out</a></div>
-	</header>
-	<main>
-		<div class = "blogname newpageblogname">
-		<a href="/{{author}}">{{blog_name}}</a>
-		</div>
-		<div class="newformwrap">
-
-	<section class="formwrapinner">
-
-      <form method="post">
-        <div class="subject">
-        <label>
-          <span class="subj_label">subject</span>
-          <input type="text" name="subject" value="{{subject}}" class="newsubj typeable">
-        </label>
-      </div>
-      <div class="content">
-      <label>
-      <p class="cont_label">content</p>
-          <textarea name="content" class="newcont typeable">{{content}}</textarea>
-      </label>
-      </div>
-      <p> <span class="error">{{ error }}</span> </p>
-      <div class="publishwrap">
-      <a href="/{{author}}" class="loginSubmit cancel">cancel</a><input type="submit" class="loginSubmit publish" value="publish">
-    </div>
-    </section>
-
-		</div>
-	
-
-	</main>
-   
-  </body>
+    </head>
+    <body class="newpagebody">
+        <header class="header">
+            <img src = "/static/sagaLogo.svg" class = "smallLogo">
+            <div class="toprightlinks">
+                <a href="/logout">
+                    log out
+                </a>
+            </div>
+        </header>
+        <main>
+            <div class = "blogname newpageblogname">
+                <a href="/{{author}}">{{blog_name}}</a>
+            </div>
+            <div class="newformwrap">
+                <section class="formwrapinner">
+                    <form method="post">
+                        <div class="subject">
+                            <label>
+                                <span class="subj_label">
+                                    subject
+                                </span>
+                                <input type="text" name="subject" value="{{subject}}" class="newsubj typeable">
+                            </label>
+                            </div>
+                            <div class="content">
+                            <label>
+                                <p class="cont_label">
+                                    content
+                                </p>
+                                <textarea name="content" class="newcont typeable">
+                                    {{content}}
+                                </textarea>
+                            </label>
+                        </div>
+                        <p>
+                            <span class="error">
+                                {{ error }}
+                            </span>
+                        </p>
+                        <div class="publishwrap">
+                            <a href="/{{author}}" class="loginSubmit cancel">
+                                cancel
+                            </a>
+                            <input type="submit" class="loginSubmit publish" value="publish">
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </body>
 </html>

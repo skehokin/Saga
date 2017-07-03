@@ -1,43 +1,48 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet"> 
-  <link href="static/sagastyle.css" rel="stylesheet">   
-  <title>saga - tell it here</title>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">
+		<link href="static/sagastyle.css" rel="stylesheet">
+		<title>saga - tell it here</title>
+	</head>
+	<body>
+		<header class="header">
+		</header>
+		<main>
+			<div class = "centerwrapper logowrapper logoUp">
+				<a href="/">
+					<div>
+						<img src = "/static/sagaLogo.svg" class = "logo">
+					</div>
+				</a>
+			</div>
+			<div class="signinwrapper centerwrapper">
+				<form method="post">
+					<label>
+						username
+						<input value="{{User_Name}}" type="text" name="username" class="typeable">
+					</label>
+					<br>
+					<label>
+						password
+						<input value="" type="password" name="password" class="typeable">
+					</label>
 
-
-</head>
-  <body>
-	<header class="header"> 
-	</header>
-	<main>
-		<div class = "centerwrapper logowrapper logoUp">
-			<a href="/"><div><img src = "/static/sagaLogo.svg" class = "logo"></div></a>
-		</div>
-		<div class="signinwrapper centerwrapper">
-
-			<form method="post">
-			<label>
-				username
-				<input value="{{User_Name}}" type="text" name="username" class="typeable">
-			</label>
-			<br>
-			<label>
-				password
-				<input value="" type="password" name="password" class="typeable">
-			</label>
-			
-			<p><span class="error">{{error}}</span></p>
-			<input type="submit" value="log in" class="loginSubmit">
-
-			</form> 
-			<a href="/signup"><p class="oopslink">oops I meant sign up</p></a>
-		</div>
-	
-
-	</main>
-   
-  </body>
+					<p>
+						<span class="error">
+							{{error}}
+						</span>
+					</p>
+					<input type="submit" value="log in" class="loginSubmit">
+				</form>
+				<a href="/signup">
+					<p class="oopslink">
+						oops I meant sign up
+					</p>
+				</a>
+			</div>
+		</main>
+	</body>
 </html>

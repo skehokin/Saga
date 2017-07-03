@@ -1,83 +1,80 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet"> 
-  <link href="static/sagastyle.css" rel="stylesheet">
-  <title>saga - tell it here</title>
-
-
-</head>
-  <body>
-	<header class="header"> <a href="/login"><span class="toprightlinks login">log in</span></a>
-	</header>
-	<main>
-		<div class = "centerwrapper logowrapper logoUp">
-		<a href="/"><div><img src = "/static/sagaLogo.svg" class = "logo"></div></a>
-		</div>
-
-		<div class="signinwrapper centerwrapper container">
-		<form method="post">
-			<ul class="formfields">
-			<li>
-				<label for="username" class="description">
-					username
-				</label>
-					<input value="{{User_Name}}" type="text" name="username" class="typeable" id="username">
-				<p><label for="username" class="error">
-				{{user}}{{nameval}} 
-				</label>
-				</p>
-				</li>
-
-			
-			<li>
-			<label for="password" class="description">
-			password
-			</label>
-			<input value="" type="password" name="password" class="typeable">
-			<p><label for="password" class="error">
-			{{pass1}}
-			</label></p>
-
-			</li>
-		
-
-		<li>
-		<label for ="verify" class="description">
-		
-		verify password </label>
-		<input value="" type="password" name="verify" class="typeable" id="verify">
-				<p><label for ="verify" class="error">
-		{{pass2}}
-		</label></p>
-			</li>
-		
-			<li>
-		
-		<label for ="email" class="description">
-		email (optional) </label>
-		<input value="" type="text" name="email" class="typeable" id="email">
-		<p><label for ="email" class="error">
-		{{email}}
-		</label></p>
-		</li>
-		</ul>
-
-		
-
-		<input type="submit" class="loginSubmit" value="sign up">
-		
-		
-
-		</form>
-
-			<a href="/login"><p class="oopslink">I already have an account!</p></a>
-		
-		</div>
-	
-	</main>
-   
-  </body>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">
+		<link href="static/sagastyle.css" rel="stylesheet">
+		<title>saga - tell it here</title>
+	</head>
+	<body>
+		<header class="header">
+			<a href="/login">
+				<span class="toprightlinks login">
+					log in
+				</span>
+			</a>
+		</header>
+		<main>
+			<div class = "centerwrapper logowrapper logoUp">
+				<a href="/">
+					<div>
+						<img src = "/static/sagaLogo.svg" class = "logo">
+					</div>
+				</a>
+			</div>
+			<div class="signinwrapper centerwrapper container">
+				<form method="post">
+					<ul class="formfields">
+						<li>
+							<label for="username" class="description">
+								username
+							</label>
+							<input value="{{User_Name}}" type="text" name="username" class="typeable" id="username">
+							<p>
+								<label for="username" class="error">
+									{{user}}{{nameval}}
+								</label>
+							</p>
+						</li>
+						<li>
+							<label for="password" class="description">
+								password
+							</label>
+							<input value="" type="password" name="password" class="typeable">
+							<p>
+								<label for="password" class="error">
+									{{pass1}}
+								</label>
+							</p>
+						</li>
+						<li>
+							<label for ="verify" class="description">
+								verify password
+							</label>
+							<input value="" type="password" name="verify" class="typeable" id="verify">
+							<p>
+								<label for ="verify" class="error">
+									{{pass2}}
+								</label>
+							</p>
+						</li>
+						<li>
+							<label for ="email" class="description">
+								email (optional)
+							</label>
+						<input value="" type="text" name="email" class="typeable" id="email">
+							<p>
+								<label for ="email" class="error">
+									{{email}}
+								</label>
+							</p>
+						</li>
+					</ul>
+					<input type="submit" class="loginSubmit" value="sign up">
+				</form>
+				<a href="/login"><p class="oopslink">I already have an account!</p></a>
+			</div>
+		</main>
+	</body>
 </html>

@@ -1,22 +1,22 @@
-  	@import url(http://weloveiconfonts.com/api/?family=entypo);
+@import url(http://weloveiconfonts.com/api/?family=entypo);
 
-  	@font-face {
-  font-family: 'entypo';
-  font-style: normal;
-  font-weight: normal;
-  src: url('http://weloveiconfonts.com/api/fonts/entypo/entypo.eot');
-  src: url('http://weloveiconfonts.com/api/fonts/entypo/entypo.eot?#iefix') format('eot'), 
-  url('http://weloveiconfonts.com/api/fonts/entypo/entypo.woff') format('woff'), 
-  url('http://weloveiconfonts.com/api/fonts/entypo/entypo.ttf') format('truetype'), 
-  url('http://weloveiconfonts.com/api/fonts/entypo/entypo.svg#entypo') format('svg');
+@font-face {
+	font-family: 'entypo';
+	font-style: normal;
+	font-weight: normal;
+	src: url('http://weloveiconfonts.com/api/fonts/entypo/entypo.eot');
+	src: url('http://weloveiconfonts.com/api/fonts/entypo/entypo.eot?#iefix') format('eot'),
+	url('http://weloveiconfonts.com/api/fonts/entypo/entypo.woff') format('woff'),
+	url('http://weloveiconfonts.com/api/fonts/entypo/entypo.ttf') format('truetype'),
+	url('http://weloveiconfonts.com/api/fonts/entypo/entypo.svg#entypo') format('svg');
 }
 
-  	html {
-  		height: 100%;
-  		width: 100%;
- 	 }
+html {
+  	height: 100%;
+  	width: 100%;
+}
 
-	body {
+body {
 	background-image: url(/static/waterfallsqdark.jpg);
 	background-size: cover;
 	background-attachment: fixed;
@@ -30,179 +30,174 @@
 	font-family: 'Roboto', sans-serif;
 	}
 
-	body * {
-		font-family: 'Roboto', sans-serif;
-		font-weight: 100;
-		box-sizing: border-box;
-	}
+body * {
+	font-family: 'Roboto', sans-serif;
+	font-weight: 100;
+	box-sizing: border-box;
+}
 
-	[class*="entypo-"]:before {
-  		font-family: 'entypo', sans-serif;
-	}
+[class*="entypo-"]:before {
+  	font-family: 'entypo', sans-serif;
+}
 
+.blogbody {
+	background-image: none;
+	background-color: #0f040f;
+}
+.newpagebody {
+	background-image: url(/static/annie-spratt-218459.jpg);
+}
 
-
-	.blogbody{
-		background-image: none;
-		background-color: #0f040f;
-	}
-	.newpagebody {
-		background-image: url(/static/annie-spratt-218459.jpg);
-	}
-
-	form, label{
+form, label {
 	width: 100%;
-	}
+}
 
-	.logo {
-		width: 180px;
-	} 
+.logo {
+	width: 180px;
+}
 
-	.smallLogo {
-		padding: 5px 0 0 10px;
-		width: 53px;
-	}
+.smallLogo {
+	padding: 5px 0 0 10px;
+	width: 53px;
+}
 
-	.centerwrapper {
-		margin: auto;
-		position: absolute;
-		top: 30vh;
-		z-index: 100;
-	}
+.centerwrapper {
+	margin: auto;
+	position: absolute;
+	top: 30vh;
+	z-index: 100;
+}
 
-	.logowrapper {
-		position: absolute;
-		width: 180px;
-		left: calc(50vw - 90px);
-	}
+.logowrapper {
+	position: absolute;
+	width: 180px;
+	left: calc(50vw - 90px);
+}
 
-	.logoUp {
-		top: 10vh;
-	}
+.logoUp {
+	top: 10vh;
+}
 
-	.signinwrapper {
-		width: 250px;
-		position: absolute;
-		left: calc(50vw - 125px);
-		border: 1px solid white;
-		border-radius: 5px;
-		font-weight: 100;
-		font-size: 1.3em;
-		text-align: center;
-	}
+.signinwrapper {
+	width: 250px;
+	position: absolute;
+	left: calc(50vw - 125px);
+	border: 1px solid white;
+	border-radius: 5px;
+	font-weight: 100;
+	font-size: 1.3em;
+	text-align: center;
+}
 
-	.signinwrapper input {
-		border: 1px solid white;
-		border-radius: 5px;
-		color: white;
-		font-family: 'Roboto', sans-serif;
-		font-weight: 100;
-		margin-bottom: 7px;
-		max-width: 90%;
-	}
+.signinwrapper input {
+	border: 1px solid white;
+	border-radius: 5px;
+	color: white;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 100;
+	margin-bottom: 7px;
+	max-width: 90%;
+}
 
-	.typeable{	
-		font-size: 0.7em;
-		background-color: rgba(41,7,15,0);
-		padding: 5px;
-	}
+.typeable {
+	font-size: 0.7em;
+	background-color: rgba(41,7,15,0);
+	padding: 5px;
+}
 
-	.container {
+.container {
 	display: -webkit-flex; /* Safari */
-    -webkit-flex-wrap: wrap; /* Safari 6.1+ */
-    display: flex;  
-    flex-wrap: wrap;
-	}
+	-webkit-flex-wrap: wrap; /* Safari 6.1+ */
+	display: flex;
+	flex-wrap: wrap;
+}
 
-	.box {
-		width: 100%;
-	}
+.box {
+	width: 100%;
+}
 
-	.loginSubmit {
-		font-size: 24px; 
-		padding: 0 20px 5px 20px;
-		background-color: rgba(41,7,15,0.2);
-		margin-top: 40px;
+.loginSubmit {
+	font-size: 24px;
+	padding: 0 20px 5px 20px;
+	background-color: rgba(41,7,15,0.2);
+	margin-top: 40px;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 100;
+	text-align: center;
+	border: 1px solid white;
+	border-radius: 5px;
+	max-width: 200px;
+	margin: auto;
+	color: white;
+}
 
-		font-family: 'Roboto', sans-serif;
+.loginSubmit :hover {
+	background-color: rgba(41,7,15,0);
+}
 
-		font-weight: 100;
-		text-align: center;
+.oopslink {
+	width: 250px;
+	position: relative;
+	top: 30px;
+	font-size: 0.9em;
+	text-align: center;
+	background-color: rgba(41,7,15,0.4);
+}
 
-		border: 1px solid white;
-		border-radius: 5px;
-		max-width: 200px;
-		margin: auto;
-		color: white;
-	}
+main {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+}
 
-	.loginSubmit:hover {
-		background-color: rgba(41,7,15,0);
-	}
+/*.colorOverlay {
+	width:100%;
+	height:100%;
+	background-color:#29070f;
+	opacity:0.3;
 
-	.oopslink {
-		width: 250px;
-		position: relative;
-		top: 30px;
-		font-size: 0.9em;
-		text-align: center;
-		background-color: rgba(41,7,15,0.4);
-	}
-
-	main {
-		width: 100%;
-		height: 100%;
-		margin: 0;
-	}
-
-	/*.colorOverlay {
-		width:100%;
-		height:100%;
-		background-color:#29070f;
-		opacity:0.3;
-
-	}
-	.gradientOverlay {
-		width:100%;
-		height:100%;
-		position: absolute;
-		top:0;
-	  	background: red; /* For browsers that do not support gradients 
-	  	background: -webkit-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Safari 
-	  	background: -o-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Opera 11.6 to 12.0 
-	  	background: -moz-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Firefox 3.6 to 15 *
-	  	background: radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Standard syntax *
-	}*/
-	.signUpButton {
-		font-size: 20px;
-		font-family: 'Roboto', sans-serif;
-		padding: 5px;
-		font-weight: 100;
-		width: 100px;
-		margin: 50px auto;
-		border: 1px solid white;
-		border-radius: 5px;
-		text-align: center;
-		background-color: rgba(41,7,15,0.5);
-	}
-	.header {
-		height: 35px;
-		width: 100%;
-		background-color: rgba(11,10,28,0.5);
-		position: absolute;
-		top: 0px;
-		z-index: 100;
-	}
-	.toprightlinks {
-		position: absolute;
-		right: 10px;
-		top: 10px;
-		z-index: 30;
-	}
-	a {
-		color: white;
-		text-decoration: none;
-	}
+}
+.gradientOverlay {
+	width:100%;
+	height:100%;
+	position: absolute;
+	top:0;
+  	background: red; /* For browsers that do not support gradients
+  	background: -webkit-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Safari
+  	background: -o-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Opera 11.6 to 12.0
+  	background: -moz-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Firefox 3.6 to 15 *
+  	background: radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Standard syntax *
+}*/
+.signUpButton {
+	font-size: 20px;
+	font-family: 'Roboto', sans-serif;
+	padding: 5px;
+	font-weight: 100;
+	width: 100px;
+	margin: 50px auto;
+	border: 1px solid white;
+	border-radius: 5px;
+	text-align: center;
+	background-color: rgba(41,7,15,0.5);
+}
+.header {
+	height: 35px;
+	width: 100%;
+	background-color: rgba(11,10,28,0.5);
+	position: absolute;
+	top: 0px;
+	z-index: 100;
+}
+.toprightlinks {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	z-index: 30;
+}
+a {
+	color: white;
+	text-decoration: none;
+}
 
 
 .formfields {
@@ -216,20 +211,18 @@
 	list-style: none;
 	float: left;
 	text-align: center;
-
 }
 
 p {
 margin: 0;
-
 }
+
 .error {
 	font-size: 0.8em;
 	color: white;
 	background-color: rgba(255,80,80,0.3);
-
-
 }
+
 .blogHero {
 	position:relative;
 	z-index: 20;
@@ -244,27 +237,27 @@ margin: 0;
 	/*background-image: url(/static/jaromir-kavan-241762.jpg);*/
 	/*background-image: url(/static/drew-hays-26240.jpg);*/
 	/*background-image: url(/static/richard-lock-262846.jpg);*/
-	/*background-image: url(/static/sam-ferrara-136526.jpg);*/	
+	/*background-image: url(/static/sam-ferrara-136526.jpg);*/
 	/*background-image: url(/static/keith-misner-308.jpg);*/
 	/*background-image: url(/static/ren-ran-232078.jpg);*/
-/*background-image: url(/static/camille-kmile-201915.jpg);*/
-/*background-image: url(/static/aaron-burden-189321.jpg);*/
-/*background-image: url(/static/michal-grosicki-221226.jpg);*/
-/*background-image: url(/static/joshua-earle-133254.jpg);*/
-/*background-image: url(/static/timothy-muza-133593.jpg); horses. find better horses?*/
-/*background-image: url(/static/marko-blazevic-264986.jpg);*/
-background-image: url(/static/matt-thornhill-106773.jpg);
+	/*background-image: url(/static/camille-kmile-201915.jpg);*/
+	/*background-image: url(/static/aaron-burden-189321.jpg);*/
+	/*background-image: url(/static/michal-grosicki-221226.jpg);*/
+	/*background-image: url(/static/joshua-earle-133254.jpg);*/
+	/*background-image: url(/static/timothy-muza-133593.jpg); horses. find better horses?*/
+	/*background-image: url(/static/marko-blazevic-264986.jpg);*/
+	background-image: url(/static/matt-thornhill-106773.jpg);
 	background-size: cover;
 	/*background-attachment: fixed;*/
 	background-position: center;
 	text-align: center;
 
 }
-.logout{
+.logout {
 	display:none;
 }
 
-.blogname{
+.blogname {
 	position: absolute;
 	font-weight: 100;
 	font-size: calc(30px + 1vw);
@@ -273,15 +266,13 @@ background-image: url(/static/matt-thornhill-106773.jpg);
 	text-align: center;
 	/*right: calc(50% - 150px);*/
 	top: 45%;
-
 }
 
 .newpost {
-
-padding-top: 5px;
-
+	padding-top: 5px;
 }
-.buttonwrap{
+
+.buttonwrap {
 width: 100%;
 position: absolute;
 top: 50px;
@@ -303,8 +294,8 @@ I'm proud of this solution even if it is useless
 .blognavwrap {
 	display: flex;
 	text-align: right;
-
 }
+
 .blognav {
 	box-sizing: border-box;
 	width: calc(50% - 1px);
@@ -316,16 +307,17 @@ I'm proud of this solution even if it is useless
 	margin: 0;
 	margin-left: 1px;
 }
+
 .wholepost * {
 	color:#1a001a;
 	position: relative;
 	font-weight: 300;
-
 }
+
 .wholepost a {
 	color: deepskyblue;
-
 }
+
 .blogpost {
 	position: relative;
 	width: 100%;
@@ -335,14 +327,10 @@ I'm proud of this solution even if it is useless
 	padding: 20px;
 	z-index: -10;
 	/*margin-bottom:50px;*/
-
-
 }
-
 
 .blogpost p {
 	margin-bottom: 20px;
-
 }
 
 .blogtitle {
@@ -363,25 +351,21 @@ I'm proud of this solution even if it is useless
 
 .blogpostoptions * {
 	margin: 0;
-
 }
 
 .blogpostoptions {
-
 	position: relative;
 	top: -10px;
 	width: 100%;
 /*	z-index:-30;*/
 	margin:auto;
 	margin-bottom: 50px;
-
 }
-.optionswrapper {
 
+.optionswrapper {
 	display: flex;
 	flex-wrap: wrap;
 	float: right;
-
 }
 
 .option {
@@ -394,14 +378,11 @@ I'm proud of this solution even if it is useless
 	background-color: white;
 	color: #1a001a;
 	display: none;
-
-
 }
 
 .permalink, .commentbutton {
   	display: block;
 }
-
 
 .commentwrap {
 	background-color: white;
@@ -411,25 +392,23 @@ I'm proud of this solution even if it is useless
 
 .commentwrap footer {
 	text-align: right;
-
-
 }
+
 .commentcontent {
-border-top: 1px solid lightgrey;
-/*border-bottom:0px;
-border-radius:5px;*/
-padding: 10px;
-margin-bottom: 5px;
+	border-top: 1px solid lightgrey;
+	/*border-bottom:0px;
+	border-radius:5px;*/
+	padding: 10px;
+	margin-bottom: 5px;
 }
+
 .singlecomment {
-min-height: 70px;
-margin: 20px 0;
-font-size: 0.9em;
-
+	min-height: 70px;
+	margin: 20px 0;
+	font-size: 0.9em;
 }
 
-
-.singlecomment footer{
+.singlecomment footer {
 	text-transform: uppercase;
 	font-size: 0.79em;
 	letter-spacing: 2px;
@@ -444,6 +423,7 @@ font-size: 0.9em;
 		top: 55%;
 		z-index: 0;
 	}
+
 	 .blognav {
 	 	position: relative;
 	 	height: 90px;
@@ -459,7 +439,6 @@ font-size: 0.9em;
 		box-shadow: inset 0px 0px 38px -13px rgba(192,169,242,0.5);
 
 	 }
-
 
 	.blogpost {
 		position: relative;
@@ -477,10 +456,10 @@ font-size: 0.9em;
 		border-radius: 5px;
 		}
 
-		.blognavwrap {
-			right: 10vw;
+	.blognavwrap {
+		right: 10vw;
+	}
 
-		}
 	.blogpostoptions {
 		width: 700px;
 		margin-bottom: 50px;
@@ -488,13 +467,12 @@ font-size: 0.9em;
 
 .commentwrap {
 	margin-top: 70px;
+}
 
 }
 
-
-}
 @media screen and (min-width: 550px){
-	.newpost{
+	.newpost {
 		margin-right: 20px;
 }
 
@@ -563,7 +541,7 @@ font-size: 0.9em;
 width: 100%;
 height: 100px;
 border-radius: 5px;
-background-color: transparent; 
+background-color: transparent;
 }
 .newcomment {
 	color: white;
