@@ -468,6 +468,7 @@ background-color: transparent;
 /*the "add comment" button*/
 .newcomment {
 	color: white;
+	display: inline-block;
 }
 
 .cancel {
