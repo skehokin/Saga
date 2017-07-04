@@ -161,6 +161,7 @@
 							</article>
 						{%endfor%}
 						<!-- This is what changes when there is comment data to fill into the edit comment form. -->
+						<section class = "comment-form">
 						{% if post.identity==post_id %}
 						<!-- Meaning, if the blog post in this loop is the same as the editable comment's original post location -->
 							<form method="post">
@@ -195,6 +196,7 @@
 								<input type="submit" name="commentsubmit" class="loginSubmit newcomment" value="add comment">
 							</form>
 						{%endif%}
+						</section>
 					</section>
 				</article>
 			{%else%}

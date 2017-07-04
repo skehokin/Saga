@@ -5,13 +5,17 @@
 .permalink, .commentbutton, .edit, .delete {
   	display: block;
   }
-  .buttonwrap{
+  .buttonwrap {
   	display: block;
   }
-  .login{
+  .login {
   	display: none;
   }
 
- .logout{
+ .logout {
   	display: inline;
   }
+
+  .comment-form {
+  display: block;
+}
