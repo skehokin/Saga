@@ -2,17 +2,20 @@
 
 Saga is a model blog, made as part of the Full Stack Nanodegree at Udacity.
 
-Saga is deployed on Google App Engine and can be acccessed online [here](http://saga-blog.appspot.com). It is coded in Python 2.7, using the [Jinja2 templating language](http://jinja.pocoo.org/docs/2.9/). As well as the ability to make posts, it includes properly validated user accounts, individual pages for each user, and comment-making capabilities. It might even look quite nice.
+Saga is deployed on Google App Engine and can be acccessed online [here](http://saga-blog.appspot.com). It is coded in Python 2.7, using the [Jinja2 templating language](http://jinja.pocoo.org/docs/2.9/). As well as the ability to make posts, it includes properly validated user accounts, individual pages for each user, and comment-making capabilities.
 
 ## How to Run this Project
 
 In order to deploy a copy of this project yourself, your first step is to gain access to the Google Cloud Console, accessible [here](https://console.cloud.google.com/home/dashboard). Once you have signed up, the option to create a new project should be available in the blue top bar of the Google Cloud Console.
 
-The second step is to install Google Cloud SDK, available [here](https://cloud.google.com/sdk/). A guide to installing this and the app engine components can be found [here](https://cloud.google.com/appengine/docs/standard/python/download)
+The second step is to install Google Cloud SDK, available [here](https://cloud.google.com/sdk/). A guide to installing this and the app engine components can be found [here](https://cloud.google.com/appengine/docs/standard/python/download).
 
 To gain access to the code, it should then be cloned from GitHub using git.
 
-Once the code has been cloned onto your computer, you can then change it as you would like. To preview by running the project locally, open Google Cloud SDK (set up with appropriate components as previously described). Navigate to the directory containing the Saga project,`cd <your complete file pathway>` and then type the command `dev_appserver.py app.yaml`.
+Once the code has been cloned onto your computer, you can then change it as you would like. To preview by running the project locally, open Google Cloud SDK (set up with appropriate components as previously described). Navigate to the directory containing the Saga project,`cd <your complete file pathway>` and then type the command 
+```
+dev_appserver.py app.yaml
+```
 
 Visiting `http://localhost:8080/` in a web browser will then show you a copy of the project.
 
@@ -65,26 +68,44 @@ All photographs in this project are published by [Unsplash](https://unsplash.com
 
 ### Photographers:
 [Aaron Burden](https://unsplash.com/@aaronburden)
+
 [Annie Spratt](https://unsplash.com/@anniespratt)
+
 [Anthony Robin](https://unsplash.com/@anthonyrobinphoto)
+
 [Arwan Sutanto](https://unsplash.com/@arwanod)
+
 [Camille/Kmile](https://unsplash.com/@kmile_ch)
+
 [Dominik Scythe](https://unsplash.com/@drscythe)
+
 [Drew Hays](https://unsplash.com/@drew_hays)
+
 [Jaromir Kavan](https://unsplash.com/@jerrykavan)
+
 [Joshua Earle](https://unsplash.com/@joshuaearle)
+
 [Keith Misner](https://unsplash.com/@keithmisner)
+
 [Marko Blazevic](https://unsplash.com/@kerber)
+
 [Matt Thornhill](https://unsplash.com/@matt_47)
+
 [Michal Grosicki](https://unsplash.com/@groosheck)
+
 [Ren Ran](https://unsplash.com/@renran)
+
 [Richard Lock](https://unsplash.com/@richlock)
+
 [Rodrigo Soares](https://unsplash.com/@rodi01)
+
 [Sam Ferrara](https://unsplash.com/@samferrara)
+
 [Scott Webb](https://unsplash.com/@scottwebb)
+
 [Timothy Muza](https://unsplash.com/@timothymuza)
 
 
-Licensing:
-Saga is released under the MIT licence which can be read [here] https://opensource.org/licenses/MIT, copywrite [Steven Huffman](https://www.linkedin.com/in/shuffman56), [Udacity](https://www.udacity.com/), and [Siobhan Hokin](http://www.siobhanhokin.com/).
+## Licensing:
+Saga is released under the MIT licence which can be read [here](https://opensource.org/licenses/MIT), copywrite [Steven Huffman](https://www.linkedin.com/in/shuffman56), [Udacity](https://www.udacity.com/), and [Siobhan Hokin](http://www.siobhanhokin.com/).
 
