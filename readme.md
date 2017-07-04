@@ -66,6 +66,8 @@ Steven Huffman's videos in the [Udacity course CS253](https://www.udacity.com/co
 
 I derived the orginal structure of the comment code from [here](https://developer.mozilla.org/en/docs/Web/HTML/Element/article).
 
+Using strftime within the Jinja2 template was originally suggested by tux21b on [this](https://stackoverflow.com/questions/4830535/python-how-do-i-format-a-date-in-jinja2) Stack Overflow page.
+
 All photographs in this project are published by [Unsplash](https://unsplash.com/), and are free for any use. The Unsplash licence can be read [here](https://unsplash.com/license).
 
 ### Photographers:
