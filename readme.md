@@ -12,7 +12,7 @@ The second step is to install Google Cloud SDK, available [here](https://cloud.g
 
 To gain access to the code, it should then be cloned from GitHub using git.
 
-Once the code has been cloned onto your computer, you can then change it as you would like. To preview by running the project locally, open Google Cloud SDK (set up with appropriate components as previously described). Navigate to the directory containing the Saga project,`cd <your complete file pathway>` and then type the command 
+Once the code has been cloned onto your computer, you can then change it as you would like. To preview by running the project locally, open Google Cloud SDK (set up with appropriate components as previously described). Navigate to the directory containing the Saga project,`cd <your complete file pathway>` and then type the command:
 ```
 dev_appserver.py app.yaml
 ```
@@ -21,13 +21,13 @@ Visiting `http://localhost:8080/` in a web browser will then show you a copy of 
 
 To shut down the local server, and thus gain access to the command line again, press ctrl+c (or cmd+c). 
 
-To deploy the project to its own website, making sure you are in the directory containing the project, run the command
+To deploy the project to its own website, making sure you are in the directory containing the project, run the command:
 ```
 gcloud app deploy app.yaml index.yaml
 ```
-as per [this set of instructions](https://cloud.google.com/appengine/docs/standard/python/getting-started/deploying-the-application)
+as per [this set of instructions](https://cloud.google.com/appengine/docs/standard/python/getting-started/deploying-the-application).
 
-There may be some delay in accessing a user's blog homepage, due to the indexes needing to update.
+There may be some delay in accessing a user's blog homepage, since the indexes need to update.
 
 All of this is outlined in more detail in [this tutorial](https://cloud.google.com/appengine/docs/standard/python/getting-started/creating-guestbook).
 
@@ -64,7 +64,7 @@ The archive page would contain all the headings for all the blogposts done by th
 
 Steven Huffman's videos in the [Udacity course CS253](https://www.udacity.com/course/web-development--cs253) provided much of the guidance in creating this project.
 
-All photographs in this project are published by [Unsplash](https://unsplash.com/), and are free for any use. the unsplash licence can be read [here](https://unsplash.com/license)
+All photographs in this project are published by [Unsplash](https://unsplash.com/), and are free for any use. The Unsplash licence can be read [here](https://unsplash.com/license).
 
 ### Photographers:
 [Aaron Burden](https://unsplash.com/@aaronburden)
