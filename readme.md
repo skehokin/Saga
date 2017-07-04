@@ -40,7 +40,7 @@ Blog hero images, blog names and blog color palettes are three key areas in whic
 
 Blog names are a simple string, and although there is no column in the User database as of yet, there is a template variable with a simple placeholder already in the bloghome.html template. All that is required is that the user be asked what they'd like it to be.
 
-Color palettes are a slightly more complex matter. Very likely a css file would need to be created for each of the color palettes, and an aethetic way of displaying these options to the user would need to be designed. Nevertheless, implementing these is a simple matter of storing the name of the css file in the User entity and inputting it into a template variable in the head of the bloghome.html template.
+Color palettes are a slightly more complex matter. Very likely a CSS file would need to be created for each of the color palettes, and an aethetic way of displaying these options to the user would need to be designed. Nevertheless, implementing these is a simple matter of storing the name of the CSS file in the User entity and inputting it into a template variable in the head of the bloghome.html template.
 
 All of this is likely to need a handler with many of the same features: user validation, forms and form entry, and entering the data into a database. It might most easily be done with a variant of the newpage.html template and the NewPost handler.
 
@@ -64,7 +64,7 @@ The archive page would contain all the headings for all the blogposts done by th
 
 Steven Huffman's videos in the [Udacity course CS253](https://www.udacity.com/course/web-development--cs253) provided much of the guidance in creating this project.
 
-I derived the orginal structure of the comment code from [here](https://developer.mozilla.org/en/docs/Web/HTML/Element/article).
+I derived the orginal structure of the comment HTML from [here](https://developer.mozilla.org/en/docs/Web/HTML/Element/article).
 
 Using strftime within the Jinja2 template was originally suggested by tux21b on [this](https://stackoverflow.com/questions/4830535/python-how-do-i-format-a-date-in-jinja2) Stack Overflow page.
 
