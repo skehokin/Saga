@@ -707,32 +707,33 @@ class BlogPage(Handler):
         content = self.request.get("content")
         if not user_data or not content:
             self.redirect("/"+username)
-        comment_id = self.request.get("comment_id")
-        if comment_id:
-            edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
-                                       "comment_id='%s'"%comment_id)
-            for each in edit_comment:
-                if user_data.name == each.author:
-                    each.content = content
-                    each.put()
-                else:
-                    self.redirect("/"+username)
         else:
-            blog_loc_search = db.GqlQuery(("SELECT * FROM BlogEntries "
-                                           "WHERE identity='%s'"%post_id))
-            if blog_loc_search:
-                for each in blog_loc_search:
-                    if each.identity == post_id:
-                        blog_loc = each.author
-            post_identity = self.request.get("post_id")
-            author = user_data.name
-            a = Comments(content=content, author=author,
-                         post_identity=post_identity, blog_loc=blog_loc)
-            a.put()
-            a.comment_id = str(a.key().id())
-            a.put()
-        time.sleep(1) # Gives the database a little time to update.
-        self.redirect("/"+post_id)
+            comment_id = self.request.get("comment_id")
+            if comment_id:
+                edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
+                                           "comment_id='%s'"%comment_id)
+                for each in edit_comment:
+                    if user_data.name == each.author:
+                        each.content = content
+                        each.put()
+                    else:
+                        self.redirect("/"+username)
+            else:
+                blog_loc_search = db.GqlQuery(("SELECT * FROM BlogEntries "
+                                               "WHERE identity='%s'"%post_id))
+                if blog_loc_search:
+                    for each in blog_loc_search:
+                        if each.identity == post_id:
+                            blog_loc = each.author
+                post_identity = self.request.get("post_id")
+                author = user_data.name
+                a = Comments(content=content, author=author,
+                             post_identity=post_identity, blog_loc=blog_loc)
+                a.put()
+                a.comment_id = str(a.key().id())
+                a.put()
+            time.sleep(1) # Gives the database a little time to update.
+            self.redirect("/"+post_id)
 
 
 class NewPost(Handler):

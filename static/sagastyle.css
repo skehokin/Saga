@@ -142,7 +142,7 @@ margin: 0;
 	color: white;
 }
 
-.loginSubmit :hover {
+.loginSubmit:hover {
 	background-color: rgba(41,7,15,0);
 }
 
