@@ -16,6 +16,16 @@ html {
   	width: 100%;
 }
 
+form, label {
+	width: 100%;
+}
+
+a {
+	color: white;
+	text-decoration: none;
+}
+
+/*body for all the initial saga-branded pages*/
 body {
 	background-image: url(/static/waterfallsqdark.jpg);
 	background-size: cover;
@@ -36,21 +46,21 @@ body * {
 	box-sizing: border-box;
 }
 
+p {
+margin: 0;
+}
+
 [class*="entypo-"]:before {
   	font-family: 'entypo', sans-serif;
 }
 
+/*body for blog home page, blog single page*/
 .blogbody {
 	background-image: none;
 	background-color: #0f040f;
 }
-.newpagebody {
-	background-image: url(/static/annie-spratt-218459.jpg);
-}
 
-form, label {
-	width: 100%;
-}
+/*saga homepage*/
 
 .logo {
 	width: 180px;
@@ -116,6 +126,7 @@ form, label {
 	width: 100%;
 }
 
+/*this class is applied to almost every button*/
 .loginSubmit {
 	font-size: 24px;
 	padding: 0 20px 5px 20px;
@@ -150,24 +161,6 @@ main {
 	margin: 0;
 }
 
-/*.colorOverlay {
-	width:100%;
-	height:100%;
-	background-color:#29070f;
-	opacity:0.3;
-
-}
-.gradientOverlay {
-	width:100%;
-	height:100%;
-	position: absolute;
-	top:0;
-  	background: red; /* For browsers that do not support gradients
-  	background: -webkit-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Safari
-  	background: -o-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Opera 11.6 to 12.0
-  	background: -moz-radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Firefox 3.6 to 15 *
-  	background: radial-gradient(circle, rgba(41,7,15,0) 60%, rgba(41,7,15,0.5)); /* Standard syntax *
-}*/
 .signUpButton {
 	font-size: 20px;
 	font-family: 'Roboto', sans-serif;
@@ -180,6 +173,8 @@ main {
 	text-align: center;
 	background-color: rgba(41,7,15,0.5);
 }
+
+/*dark blue header bar which is on every page*/
 .header {
 	height: 35px;
 	width: 100%;
@@ -188,33 +183,28 @@ main {
 	top: 0px;
 	z-index: 100;
 }
+
+/* the login or logout link which is on the header of almost every page (except the log in page)*/
 .toprightlinks {
 	position: absolute;
 	right: 10px;
 	top: 10px;
 	z-index: 30;
 }
-a {
-	color: white;
-	text-decoration: none;
-}
 
+/*sign-up and log in page*/
 
 .formfields {
 	width: 250px;
 	margin: 0;
 	float: left;
 	padding: 0;
-
 }
+
 .formfields li {
 	list-style: none;
 	float: left;
 	text-align: center;
-}
-
-p {
-margin: 0;
 }
 
 .error {
@@ -223,11 +213,14 @@ margin: 0;
 	background-color: rgba(255,80,80,0.3);
 }
 
+
+/*blog home page*/
 .blogHero {
 	position:relative;
 	z-index: 20;
 	height: 60%;
 	width: 100%;
+	/*all the possible blog hero images*/
 	/*background-image: url(/static/bloghero_tower_wide.jpg);*/
 	/*background-image: url(/static/annie-spratt-218459.jpg);*/
 	/*background-image: url(/static/scott-webb-205351.jpg);*/
@@ -246,13 +239,13 @@ margin: 0;
 	/*background-image: url(/static/joshua-earle-133254.jpg);*/
 	/*background-image: url(/static/timothy-muza-133593.jpg); horses. find better horses?*/
 	/*background-image: url(/static/marko-blazevic-264986.jpg);*/
-	background-image: url(/static/matt-thornhill-106773.jpg);
+	/*background-image: url(/static/matt-thornhill-106773.jpg);*/
 	background-size: cover;
 	/*background-attachment: fixed;*/
 	background-position: center;
 	text-align: center;
-
 }
+/*not sure why this is*/
 .logout {
 	display:none;
 }
@@ -268,6 +261,7 @@ margin: 0;
 	top: 45%;
 }
 
+/*the new post button*/
 .newpost {
 	padding-top: 5px;
 }
@@ -280,6 +274,23 @@ text-align: center;
 display: none;
 }
 
+/*error messages for ignored user permissions*/
+.error_msg {
+	position: fixed;
+	width: 300px;
+	height: 150px;
+	border-radius:5px;
+	left: calc(50vw - 150px);
+	top: 50px;
+	padding: 20px 20px;
+	text-align: center;
+	z-index: 200;
+	background-color: rgba(20, 0, 0, 0.5);
+}
+.hidden {
+	display: none;
+}
+
 /*
 I'm proud of this solution even if it is useless
 
@@ -288,9 +299,8 @@ I'm proud of this solution even if it is useless
 	position:relative;
 	top:calc((100vw - 60vh) / 2 * -1);
 	z-index:-1;
-
-
 }*/
+
 .blognavwrap {
 	display: flex;
 	text-align: right;
@@ -307,6 +317,8 @@ I'm proud of this solution even if it is useless
 	margin: 0;
 	margin-left: 1px;
 }
+
+/* styling the actual blog posts */
 
 .wholepost * {
 	color:#1a001a;
@@ -349,6 +361,13 @@ I'm proud of this solution even if it is useless
 	max-width: 500px;
 }
 
+/*the text at the bottom that appears if the post
+ has been edited since it was posted*/
+.posteditnote {
+	font-size: 0.7em;
+}
+
+/*the option icons that appear under every blog post*/
 .blogpostoptions * {
 	margin: 0;
 }
@@ -384,11 +403,17 @@ I'm proud of this solution even if it is useless
   	display: block;
 }
 
+/*comment styling*/
 .commentwrap {
 	background-color: white;
 	margin-top: 70px;
 	padding: 20px;
+	display: none;
+	background-color: rgba(255,255,255,0.9);
 }
+/*}
+.commentwrap {
+*/
 
 .commentwrap footer {
 	text-align: right;
@@ -408,6 +433,16 @@ I'm proud of this solution even if it is useless
 	font-size: 0.9em;
 }
 
+.comment_option {
+	float: right;
+	padding-right: 20px;
+	margin: 0;
+	font-family: 'entypo';
+	background-color: transparent;
+	border: 0;
+	display: inline;
+}
+
 .singlecomment footer {
 	text-transform: uppercase;
 	font-size: 0.79em;
@@ -415,6 +450,26 @@ I'm proud of this solution even if it is useless
 	margin-left: 10px;
 }
 
+/*post a comment form*/
+
+.commentBox {
+width: 100%;
+height: 100px;
+border-radius: 5px;
+background-color: transparent;
+}
+
+/*the "add comment" button*/
+.newcomment {
+	color: white;
+}
+
+.cancel {
+	display: inline;
+	width: 100px;
+}
+
+/*responsiveness for blog home (or single blog page)*/
 @media screen and (min-width: 400px) {
 	.blognavwrap {
 		width: 250px;
@@ -465,9 +520,9 @@ I'm proud of this solution even if it is useless
 		margin-bottom: 50px;
 	}
 
-.commentwrap {
-	margin-top: 70px;
-}
+	.commentwrap {
+		margin-top: 70px;
+	}
 
 }
 
@@ -478,15 +533,19 @@ I'm proud of this solution even if it is useless
 
 }
 
+/*styling for newpost.html*/
+
 .newpageblogname {
 	top: 75px;
 }
+
 .newformwrap {
 	width: 100%;
 	margin-top: 150px;
 	padding-left: 20px;
 	padding-right: 20px;
 }
+
 .formwrapinner {
 	width: 100%;
 	max-width: 700px;
@@ -496,87 +555,53 @@ I'm proud of this solution even if it is useless
 	border-radius: 5px;
 	color: #1a001a;
 }
+
 .formwrapinner .typeable {
 	border-radius: 5px;
 	border: 1px solid #1a001a;
 	font-size: 0.9em;
 	font-weight: 300;
-
 }
+
 .newsubj {
 
 	margin-bottom: 40px;
 	width: calc(100% - 80px);
 	float: right;
 }
+
 .subj_label {
 	padding-right: 15px;
 	font-size: 1.2em;
 }
+
 .newcont {
 	width: 100%;
 	height: 200px;
 }
+
 .cont_label {
 	position: relative;
 	top: 20px;
 	font-size: 1.2em;
 }
+
 .publishwrap {
 	text-align: center;
 	width: 100%;
 }
+
 .publish {
 	margin: 20px;
 }
-.commentwrap {
-	display: none;
-	background-color: rgba(255,255,255,0.9);
-}
-.cancel {
-	display: inline;
-	width: 100px;
-}
-.commentBox {
-width: 100%;
-height: 100px;
-border-radius: 5px;
-background-color: transparent;
-}
-.newcomment {
-	color: white;
-}
-.posteditnote {
-	font-size: 0.7em;
-}
-.comment_option {
-	float: right;
-	padding-right: 20px;
-	margin: 0;
-	font-family: 'entypo';
-	background-color: transparent;
-	border: 0;
-	display: inline;
-}
+
+
+/*extra styling for oops.html, the 404 page*/
 
 .whoops {
 	text-align: center;
 	width: 500px;
 	left: calc(50vw - 250px);
 }
-.error_msg {
-	position: fixed;
-	width: 300px;
-	height: 150px;
-	border-radius:5px;
-	left: calc(50vw - 150px);
-	top: 50px;
-	padding: 20px 20px;
-	text-align: center;
-	z-index: 200;
-	background-color: rgba(20, 0, 0, 0.5);
-}
-.hidden {
-	display: none;
-}
+
 

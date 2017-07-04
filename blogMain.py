@@ -1,3 +1,30 @@
+######################################################################
+# The MIT License                                                    #
+# https://opensource.org/licenses/MIT                                #
+#                                                                    #
+# Copyright 2017 Siobhan Hokin                                       #
+#                                                                    #
+# Permission is hereby granted, free of charge, to any person        #
+# obtaining a copy of this software and associated documentation     #
+# files (the "Software"), to deal in the Software without            #
+# restriction, including without limitation the rights to use,       #
+# copy, modify, merge, publish, distribute, sublicense, and/or sell  #
+# copies of the Software, and to permit persons to whom the Software #
+# is furnished to do so, subject to the following conditions:        #
+#                                                                    #
+# The above copyright notice and this permission notice shall be     #
+# included in all copies or substantial portions of the Software.    #
+#                                                                    #
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,    #
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF #
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND              #
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT        #
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,       #
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, #
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER      #
+# DEALINGS IN THE SOFTWARE.                                          #
+#                                                                    #
+######################################################################
 import os
 import re
 import random
@@ -39,7 +66,7 @@ JINJA_ENV = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
 
 
 class Handler(webapp2.RequestHandler):
-    """Extend the webapp2 RequestHandler class for quick access.
+    """Extend the webapp2 RequestHandler class for quick access to templates.
 
     Primarily created by Steve Huffman to reduce the difficulty
     of typing out the webapp2 write function and the jinja2 template
@@ -58,13 +85,13 @@ class Handler(webapp2.RequestHandler):
         Args:
           *a:
             Typically a string representing an HTML webpage. Can
-            also be any other object, although if expected to be
-            human-readble, the object must usually be human-readable
-            without any interfacing commands, e.g. lists, intergers.
+              also be any other object, although if expected to be
+              human-readble, the object must usually be human-readable
+              without any interfacing commands, e.g. lists, intergers.
           **kw:
             I honestly have no idea why response.write would take any
-            keyword arguments. But if you figure out why, you can add
-            them in with no trouble.
+              keyword arguments. But if you figure out why, you can add
+              them in with no trouble.
           """
         self.response.out.write(*a, **kw)
 
@@ -74,19 +101,19 @@ class Handler(webapp2.RequestHandler):
         Args:
           template:
             The file name of a jinja2 HTML template which is located
-            in the "templates" folder, which was set up earlier in the
-            module.
-            The jinja2 documentation is available here:
-            http://jinja.pocoo.org/docs/2.9/templates/
+              in the "templates" folder, which was set up earlier in the
+              module.
+              The jinja2 documentation is available here:
+              http://jinja.pocoo.org/docs/2.9/templates/
           **params:
             Any number of variables which are already part of the
-            given jinja2 template. The function of these variables is
-            similar to string formatting. Quite often these variables
-            are also strings, but they can also be dictionaries, lists,
-            or other iterables.
-            Once again, the relevant
-            documentation is available here:
-            http://jinja.pocoo.org/docs/2.9/templates/
+              given jinja2 template. The function of these variables is
+              similar to string formatting. Quite often these variables
+              are also strings, but they can also be dictionaries, lists,
+              or other iterables.
+              Once again, the relevant
+              documentation is available here:
+              http://jinja.pocoo.org/docs/2.9/templates/
 
         Returns:
           A string, which is the complete HTML of a website. Any
@@ -106,22 +133,22 @@ class Handler(webapp2.RequestHandler):
         Args:
           template:
             The file name of a jinja2 HTML template which is located
-            in the "templates" folder, which was set up earlier in the
-            module.
-            The jinja2 documentation is available here:
-            http://jinja.pocoo.org/docs/2.9/templates/
+              in the "templates" folder, which was set up earlier in the
+              module.
+              The jinja2 documentation is available here:
+              http://jinja.pocoo.org/docs/2.9/templates/
           **kw:
             Any number of variables which are already part of the
-            given jinja2 template. The function of these variables is
-            similar to string formatting. Quite often these variables
-            are also strings, but they can also be dictionaries, lists,
-            or other iterables, as some python-like syntax ("tags")
-            are available within templates.
-            A keyword argument should here be entered in the form of:
-            name_of_variable_in_template=data_to_be_filled_in
-            Once again, the relevant
-            documentation is available here:
-            http://jinja.pocoo.org/docs/2.9/templates/
+              given jinja2 template. The function of these variables is
+              similar to string formatting. Quite often these variables
+              are also strings, but they can also be dictionaries, lists,
+              or other iterables, as some python-like syntax ("tags")
+              are available within templates.
+              A keyword argument should here be entered in the form of:
+              name_of_variable_in_template=data_to_be_filled_in
+              Once again, the relevant
+              documentation is available here:
+              http://jinja.pocoo.org/docs/2.9/templates/
         """
         self.write(self.render_str(template, **kw))
 
@@ -148,11 +175,36 @@ class Handler(webapp2.RequestHandler):
 
 # Create database for blog entries:
 class BlogEntries(db.Model):
-    """Not much to explain here. This class creates a new data entry for
-    datastore as per the model instance docs:
-    https://cloud.google.com/appengine/docs/standard/python/datastore/modelclass
-    This one is for blog entries.
-    """
+    """Create a new data entity type for blog posts.
+
+        Blog post entities inherit from this data model.
+        The docs for the Model Class can be found here:
+        https://cloud.google.com/appengine/docs/standard/python/datastore/modelclass
+
+        Attributes:
+          author:
+            A string recording the username of the person who posted
+              the blog post.
+          subject:
+            A string which is the subject or title of the blog post.
+          content:
+            A db.Text object recording the content of the blog post.
+            Text class documentation is available here:
+                https://cloud.google.com/appengine/docs/standard/python/datastore/typesandpropertyclasses#Text
+          created:
+            A datetime.datetime object which automatically records
+              when the post was made.
+          identity:
+            A numeral string recording the post's ID for
+              easy access.
+          last_edited:
+            A datetime.datetime object which automatically updates each
+              time the post is edited.
+          likes:
+            A list of strings containing the username of every user
+              who has liked the post.
+          likes_length: an interger recording the length of the likes list.
+      """
     author = db.StringProperty(required=True)
     subject = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
@@ -165,10 +217,34 @@ class BlogEntries(db.Model):
 
 # Create database for Comment entries:
 class Comments(db.Model):
-    """Not much to explain here. This class creates a new data entry for
-    datastore as per the Model instance docs:
+    """Create a new data entity type for comments made on blog posts.
+
+    Entities representing a single comment inherit from this data model.
+    The docs for the Model Class can be found here:
     https://cloud.google.com/appengine/docs/standard/python/datastore/modelclass
-    This one is for comments on blog posts.
+
+    Attributes:
+      author:
+        A string recording the username of the person who made
+          the comment.
+      content:
+        A db.Text object recording the content of the comment.
+        Text class documentation is available here:
+            https://cloud.google.com/appengine/docs/standard/python/datastore/typesandpropertyclasses#Text
+      created:
+        A datetime.datetime object which automatically records
+          when the comment was made.
+      post_identity:
+        A numeral string consisting of the ID of the post in response
+          to which the comment was made.
+      last_edited:
+        A datetime.datetime object which automatically updates each
+          time the comment is edited.
+      comment_id:
+        a numeral string recording the comment's ID for
+          easy access.
+      blog_loc: A string recording the name of the user who posted the
+      blog post which this comment was a response to.
     """
     author = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
@@ -180,10 +256,30 @@ class Comments(db.Model):
 
 
 class Users(db.Model):
-    """Not much to explain here. This class creates a new data entity for
-    datastore as per the model instance docs:
+    """Create a new data entity type for blog user data.
+
+    User data holding entities inherit from this data model.
+    The docs for the Model Class can be found here:
     https://cloud.google.com/appengine/docs/standard/python/datastore/modelclass
-    This one is for blog user data.
+
+    Attributes:
+      name: A string recording the username of the user.
+      password:
+        A string consisting of the hashed result of concatinating
+          the username, the password and the password salt (stored
+          separately in pwsalt).
+      salt:
+        A random 5-letter string which is frequently changed.
+          Intended to be hashed with the user_id.
+      pwsalt:
+        An unchanging 5-letter string which is part of
+          encrypting the user's password.
+      mail: a string recording the user's email.
+      signed-up:
+        A datetime.datetime object which automatically records
+          when the user first signed up.
+      blog_image: A string recording the file name of the user's randomly
+          selected blog hero image.
     """
     name = db.StringProperty(required=True)
     password = db.StringProperty(required=True)
@@ -199,12 +295,14 @@ def username_val(cursor, username):
     """Check to see if the requested username already exists.
 
     Args:
-      cursor: a GqlQuery object, querying the User database and including
-        all columns.
-        Docs for the GqlQuery class can be found here:
-        https://cloud.google.com/appengine/docs/standard/python/datastore/gqlqueryclass
-      username: Any valid username (doesn't violate the USER_RE regex
-        and is not a number.)
+      cursor:
+        A GqlQuery object, querying the User database and including
+          all columns.
+          Docs for the GqlQuery class can be found here:
+          https://cloud.google.com/appengine/docs/standard/python/datastore/gqlqueryclass
+      username:
+        Any valid username (doesn't violate the USER_RE regex
+          and is not a number.)
 
     Returns:
       A Boolean representing the validity of the username: False if it
@@ -241,7 +339,7 @@ class MainPage(Handler):
         """
         user_data = self.validate_cookie()
         if user_data:
-            self.redirect("/"+user_data.name)
+            self.redirect("/" + user_data.name)
         else:
             self.render("saga.html")
 
@@ -403,10 +501,11 @@ class BlogHome(Handler):
         recent posts by that user.
 
         Args:
-          username: this argument is derived from the URL. It represents
-          any existing username. If the username does not exist,
-          meaning there is no signed-up user with this name, then the
-          user is redirected to a 404 page.
+          username:
+            this argument is derived from the URL. It represents
+              any existing username. If the username does not exist,
+              meaning there is no signed-up user with this name, then the
+              user is redirected to a 404 page.
         """
         edit_comment_id = ""
         post_id = ""
@@ -477,9 +576,9 @@ class BlogHome(Handler):
 
         Args:
           As is the same with the get method function in this handler,
-          the post method function takes the blog owner's username as
-          an argument. This is added as the "blog_loc", the blog on
-          which the comment is located.
+            the post method function takes the blog owner's username as
+            an argument. This is added as the "blog_loc", the blog on
+            which the comment is located.
         """
         user_data = self.validate_cookie()
         content = self.request.get("content")
@@ -524,10 +623,11 @@ class BlogPage(Handler):
         any comment editing initiated on this page.
 
         Args:
-          post_id: this is automatically recieved from the URL. it is
-          used to get the right post from the database and create the
-          page. If this post_id doesn't refer to a real entry in the
-          database the user is redirected to the 404 page "/oops".
+          post_id:
+            This is automatically recieved from the URL. it is
+              used to get the right post from the database and create the
+              page. If this post_id doesn't refer to a real entry in the
+              database the user is redirected to the 404 page "/oops".
         """
         edit_comment_id = ""
         comment_content = ""
@@ -586,16 +686,17 @@ class BlogPage(Handler):
                     error=error, error_author=error_author)
 
     def post(self, post_id):
-        """Enters or updates the comment data from this page.
+        """Enter or update the comment data from this page.
 
         Similarly to the BlogHome handler, any comments made on this page
         are also managed on this page, and entered into the Comments
         database.
 
         Args:
-          the post_id is accessible to the post method as well. Its main
-          purpose in this function is to ocate the comment in relation to
-          the post.
+          post_id:
+            The post_id is accessible to the post method as well. Its main
+              purpose in this function is to locate the comment in relation to
+              the post.
         """
         blog_post = BlogEntries.get_by_id(int(post_id))
         username = blog_post.author
@@ -680,7 +781,9 @@ class NewPost(Handler):
 
 
 class EditPage(Handler):
-    """This handler allows for the editing of blog posts by the user who
+    """Edit a blog post.
+
+    This handler allows for the editing of blog posts by the user who
     originally made them. It uses the same newpage.html form as the
     NewPost handler, but enters the data from the requested blog post.
     """
@@ -694,8 +797,9 @@ class EditPage(Handler):
         to create the edit page.
 
         Args:
-          post_id: A number in the URL which refers to an existing blog
-          post.
+          post_id:
+            A number in the URL which refers to an existing blog
+              post.
         """
         content = ""
         subject = ""
@@ -723,6 +827,7 @@ class EditPage(Handler):
                         self.redirect("/"+post_id)
         if not post_exists:
             self.redirect("/oops")
+
     def post(self, post_id):
         """Overwrite original post.
 
@@ -731,8 +836,9 @@ class EditPage(Handler):
         isn't the original author.
 
         Args:
-          post_id: A number in the URL which refers to an existing blog
-          post.
+          post_id:
+            A number in the URL which refers to an existing blog
+            post.
         """
         content = ""
         post_exists = False
@@ -775,8 +881,11 @@ class EditPage(Handler):
         if not post_exists:
             self.redirect("/oops")
 
+
 class Oops(Handler):
-    """This is the "404" page, which is visited each time a post, comment or
+    """The 404 page.
+
+    This is the "404" page, which is visited each time a post, comment or
     user page proves not to exist.
     """
     def get(self):
@@ -799,8 +908,9 @@ class DeletePost(Handler):
         author of the post, delete it from the BlogEntries database.
 
         Args:
-          post_id: A number in the URL which refers to an existing blog
-          post.
+          post_id:
+            A number in the URL which refers to an existing blog
+              post.
         """
         user_data = self.validate_cookie()
         blog_post = BlogEntries.get_by_id(int(post_id))
@@ -821,10 +931,11 @@ class DeletePost(Handler):
         else:
             self.redirect("/oops")
 
+
 class LikePost(Handler):
     """Like a post.
 
-    This Handler allows any user to like a post they did not write.
+    This handler allows any user to like a post they did not write.
     This is limited to only one like per user per post.
     """
 
@@ -840,8 +951,9 @@ class LikePost(Handler):
         representations on the website.
 
         Args:
-          post_id: A number in the URL which refers to an existing blog
-          post.
+          post_id:
+            A number in the URL which refers to an existing blog
+            post.
         """
         user_data = self.validate_cookie()
         blog_post = BlogEntries.get_by_id(int(post_id))
@@ -870,7 +982,7 @@ class LikePost(Handler):
 
 
 class DeleteComment(Handler):
-    """This handler allows the author of a comment to delete it"""
+    """Allow the author of a comment to delete it"""
 
     def post(self, comment_id):
         """Delete a comment.
@@ -879,7 +991,8 @@ class DeleteComment(Handler):
         Then redirects to the previous page the user was on.
 
         Args:
-          post_id: A number in the URL which refers to an existing comment.
+          post_id:
+            A number in the URL which refers to an existing comment.
         """
         user_data = self.validate_cookie()
         comment = Comments.get_by_id(int(comment_id))
@@ -901,11 +1014,11 @@ class DeleteComment(Handler):
                         each.delete()
                         time.sleep(1) # Gives the database a little time.
                         self.redirect("/"+target)
-            
 
 
 class LogOut(Handler):
-    """Deletes the cookie content to log out the user."""
+    """Delete the cookie content to log out the user."""
+
     def get(self):
         """Delete the cookie content to log out the user."""
         self.response.headers.add_header("Set-Cookie", "user_id=; Path=/")
