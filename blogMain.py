@@ -583,30 +583,31 @@ class BlogHome(Handler):
         user_data = self.validate_cookie()
         content = self.request.get("content")
         if not user_data or not content:
+            self.redirect("/login")
+        else:    
+            comment_id = self.request.get("comment_id")
+            if comment_id:
+                edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
+                                           "comment_id='%s'" % comment_id)
+                for each in edit_comment:
+                    if user_data.name == each.author:
+                        each.content = content
+                        each.put()
+                    else:
+                        self.redirect("/" + username
+                                      + "?error=other&author="
+                                      + each.author)
+            else:
+                author = user_data.name
+                post_identity = self.request.get("post_id")
+                new_entity = Comments(content=content, author=author,
+                                      post_identity=post_identity,
+                                      blog_loc=username)
+                new_entity.put()
+                new_entity.comment_id = str(new_entity.key().id())
+                new_entity.put()
+            time.sleep(1) # Gives the database a little time to update.
             self.redirect("/"+username)
-        comment_id = self.request.get("comment_id")
-        if comment_id:
-            edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
-                                       "comment_id='%s'" % comment_id)
-            for each in edit_comment:
-                if user_data.name == each.author:
-                    each.content = content
-                    each.put()
-                else:
-                    self.redirect("/" + username
-                                  + "?error=other&author="
-                                  + each.author)
-        else:
-            author = user_data.name
-            post_identity = self.request.get("post_id")
-            new_entity = Comments(content=content, author=author,
-                                  post_identity=post_identity,
-                                  blog_loc=username)
-            new_entity.put()
-            new_entity.comment_id = str(new_entity.key().id())
-            new_entity.put()
-        time.sleep(1) # Gives the database a little time to update.
-        self.redirect("/"+username)
 
 
 class BlogPage(Handler):
