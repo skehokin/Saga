@@ -464,7 +464,7 @@ class LogIn(Handler):
         password = self.request.get("password")
         cursor = db.GqlQuery("SELECT * FROM Users")
         for each in cursor:
-            if each.name == username and username_exists:
+            if each.name == username:
                 username_exists = True
                 values_hash = hashlib.sha256(username + password + each.pwsalt)
                 # Check the given password against the one in the database.
@@ -482,6 +482,8 @@ class LogIn(Handler):
 
                 else:
                     self.render("login.html", error="invalid login")
+        if not username_exists:
+            self.render("login.html", error="invalid login")
 
 
 class BlogHome(Handler):
