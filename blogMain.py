@@ -586,7 +586,7 @@ class BlogHome(Handler):
         content = self.request.get("content")
         if not user_data or not content:
             self.redirect("/login")
-        else:    
+        else:
             comment_id = self.request.get("comment_id")
             if comment_id:
                 edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
