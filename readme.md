@@ -64,6 +64,8 @@ The archive page would contain all the headings for all the blogposts done by th
 
 Steven Huffman's videos in the [Udacity course CS253](https://www.udacity.com/course/web-development--cs253) provided much of the guidance in creating this project.
 
+I derived the orginal structure of the comment code from [here](https://developer.mozilla.org/en/docs/Web/HTML/Element/article).
+
 All photographs in this project are published by [Unsplash](https://unsplash.com/), and are free for any use. The Unsplash licence can be read [here](https://unsplash.com/license).
 
 ### Photographers:
