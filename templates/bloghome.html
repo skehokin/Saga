@@ -1,56 +1,22 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">
-		<link href="static/sagastyle.css" rel="stylesheet">
-		<link href="static/{{user_buttons}}.css" rel="stylesheet">
-		<script src="static/saga.js"></script>
-		<title>{{blog_name}} on saga</title>
-		<style>
-		/*The only other option besides this was making a css file
-         for every single possible blog hero image. This seems better. */
-			.blogHero {
-				background-image: url(static/{{image}});
-			}
-		/*this is for showing/hiding errors
-		TODO: turn these into HTML hidden attributes*/
-			{% if error == "other" %}
-				.edit_delete {
-					display: block;
-				}
-			{% endif %}
-
-			{% if error == "self" %}
-				.like_error {
-					display: block;
-				}
-			{% endif %}
-
-			{% if website_type == "single" %}
-				.permalink {
-					display: none;
-				}
-			{% endif %}
-		</style>
-	</head>
+{% extends "base.html" %}
+{% block title %}{{username}} on saga{% endblock %}
+{% block body %}
 	<body class="blogbody">
 		<header class="header">
 			<a href="/">
 				<img src = "/static/sagaLogo.svg" class = "smallLogo">
 			</a>
 			<span class="toprightlinks">
-				<a href="/logout" class="logout">log out</a>
-				<a href="/login" class="login">log in</a>
+				<a href="/logout" class="logout" {{loggedin_hidden}}>log out</a>
+				<a href="/login" class="login" {{loggedout_hidden}}>log in</a>
 			</span>
 		</header>
 		<main>
-			<header class="blogHero">
+			<header class="blogHero {{image}}">
 				<a href="{{username}}"><h1 class="blogname">{{blog_name}}</h1></a>
 				<section class="buttonwrap">
 					<a href="/newpost">
-						<section class="loginSubmit newpost">
+						<section class="loginSubmit newpost" {{owner_hidden}}>
 							NEW POST
 						</section>
 					</a>
@@ -63,7 +29,7 @@
 			</nav>
 			<!-- <div class="clear"></div> -->
 			<!-- Error messages. Usually hidden: -->
-			<section class="error_msg like_error hidden" id="like_error">
+			<section class="error_msg like_error" id="like_error" {{like_error_hidden}}>
 				dude,
 				<br>
 				I'm sorry to tell you this,
@@ -75,7 +41,7 @@
 					ok fine
 				</button>
 			</section>
-			<section class="error_msg edit_delete hidden" id="edit_delete">
+			<section class="error_msg edit_delete" {{other_error_hidden}} id="edit_delete">
 				you're not {{error_author}}!
 				<br>
 				you can't do that!
@@ -113,11 +79,11 @@
 					<footer class="blogpostoptions">
 						<div class="optionswrapper">
 						<!-- TODO: make these icons accessible with aria-hidden-->
-							<a href="/_like/{{post.identity}}"><h3 class="option like"><span class="entypo-heart"></span></h3></a>
-							<a href="/_delete/{{post.identity}}"><h3 class="option delete"><span class="entypo-cup"></span></h3></a>
-							<a href="/_edit/{{post.identity}}"><h3 class="option edit"><span class="entypo-pencil"></span></h3>
+							<a href="/_like/{{post.identity}}"><h3 class="option like" {{user_hidden}}><span class="entypo-heart"></span></h3></a>
+							<a href="/_delete/{{post.identity}}"><h3 class="option delete" {{owner_hidden}}><span class="entypo-cup"></span></h3></a>
+							<a href="/_edit/{{post.identity}}"><h3 class="option edit" {{owner_hidden}}><span class="entypo-pencil"></span></h3>
 							</a><h3 class="option commentbutton" id="button{{loop.index}}"><span class="entypo-chat"></span></h3>
-							<a href="/{{post.identity}}"><h3 class="option permalink"><span class="entypo-infinity"></span></h3></a>
+							<a href="/{{post.identity}}"><h3 class="option permalink" {{home_hidden}}><span class="entypo-infinity"></span></h3></a>
 						</div>
 					</footer>
 
@@ -161,7 +127,7 @@
 							</article>
 						{%endfor%}
 						<!-- This is what changes when there is comment data to fill into the edit comment form. -->
-						<section class = "comment-form">
+						<section class = "comment-form" {{loggedin_hidden}}>
 						{% if post.identity==post_id %}
 						<!-- Meaning, if the blog post in this loop is the same as the editable comment's original post location -->
 							<form method="post">
@@ -208,8 +174,11 @@
 							<h2 class="blogtitle">No Posts Yet!</h2>
 							<h3>by saga</h3>
 						</header>
-							<section class="postcontent">
+							<section class="postcontent" {{user_hidden}}>
 								It looks like {{username}} hasn't made any posts yet.
+							</section>
+							<section class="postcontent" {{owner_hidden}}>
+								Hi, {{username}}! Welcome to your blog. Go ahead and press the "New Post" button up there and make your first post.
 							</section>
 					</article>
 				</article>
@@ -243,4 +212,4 @@
 			}
 		</script>
 	</body>
-</html>
+{% endblock %}

@@ -184,7 +184,8 @@ main {
 	z-index: 100;
 }
 
-/* the login or logout link which is on the header of almost every page (except the log in page)*/
+/* the wrapper for the login or logout link which is on the header
+ of almost every page (except the log in page)*/
 .toprightlinks {
 	position: absolute;
 	right: 10px;
@@ -246,9 +247,85 @@ main {
 	text-align: center;
 }
 /*not sure why this is*/
-.logout {
+/*.logout {
 	display:none;
 }
+*/
+.tower {
+	background-image: url(/static/bloghero_tower_wide.jpg);
+}
+
+.flower {
+	background-image: url(/static/annie-spratt-218459.jpg);
+}
+
+.succulents {
+	background-image: url(/static/scott-webb-205351.jpg);
+}
+
+.stars {
+	background-image: url(/static/rodrigo-soares-250630.jpg);
+}
+
+.river_sunset {
+	background-image: url(/static/arwan-sutanto-180425.jpg);
+}
+
+.petal {
+	background-image: url(/static/dominik-scythe-152888.jpg);
+}
+
+.neuschwanstein {
+	background-image: url(/static/jaromir-kavan-241762.jpg);
+}
+
+.cloud {
+	background-image: url(/static/drew-hays-26240.jpg);
+}
+
+.arch {
+	background-image: url(/static/richard-lock-262846.jpg);
+}
+
+.icy_road {
+	background-image: url(/static/sam-ferrara-136526.jpg);
+}
+
+.wood_texture {
+	background-image: url(/static/keith-misner-308.jpg);
+}
+.mint {
+	background-image: url(/static/ren-ran-232078.jpg);
+}
+
+.roots {
+	background-image: url(/static/camille-kmile-201915.jpg);
+}
+
+.ice_ball {
+	background-image: url(/static/aaron-burden-189321.jpg);
+}
+
+.paint {
+	background-image: url(/static/michal-grosicki-221226.jpg);
+}
+
+.beach {
+	background-image: url(/static/joshua-earle-133254.jpg);
+}
+
+.horses {
+	background-image: url(/static/timothy-muza-133593.jpg);
+}
+
+.cat {
+	background-image: url(/static/marko-blazevic-264986.jpg);
+}
+
+.rock {
+	background-image: url(/static/matt-thornhill-106773.jpg);
+}
+
 
 .blogname {
 	position: absolute;
@@ -271,7 +348,6 @@ width: 100%;
 position: absolute;
 top: 50px;
 text-align: center;
-display: none;
 }
 
 /*error messages for ignored user permissions*/
@@ -286,9 +362,6 @@ display: none;
 	text-align: center;
 	z-index: 200;
 	background-color: rgba(20, 0, 0, 0.5);
-}
-.hidden {
-	display: none;
 }
 
 /*
@@ -396,7 +469,6 @@ I'm proud of this solution even if it is useless
 	padding-top: 15px;
 	background-color: white;
 	color: #1a001a;
-	display: none;
 }
 
 .permalink, .commentbutton {
@@ -451,12 +523,6 @@ I'm proud of this solution even if it is useless
 }
 
 /*post a comment form*/
-
-
-.comment-form {
-	display: none;
-}
-
 
 .commentBox {
 width: 100%;

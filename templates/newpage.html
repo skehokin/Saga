@@ -1,23 +1,7 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="https://fonts.googleapis.com/css?family=Roboto:100,300" rel="stylesheet">
-        <link href="static/sagastyle.css" rel="stylesheet">
-        <title>
-            saga - tell it here
-        </title>
-        <style>
-            /*The only other option besides this was making a css file
-            for every single possible blog hero image. This seems better. */
-            .newpagebody{
-                background-image:url(static/{{image}});
-            }
-        </style>
-
-    </head>
-    <body class="newpagebody">
+{% extends "base.html" %}
+{% block title %}{{username}} on saga{% endblock %}
+{% block body %}
+    <body class="newpagebody {{image}}">
         <header class="header">
             <img src = "/static/sagaLogo.svg" class = "smallLogo">
             <div class="toprightlinks">
@@ -59,4 +43,4 @@
             </div>
         </main>
     </body>
-</html>
+{% endblock %}

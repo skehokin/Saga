@@ -400,24 +400,11 @@ class SignUp(Handler):
             # A random image adds some automatic variation to each blog.
             # The next feature, outside the scope of this project,
             # would be to make this customisable by the user.
-            image_options = ["bloghero_tower_wide.jpg",
-                             "annie-spratt-218459.jpg",
-                             "scott-webb-205351.jpg",
-                             "rodrigo-soares-250630.jpg",
-                             "arwan-sutanto-180425.jpg",
-                             "dominik-scythe-152888.jpg",
-                             "jaromir-kavan-241762.jpg",
-                             "drew-hays-26240.jpg",
-                             "richard-lock-262846.jpg",
-                             "sam-ferrara-136526.jpg",
-                             "keith-misner-308.jpg",
-                             "ren-ran-232078.jpg",
-                             "aaron-burden-189321.jpg",
-                             "michal-grosicki-221226.jpg",
-                             "joshua-earle-133254.jpg",
-                             "marko-blazevic-264986.jpg",
-                             "matt-thornhill-106773.jpg",
-                             "camille-kmile-201915.jpg"]
+            image_options = ["tower", "flower", "succulents", "stars",
+                             "river_sunset", "petal", "neuschwanstein",
+                             "cloud", "arch", "icy_road", "wood_texture",
+                             "mint", "ice_ball","paint", "beach","horses",
+                             "cat", "rock"]
             blog_image = random.choice(image_options)
             # Place the new user's data in the Users database.
             new_entity = Users(name=username, password=hashed_pw,
@@ -495,7 +482,7 @@ class BlogHome(Handler):
 
         Render a user's blog homepage based on the username in the URL.
         Will also, using form data in the URL, pre-enter any relevent comment
-        data into the relevent comments form forhttps://stackoverflow.com/questions/4830535/python-how-do-i-format-a-date-in-jinja2 any comment editing previously
+        data into the relevent comments form for any comment editing previously
         initiated on this page.
 
         A user's blog homepage consists of their blog's image, any relevent
@@ -509,6 +496,13 @@ class BlogHome(Handler):
               meaning there is no signed-up user with this name, then the
               user is redirected to a 404 page.
         """
+        other_error_hidden = "hidden"
+        like_error_hidden = "hidden"
+        owner_hidden = "hidden"
+        user_hidden = "hidden"
+        home_hidden = ""
+        loggedout_hidden = ""
+        loggedin_hidden="hidden"
         edit_comment_id = ""
         post_id = ""
         comment_content = ""
@@ -516,15 +510,17 @@ class BlogHome(Handler):
         logged_in_user = ""
         error = ""
         error_author = ""
+        image = "tower"
+        exists = False
+
         user_data = self.validate_cookie()
         # Check that the username exists and redirects if not:
         blog_owner_data = db.GqlQuery("SELECT * FROM Users WHERE "
                                       "name='%s'"%username)
-        image = "bloghero_tower_wide.jpg"
-        exists = False
         if blog_owner_data:
             for each in blog_owner_data:
-                exists = True
+                if not exists:
+                    exists = True
                 if username == each.name and each.blog_image:
                     image = each.blog_image
 
@@ -536,6 +532,9 @@ class BlogHome(Handler):
         if error:
             if error == "other":
                 error_author = self.request.get("author")
+                other_error_hidden = ""
+            else:
+                like_error_hidden = ""
         if user_data:
             # Check for comment data to be edited.
             edit_comment_id = self.request.get("comment_id")
@@ -551,10 +550,14 @@ class BlogHome(Handler):
                             self.redirect("/" + username
                                           + "?error=other&author="
                                           + each.author)
-            user_buttons = "user"
+            loggedout_hidden = "hidden"
+            loggedin_hidden=""
+            user_hidden = ""
             logged_in_user = user_data.name
+            
             if user_data.name == username:
-                user_buttons = "owner"
+                owner_hidden = ""
+                user_hidden = "hidden"
 
         blog_name = username+"'s blog"
         website_type = "home"
@@ -568,7 +571,13 @@ class BlogHome(Handler):
                     edit_comment_id=edit_comment_id,
                     post_id=post_id, comment_content=comment_content,
                     website_type=website_type, blog_posts=blog_posts,
-                    error=error, error_author=error_author)
+                    error=error, error_author=error_author,
+                    other_error_hidden=other_error_hidden,
+                    like_error_hidden=like_error_hidden,
+                    owner_hidden=owner_hidden,
+                    user_hidden=user_hidden, home_hidden=home_hidden,
+                    loggedout_hidden=loggedout_hidden,
+                    loggedin_hidden=loggedin_hidden)
 
     def post(self, username):
         """Enter or update any comment made on this page.
@@ -584,32 +593,35 @@ class BlogHome(Handler):
         """
         user_data = self.validate_cookie()
         content = self.request.get("content")
-        if not user_data or not content:
+        if not user_data: 
             self.redirect("/login")
         else:
-            comment_id = self.request.get("comment_id")
-            if comment_id:
-                edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
-                                           "comment_id='%s'" % comment_id)
-                for each in edit_comment:
-                    if user_data.name == each.author:
-                        each.content = content
-                        each.put()
-                    else:
-                        self.redirect("/" + username
-                                      + "?error=other&author="
-                                      + each.author)
+            if not content:
+                self.redirect("/"+username)
             else:
-                author = user_data.name
-                post_identity = self.request.get("post_id")
-                new_entity = Comments(content=content, author=author,
-                                      post_identity=post_identity,
-                                      blog_loc=username)
-                new_entity.put()
-                new_entity.comment_id = str(new_entity.key().id())
-                new_entity.put()
-            time.sleep(1) # Gives the database a little time to update.
-            self.redirect("/"+username)
+                comment_id = self.request.get("comment_id")
+                if comment_id:
+                    edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
+                                               "comment_id='%s'" % comment_id)
+                    for each in edit_comment:
+                        if user_data.name == each.author:
+                            each.content = content
+                            each.put()
+                        else:
+                            self.redirect("/" + username
+                                          + "?error=other&author="
+                                          + each.author)
+                else:
+                    author = user_data.name
+                    post_identity = self.request.get("post_id")
+                    new_entity = Comments(content=content, author=author,
+                                          post_identity=post_identity,
+                                          blog_loc=username)
+                    new_entity.put()
+                    new_entity.comment_id = str(new_entity.key().id())
+                    new_entity.put()
+                time.sleep(1) # Gives the database a little time to update.
+                self.redirect("/"+username)
 
 
 class BlogPage(Handler):
@@ -632,6 +644,13 @@ class BlogPage(Handler):
               page. If this post_id doesn't refer to a real entry in the
               database the user is redirected to the 404 page "/oops".
         """
+        other_error_hidden = "hidden"
+        like_error_hidden = "hidden"
+        owner_hidden = "hidden"
+        user_hidden = "hidden"
+        home_hidden = "hidden"
+        loggedout_hidden = ""
+        loggedin_hidden="hidden"
         edit_comment_id = ""
         comment_content = ""
         user_buttons = ""
@@ -652,6 +671,9 @@ class BlogPage(Handler):
         if error:
             if error == "other":
                 error_author = self.request.get("author")
+                other_error_hidden = ""
+            else:
+                like_error_hidden = ""
         post_id = ""
         if user_data:
             # Check for comment data to be edited.
@@ -668,15 +690,22 @@ class BlogPage(Handler):
                             self.redirect("/" + username
                                           + "?error=other&author="
                                           + each.author)
-            user_buttons = "user"
+            user_hidden = ""
+            loggedin_hidden=""
+            loggedout_hidden = "hidden"
             logged_in_user = user_data.name
             if user_data.name == username:
-                user_buttons = "owner"
-        image = "bloghero_tower_wide.jpg"
+                owner_hidden = ""
+                user_hidden = "hidden"
+        image = "tower"
         if blog_owner_data:
             for each in blog_owner_data:
                 if username == each.name and each.blog_image:
                     image = each.blog_image
+        else:
+            self.redirect("/oops")
+                        
+        
         blog_name = username+"'s blog"
         comments = db.GqlQuery("SELECT * FROM Comments WHERE blog_loc='%s' "
                                "ORDER BY created" %username)
@@ -686,7 +715,13 @@ class BlogPage(Handler):
                     username=username, logged_in_user=logged_in_user,
                     edit_comment_id=edit_comment_id, post_id=post_id,
                     comment_content=comment_content, website_type="single",
-                    error=error, error_author=error_author)
+                    error=error, error_author=error_author,
+                    other_error_hidden=other_error_hidden,
+                    like_error_hidden=like_error_hidden,
+                    owner_hidden=owner_hidden,
+                    user_hidden=user_hidden, home_hidden=home_hidden,
+                    loggedout_hidden=loggedout_hidden,
+                    loggedin_hidden=loggedin_hidden)
 
     def post(self, post_id):
         """Enter or update the comment data from this page.
@@ -705,35 +740,40 @@ class BlogPage(Handler):
         username = blog_post.author
         user_data = self.validate_cookie()
         content = self.request.get("content")
-        if not user_data or not content:
-            self.redirect("/"+username)
+        if not user_data:
+            self.redirect("/login")
         else:
-            comment_id = self.request.get("comment_id")
-            if comment_id:
-                edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
-                                           "comment_id='%s'"%comment_id)
-                for each in edit_comment:
-                    if user_data.name == each.author:
-                        each.content = content
-                        each.put()
-                    else:
-                        self.redirect("/"+username)
+            if not content:
+                self.redirect("/"+post_id)
             else:
-                blog_loc_search = db.GqlQuery(("SELECT * FROM BlogEntries "
-                                               "WHERE identity='%s'"%post_id))
-                if blog_loc_search:
-                    for each in blog_loc_search:
-                        if each.identity == post_id:
-                            blog_loc = each.author
-                post_identity = self.request.get("post_id")
-                author = user_data.name
-                a = Comments(content=content, author=author,
-                             post_identity=post_identity, blog_loc=blog_loc)
-                a.put()
-                a.comment_id = str(a.key().id())
-                a.put()
-            time.sleep(1) # Gives the database a little time to update.
-            self.redirect("/"+post_id)
+                comment_id = self.request.get("comment_id")
+                if comment_id:
+                    edit_comment = db.GqlQuery("SELECT * FROM Comments WHERE "
+                                               "comment_id='%s'"%comment_id)
+                    for each in edit_comment:
+                        if user_data.name == each.author:
+                            each.content = content
+                            each.put()
+                        else:
+                            self.redirect("/" + username
+                                              + "?error=other&author="
+                                              + each.author)
+                else:
+                    blog_loc_search = db.GqlQuery(("SELECT * FROM BlogEntries "
+                                                   "WHERE identity='%s'"%post_id))
+                    if blog_loc_search:
+                        for each in blog_loc_search:
+                            if each.identity == post_id:
+                                blog_loc = each.author
+                    post_identity = self.request.get("post_id")
+                    author = user_data.name
+                    a = Comments(content=content, author=author,
+                                 post_identity=post_identity, blog_loc=blog_loc)
+                    a.put()
+                    a.comment_id = str(a.key().id())
+                    a.put()
+                time.sleep(1) # Gives the database a little time to update.
+                self.redirect("/"+post_id)
 
 
 class NewPost(Handler):
