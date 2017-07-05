@@ -495,7 +495,7 @@ class BlogHome(Handler):
 
         Render a user's blog homepage based on the username in the URL.
         Will also, using form data in the URL, pre-enter any relevent comment
-        data into the relevent comments form for any comment editing previously
+        data into the relevent comments form forhttps://stackoverflow.com/questions/4830535/python-how-do-i-format-a-date-in-jinja2 any comment editing previously
         initiated on this page.
 
         A user's blog homepage consists of their blog's image, any relevent
@@ -761,27 +761,30 @@ class NewPost(Handler):
         content = self.request.get("content")
 
         user_data = self.validate_cookie()
-        if subject and content:
-            #Allow for new lines, although not any other kinds of HTML.
-            content = "<p>"+content.replace("\n", "</p>\n<p>")+"</p>"
-            author = user_data.name
-            new_entity = BlogEntries(subject=subject, content=content,
-                                     author=author, likes=[], likes_length=0)
-            new_entity.put()
-            # For easy post ID searches:
-            new_entity.identity = str(new_entity.key().id())
-            new_entity.put()
-            post_id = new_entity.identity
-            time.sleep(1)
-            self.redirect("/"+post_id)
+        if user_data:
+            if subject and content:
+                #Allow for new lines, although not any other kinds of HTML.
+                content = "<p>"+content.replace("\n", "</p>\n<p>")+"</p>"
+                author = user_data.name
+                new_entity = BlogEntries(subject=subject, content=content,
+                                         author=author, likes=[], likes_length=0)
+                new_entity.put()
+                # For easy post ID searches:
+                new_entity.identity = str(new_entity.key().id())
+                new_entity.put()
+                post_id = new_entity.identity
+                time.sleep(1)
+                self.redirect("/"+post_id)
+            else:
+                error = "please add both a subject and body for your blog entry!"
+                image = user_data.blog_image
+                blog_name = user_data.name+"'s blog"
+                author = user_data.name
+                self.render("newpage.html", subject=subject, content=content,
+                            error=error, image=image, blog_name=blog_name,
+                            author=author)
         else:
-            error = "please add both a subject and body for your blog entry!"
-            image = user_data.blog_image
-            blog_name = user_data.name+"'s blog"
-            author = user_data.name
-            self.render("newpage.html", subject=subject, content=content,
-                        error=error, image=image, blog_name=blog_name,
-                        author=author)
+            self.redirect("/login")
 
 
 class EditPage(Handler):
